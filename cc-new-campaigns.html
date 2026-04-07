@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Campaigns — Paisley &amp; Sparrow</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f7f8fa; color: #1a1d23; line-height: 1.6; }
+    header { background: #fff; border-bottom: 1px solid #e4e7ec; padding: 20px 48px; display: flex; align-items: center; justify-content: space-between; }
+    .brand { font-size: 15px; font-weight: 700; color: #0f172a; }
+    .brand span { color: #f97316; }
+    .header-meta { font-size: 13px; color: #9ca3af; }
+    .hero { background: #0f172a; color: #fff; padding: 56px 48px 48px; text-align: center; }
+    .eyebrow { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #f97316; margin-bottom: 18px; background: rgba(249,115,22,0.1); padding: 5px 14px; border-radius: 100px; }
+    .hero h1 { font-size: 42px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; margin-bottom: 14px; }
+    .hero h1 em { font-style: normal; color: #f97316; }
+    .hero-sub { font-size: 16px; color: #94a3b8; max-width: 480px; margin: 0 auto 44px; }
+    .hero-stats { display: flex; justify-content: center; max-width: 700px; margin: 0 auto; border: 1px solid #1e293b; border-radius: 12px; overflow: hidden; }
+    .hs { flex: 1; padding: 24px 16px; border-right: 1px solid #1e293b; text-align: center; }
+    .hs:last-child { border-right: none; }
+    .hs-val { font-size: 30px; font-weight: 800; color: #f97316; letter-spacing: -0.02em; line-height: 1; margin-bottom: 5px; }
+    .hs-lbl { font-size: 11px; color: #94a3b8; }
+    .controls { background: #fff; border-bottom: 1px solid #e4e7ec; padding: 0 48px; position: sticky; top: 0; z-index: 10; }
+    .tabs { display: flex; gap: 4px; overflow-x: auto; padding: 12px 0; scrollbar-width: none; }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tab { flex-shrink: 0; padding: 6px 14px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; border: 1.5px solid #e4e7ec; color: #6b7280; transition: all 0.15s; }
+    .tab:hover { border-color: #f97316; color: #f97316; }
+    .tab.active { background: #f97316; border-color: #f97316; color: #fff; }
+    .sort-row { display: flex; align-items: center; gap: 8px; padding: 8px 0 12px; border-top: 1px solid #f1f5f9; font-size: 12px; color: #9ca3af; }
+    .sort-btn { padding: 4px 12px; border-radius: 100px; font-size: 12px; font-weight: 600; cursor: pointer; background: transparent; border: 1px solid #e4e7ec; color: #6b7280; transition: all 0.15s; }
+    .sort-btn.active { background: #0f172a; border-color: #0f172a; color: #fff; }
+    .main { max-width: 1200px; margin: 0 auto; padding: 36px 48px; }
+    .count { font-size: 13px; color: #9ca3af; margin-bottom: 20px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+    .card { background: #fff; border: 1px solid #e4e7ec; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 10px; transition: box-shadow 0.15s, border-color 0.15s; }
+    .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); border-color: #cbd5e1; }
+    .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .card-score { font-size: 28px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
+    .card-score-sub { font-size: 13px; font-weight: 500; color: #9ca3af; }
+    .card-rate { font-size: 14px; font-weight: 800; padding: 4px 11px; border-radius: 100px; }
+    .card-brand { font-size: 18px; font-weight: 800; letter-spacing: -0.02em; color: #0f172a; line-height: 1.2; }
+    .card-pills { display: flex; flex-wrap: wrap; gap: 5px; }
+    .pill { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 100px; background: #f1f5f9; color: #475569; }
+    .pill.muted { color: #94a3b8; background: #f8fafc; }
+    .card-date { font-size: 11px; color: #94a3b8; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+    .btn { font-size: 11px; font-weight: 600; color: #0f172a; text-decoration: none; padding: 5px 12px; border: 1px solid #e4e7ec; border-radius: 100px; transition: all 0.15s; }
+    .btn:hover { background: #0f172a; color: #fff; border-color: #0f172a; }
+    .card-seen { font-size: 11px; color: #94a3b8; }
+    .no-results { display: none; text-align: center; padding: 60px 24px; color: #9ca3af; grid-column: 1/-1; }
+    .no-results.visible { display: block; }
+    .waiting { text-align: center; padding: 80px 24px; max-width: 500px; margin: 0 auto; }
+    .waiting-icon { font-size: 48px; margin-bottom: 16px; }
+    .waiting-title { font-size: 22px; font-weight: 800; color: #0f172a; margin-bottom: 12px; }
+    .waiting-body { font-size: 15px; color: #6b7280; line-height: 1.7; }
+    .updated { text-align: center; padding: 12px; font-size: 12px; color: #9ca3af; background: #f8fafc; border-top: 1px solid #e4e7ec; }
+    footer { background: #fff; border-top: 1px solid #e4e7ec; padding: 20px 48px; display: flex; justify-content: space-between; font-size: 12px; color: #9ca3af; }
+    @media (max-width: 680px) {
+      header, footer { padding: 16px 20px; }
+      .hero { padding: 40px 20px 36px; }
+      .hero h1 { font-size: 30px; }
+      .hero-stats { flex-direction: column; border: none; gap: 1px; }
+      .hs { border-right: none; border-bottom: 1px solid #1e293b; }
+      .controls, .main { padding-left: 20px; padding-right: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="brand">Paisley <span>&amp;</span> Sparrow</div>
+  <div class="header-meta">Creator Connections · New Campaigns · April 07, 2026</div>
+</header>
+
+<div class="hero">
+  <div class="eyebrow">Fresh Opportunities</div>
+  <h1>New brands.<br><em>Worth pitching.</em></h1>
+  <p class="hero-sub">
+    Campaigns added to Amazon's Creator Connections program in the last 7 days,
+    filtered to 12%+ commission and scored by brand fit.
+  </p>
+  <div class="hero-stats">
+    <div class="hs">
+      <div class="hs-val">0</div>
+      <div class="hs-lbl">new brands</div>
+    </div>
+    <div class="hs">
+      <div class="hs-val">0</div>
+      <div class="hs-lbl">above 12%</div>
+    </div>
+    <div class="hs">
+      <div class="hs-val">0</div>
+      <div class="hs-lbl">collab ready</div>
+    </div>
+    <div class="hs">
+      <div class="hs-val">0%</div>
+      <div class="hs-lbl">highest rate</div>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="tabs">
+    <button class="tab active" data-filter="all">All New</button>
+    <button class="tab" data-filter="collab-ready">Collab Ready</button>
+    <button class="tab" data-filter="high-rate">High Commission</button>
+    <button class="tab" data-filter="fashion-style">Fashion & Style</button><button class="tab" data-filter="beauty-self-care">Beauty & Self-Care</button><button class="tab" data-filter="home-organization">Home & Organization</button><button class="tab" data-filter="family-kids">Family & Kids</button><button class="tab" data-filter="fitness">Fitness</button>
+  </div>
+  <div class="sort-row">
+    Sort by:
+    <button class="sort-btn active" data-sort="score">Score</button>
+    <button class="sort-btn" data-sort="rate">Rate</button>
+  </div>
+</div>
+
+<div class="main no-data">
+  <div class="count" id="count"></div>
+  
+<div class="waiting" id="waiting">
+  <div class="waiting-icon">⏳</div>
+  <div class="waiting-title">Catalog not yet populated</div>
+  <p class="waiting-body">
+    The campaign catalog is built during the daily CC acceptance run.
+    After the next scheduled run completes, this page will show newly added campaigns
+    with their brand names, commission rates, and category tags.
+  </p>
+</div>
+  <div class="grid" id="grid">
+    
+    <div class="no-results" id="no-results">No campaigns match this filter.</div>
+  </div>
+</div>
+
+<div class="updated">
+  Last updated April 07, 2026 ·
+  0 new brands in the last 7 days ·
+  0 total campaigns in catalog
+</div>
+
+<footer>
+  <div>Paisley &amp; Sparrow · New Campaign Intelligence</div>
+  <div>Source: Amazon Associates Creator Connections catalog</div>
+</footer>
+
+<script>
+  const grid  = document.getElementById('grid');
+  const count = document.getElementById('count');
+  const noRes = document.getElementById('no-results');
+  let filter = 'all', sortBy = 'score';
+
+  function cards() { return Array.from(grid.querySelectorAll('.card')); }
+
+  function matches(c, f) {
+    if (f === 'all')          return true;
+    if (f === 'collab-ready') return c.dataset.collabReady === 'true';
+    if (f === 'high-rate')    return c.dataset.highRate === 'true';
+    return c.dataset.categories?.split(',').includes(f);
+  }
+
+  function render() {
+    const all = cards();
+    all.sort((a, b) => parseFloat(b.dataset[sortBy]) - parseFloat(a.dataset[sortBy]));
+    all.forEach(c => grid.appendChild(c));
+    let shown = 0;
+    all.forEach(c => {
+      const ok = matches(c, filter);
+      c.style.display = ok ? '' : 'none';
+      if (ok) shown++;
+    });
+    count.textContent = shown ? `Showing ${shown} brand${shown !== 1 ? 's' : ''}` : '';
+    noRes.classList.toggle('visible', shown === 0 && false);
+  }
+
+  document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    filter = t.dataset.filter;
+    render();
+  }));
+
+  document.querySelectorAll('.sort-btn').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.sort-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    sortBy = b.dataset.sort;
+    render();
+  }));
+
+  render();
+</script>
+</body>
+</html>
