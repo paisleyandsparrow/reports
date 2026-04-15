@@ -30,6 +30,12 @@
   .count-badge strong { color: #111827; }
   .spacer { flex: 1; }
 
+  /* Sort toggle */
+  .sort-wrap { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #6b7280; }
+  .sort-pills { display: flex; gap: 3px; background: #f3f4f6; border-radius: 8px; padding: 3px; }
+  .sort-pill { font-size: 0.72rem; padding: 4px 10px; border-radius: 6px; cursor: pointer; border: none; background: transparent; color: #6b7280; font-weight: 500; white-space: nowrap; transition: all .15s; }
+  .sort-pill.active { background: #fff; color: #111827; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
   /* Date presets */
   .date-presets { display: flex; gap: 4px; }
   .preset-btn { font-size: 0.7rem; padding: 4px 10px; border: 1px solid #e5e7eb; border-radius: 20px; cursor: pointer; background: #fff; color: #6b7280; white-space: nowrap; transition: all .15s; }
@@ -106,6 +112,16 @@
   <span class="count-badge" id="count-badge"></span>
 
   <div class="spacer"></div>
+
+  <div class="sort-wrap">
+    <span>Sort:</span>
+    <div class="sort-pills">
+      <button class="sort-pill active" onclick="setSort('rate')">% Rate</button>
+      <button class="sort-pill" onclick="setSort('newest')">Newest</button>
+      <button class="sort-pill" onclick="setSort('oldest')">Oldest</button>
+      <button class="sort-pill" onclick="setSort('brand')">Brand A–Z</button>
+    </div>
+  </div>
 </div>
 
 <div id="grid" class="grid"></div>
@@ -126,6 +142,7 @@ const TAG       = META.tracking_tag;
 const PAGE_SIZE = 200;
 let filtered    = [];
 let shown       = 0;
+let sortBy      = "rate";
 
 // Filters state
 let state = {
@@ -135,6 +152,22 @@ let state = {
   minRate:  META.min_rate,
   category: "",
 };
+
+function setSort(s) {
+  sortBy = s;
+  document.querySelectorAll(".sort-pill").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
+  applyFilters();
+}
+
+function sortCampaigns(arr) {
+  const copy = [...arr];
+  if (sortBy === "rate")   return copy.sort((a,b) => b.rate - a.rate);
+  if (sortBy === "newest") return copy.sort((a,b) => b.added.localeCompare(a.added));
+  if (sortBy === "oldest") return copy.sort((a,b) => a.added.localeCompare(b.added));
+  if (sortBy === "brand")  return copy.sort((a,b) => a.brand.localeCompare(b.brand));
+  return copy;
+}
 
 // Populate meta chip
 document.getElementById("meta-chip").textContent =
@@ -205,7 +238,7 @@ function matchesSearch(c, term) {
 
 function applyFilters() {
   const searching = Boolean(state.search);
-  filtered = CAMPAIGNS.filter(c => {
+  filtered = sortCampaigns(CAMPAIGNS.filter(c => {
     if (c.rate < state.minRate) return false;
     if (!searching) {
       if (state.dateFrom && c.added < state.dateFrom) return false;
@@ -214,7 +247,7 @@ function applyFilters() {
     if (state.category && !c.cats.includes(state.category)) return false;
     if (!matchesSearch(c, state.search)) return false;
     return true;
-  });
+  }));
   shown = 0;
   document.getElementById("grid").innerHTML = "";
   renderBatch();
