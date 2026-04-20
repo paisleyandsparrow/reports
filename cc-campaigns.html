@@ -6,104 +6,360 @@
 <title>CC Campaign Discovery — Paisley & Sparrow</title>
 <style>
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f9fafb; color: #111827; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f1f5f9; color: #0f172a; }
   a { color: inherit; text-decoration: none; }
 
-  /* Header */
-  header { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 0 24px; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 20; }
-  .logo { font-weight: 700; font-size: 1rem; }
-  .meta-chip { font-size: 0.75rem; color: #6b7280; }
-
-  /* Filters */
-  .filters { background: #fff; border-bottom: 1px solid #e5e7eb; padding: 12px 24px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; position: sticky; top: 56px; z-index: 10; }
-  .filter-group { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #6b7280; }
-  input[type=text], input[type=date], input[type=number], select {
-    border: 1px solid #e5e7eb; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;
-    background: #fff; color: #111827; outline: none;
+  /* ── Header ─────────────────────────────────────────────────── */
+  header {
+    background: #0f172a;
+    padding: 0 28px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 30;
   }
-  input[type=text]:focus, input[type=date]:focus, input[type=number]:focus, select:focus { border-color: #f97316; }
-  #search { width: 220px; padding-left: 28px; }
-  .search-wrap { position: relative; }
-  .search-icon { position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.75rem; pointer-events: none; }
-  .clear-search { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); color: #9ca3af; font-size: 0.7rem; cursor: pointer; display: none; }
-  .count-badge { font-size: 0.75rem; color: #6b7280; }
-  .count-badge strong { color: #111827; }
-  .spacer { flex: 1; }
+  .logo {
+    font-weight: 800;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    color: #fff;
+  }
+  .logo span { color: #f97316; }
+  .meta-chip {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    letter-spacing: 0.03em;
+  }
+  .meta-chip strong { color: #f97316; font-weight: 600; }
 
-  /* Sort toggle */
-  .sort-wrap { display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #6b7280; }
-  .sort-pills { display: flex; gap: 3px; background: #f3f4f6; border-radius: 8px; padding: 3px; }
-  .sort-pill { font-size: 0.72rem; padding: 4px 10px; border-radius: 6px; cursor: pointer; border: none; background: transparent; color: #6b7280; font-weight: 500; white-space: nowrap; transition: all .15s; }
-  .sort-pill.active { background: #fff; color: #111827; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-
-  /* Date presets */
-  .date-presets { display: flex; gap: 4px; }
-  .preset-btn { font-size: 0.7rem; padding: 4px 10px; border: 1px solid #e5e7eb; border-radius: 20px; cursor: pointer; background: #fff; color: #6b7280; white-space: nowrap; transition: all .15s; }
-  .preset-btn.active { border-color: #f97316; background: #fff7ed; color: #c2410c; font-weight: 600; }
-  .toggle-btn { font-size: 0.7rem; padding: 4px 12px; border: 1px solid #e5e7eb; border-radius: 20px; cursor: pointer; background: #fff; color: #6b7280; white-space: nowrap; transition: all .15s; font-weight: 500; }
-  .toggle-btn.active { border-color: #16a34a; background: #f0fdf4; color: #16a34a; font-weight: 600; }
-  .selling-badge { position: absolute; top: 6px; left: 6px; font-size: 0.6rem; font-weight: 700; padding: 2px 6px; border-radius: 20px; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; z-index: 2; }
-
-  /* Grid */
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; padding: 24px; }
-  .card { background: #fff; border: 1.5px solid #e5e7eb; border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px; transition: box-shadow .15s; cursor: default; }
-  .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-  .card-img { width: 100%; aspect-ratio: 1; border-radius: 8px; object-fit: contain; background: #f9fafb; }
-  .card-img-placeholder { width: 100%; aspect-ratio: 1; border-radius: 8px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 700; color: #9ca3af; }
-  .card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; }
-  .brand { font-weight: 700; font-size: 0.82rem; color: #111827; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; }
-  .rate-badge { font-size: 0.7rem; font-weight: 700; padding: 2px 7px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
-  .campaign-name { font-size: 0.75rem; color: #6b7280; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
-  .cats { display: flex; flex-wrap: wrap; gap: 4px; }
-  .cat-pill { font-size: 0.65rem; font-weight: 500; padding: 2px 7px; border-radius: 20px; }
-  .card-footer { margin-top: auto; padding-top: 6px; display: flex; flex-direction: column; gap: 4px; }
-  .added-date { font-size: 0.7rem; color: #9ca3af; }
-  .asins { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-  .asin-link { font-size: 0.68rem; font-family: monospace; color: #f97316; text-decoration: none; }
-  .asin-link:hover { text-decoration: underline; }
-  .cc-link { font-size: 0.68rem; color: #9ca3af; margin-left: auto; }
-  .cc-link:hover { color: #6b7280; text-decoration: underline; }
-  .accepted-badge { font-size: 0.65rem; background: #f0fdf4; color: #166534; border-radius: 4px; padding: 1px 5px; }
-
-  /* Empty state */
-  .empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 24px; gap: 8px; color: #6b7280; }
-  .empty h2 { font-size: 1.1rem; font-weight: 600; }
-
-  /* Load more */
-  .load-more-wrap { display: flex; justify-content: center; padding: 0 24px 40px; }
-  .load-more-btn { border: 1px solid #e5e7eb; background: #fff; color: #374151; border-radius: 8px; padding: 8px 24px; font-size: 0.85rem; font-weight: 500; cursor: pointer; }
-  .load-more-btn:hover { background: #f9fafb; }
-
-  /* Already Earning panel */
-  .earning-panel { background: #fff; border-bottom: 1px solid #e5e7eb; }
-  .earning-header { padding: 10px 24px; display: flex; align-items: center; gap: 12px; cursor: pointer; user-select: none; }
-  .earning-title { font-size: 0.82rem; font-weight: 600; color: #111827; }
-  .earning-total { font-size: 0.75rem; color: #6b7280; }
-  .earning-chevron { margin-left: auto; font-size: 0.75rem; color: #9ca3af; transition: transform .2s; }
+  /* ── Already Earning panel ───────────────────────────────────── */
+  .earning-panel {
+    background: #fff;
+    border-bottom: 2px solid #f1f5f9;
+  }
+  .earning-header {
+    padding: 12px 28px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+    border-left: 4px solid #f97316;
+  }
+  .earning-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #0f172a;
+  }
+  .earning-total {
+    font-size: 0.78rem;
+    color: #64748b;
+  }
+  .earning-total strong { color: #16a34a; font-weight: 700; }
+  .earning-chevron {
+    margin-left: auto;
+    font-size: 0.7rem;
+    color: #94a3b8;
+    transition: transform .2s;
+  }
   .earning-chevron.open { transform: rotate(180deg); }
-  .earning-presets { display: flex; gap: 4px; margin-left: 8px; }
-  .earning-preset { font-size: 0.68rem; padding: 3px 8px; border: 1px solid #e5e7eb; border-radius: 20px; cursor: pointer; background: #fff; color: #6b7280; white-space: nowrap; transition: all .15s; }
-  .earning-preset.active { border-color: #f97316; background: #fff7ed; color: #c2410c; font-weight: 600; }
-  .earning-strip { overflow-x: auto; padding: 8px 24px 14px; display: flex; gap: 10px; scrollbar-width: thin; }
+  .earning-presets {
+    display: flex;
+    gap: 4px;
+    margin-left: 4px;
+  }
+  .earning-preset {
+    font-size: 0.68rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    cursor: pointer;
+    background: transparent;
+    color: #64748b;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .earning-preset:hover { border-color: #f97316; color: #f97316; }
+  .earning-preset.active {
+    border-color: #f97316;
+    background: #fff7ed;
+    color: #ea580c;
+    font-weight: 700;
+  }
+  .earning-strip {
+    overflow-x: auto;
+    padding: 12px 28px 16px;
+    display: flex;
+    gap: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: #e2e8f0 transparent;
+  }
   .earning-strip::-webkit-scrollbar { height: 4px; }
-  .earning-strip::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
-  .earning-card { flex-shrink: 0; width: 130px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 6px; }
-  .earning-img { width: 100%; aspect-ratio: 1; border-radius: 6px; object-fit: contain; background: #fff; }
-  .earning-img-placeholder { width: 100%; aspect-ratio: 1; border-radius: 6px; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; color: #9ca3af; }
-  .earning-rate { font-size: 0.65rem; font-weight: 700; padding: 2px 6px; border-radius: 20px; background: #fff7ed; color: #c2410c; align-self: flex-start; }
-  .earning-name { font-size: 0.68rem; font-weight: 600; color: #111827; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
-  .earning-income { font-size: 0.7rem; color: #16a34a; font-weight: 600; }
-  .earning-units { font-size: 0.65rem; color: #9ca3af; }
+  .earning-strip::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 4px; }
+  .earning-card {
+    flex-shrink: 0;
+    width: 148px;
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    transition: box-shadow .15s, border-color .15s;
+  }
+  .earning-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.08); border-color: #f97316; }
+  .earning-img { width: 100%; aspect-ratio: 1; border-radius: 8px; object-fit: contain; background: #f8fafc; }
+  .earning-img-placeholder {
+    width: 100%; aspect-ratio: 1; border-radius: 8px;
+    background: #f1f5f9;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; font-weight: 800; color: #cbd5e1;
+  }
+  .earning-rate {
+    font-size: 0.62rem; font-weight: 700;
+    padding: 2px 7px; border-radius: 20px;
+    background: #fff7ed; color: #ea580c;
+    align-self: flex-start;
+    letter-spacing: 0.03em;
+  }
+  .earning-name {
+    font-size: 0.7rem; font-weight: 600; color: #0f172a;
+    overflow: hidden; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    line-height: 1.35;
+  }
+  .earning-income {
+    font-size: 0.85rem; color: #16a34a; font-weight: 800;
+    letter-spacing: -0.01em;
+  }
+  .earning-units { font-size: 0.62rem; color: #94a3b8; }
   .earning-body.collapsed { display: none; }
   .earning-links { display: flex; gap: 8px; margin-top: 2px; }
-  .earning-link { font-size: 0.65rem; color: #f97316; text-decoration: none; }
+  .earning-link {
+    font-size: 0.63rem; font-weight: 600;
+    color: #f97316; text-decoration: none;
+    letter-spacing: 0.02em;
+  }
   .earning-link:hover { text-decoration: underline; }
+
+  /* ── Filter bar ──────────────────────────────────────────────── */
+  .filters {
+    background: #fff;
+    border-bottom: 1.5px solid #e2e8f0;
+    padding: 10px 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    position: sticky;
+    top: 60px;
+    z-index: 20;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .filter-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #94a3b8; }
+  .filter-group { display: flex; align-items: center; gap: 6px; }
+  input[type=text], input[type=date], input[type=number], select {
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 5px 10px;
+    font-size: 0.78rem;
+    background: #fff;
+    color: #0f172a;
+    outline: none;
+    transition: border-color .15s;
+  }
+  input[type=text]:focus, input[type=date]:focus, input[type=number]:focus, select:focus { border-color: #f97316; }
+  #search { width: 210px; padding-left: 30px; }
+  .search-wrap { position: relative; }
+  .search-icon { position: absolute; left: 9px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.72rem; pointer-events: none; }
+  .clear-search { position: absolute; right: 9px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 0.68rem; cursor: pointer; display: none; }
+  .count-badge { font-size: 0.75rem; color: #64748b; }
+  .count-badge strong { color: #0f172a; font-weight: 700; }
+  .spacer { flex: 1; }
+  .filter-divider { width: 1px; height: 20px; background: #e2e8f0; margin: 0 2px; }
+
+  /* Date presets */
+  .date-presets { display: flex; gap: 3px; }
+  .preset-btn {
+    font-size: 0.68rem; font-weight: 500;
+    padding: 4px 10px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 20px;
+    cursor: pointer;
+    background: #fff;
+    color: #64748b;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .preset-btn:hover { border-color: #f97316; color: #f97316; }
+  .preset-btn.active { border-color: #f97316; background: #fff7ed; color: #ea580c; font-weight: 700; }
+
+  /* Toggle buttons */
+  .toggle-btn {
+    font-size: 0.72rem; font-weight: 600;
+    padding: 5px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #fff;
+    color: #64748b;
+    white-space: nowrap;
+    transition: all .15s;
+  }
+  .toggle-btn:hover { border-color: #16a34a; color: #16a34a; }
+  .toggle-btn.active {
+    border-color: #16a34a;
+    background: #f0fdf4;
+    color: #15803d;
+    box-shadow: 0 0 0 1px #bbf7d0;
+  }
+
+  /* Sort pills */
+  .sort-wrap { display: flex; align-items: center; gap: 6px; }
+  .sort-pills { display: flex; gap: 2px; background: #f1f5f9; border-radius: 8px; padding: 2px; }
+  .sort-pill {
+    font-size: 0.68rem; font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer; border: none;
+    background: transparent; color: #64748b;
+    white-space: nowrap; transition: all .15s;
+  }
+  .sort-pill.active { background: #fff; color: #0f172a; font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+  /* ── Campaign grid ───────────────────────────────────────────── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+    padding: 24px 28px;
+  }
+  .card {
+    background: #fff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: box-shadow .2s, border-color .2s, transform .15s;
+    cursor: default;
+    position: relative;
+  }
+  .card:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+  }
+  .card-img {
+    width: 100%; aspect-ratio: 1;
+    border-radius: 10px;
+    object-fit: contain;
+    background: #f8fafc;
+  }
+  .card-img-placeholder {
+    width: 100%; aspect-ratio: 1;
+    border-radius: 10px;
+    background: #f1f5f9;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2.2rem; font-weight: 800; color: #cbd5e1;
+  }
+  .rate-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    font-size: 0.68rem; font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+  .selling-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    font-size: 0.58rem; font-weight: 700;
+    padding: 2px 7px; border-radius: 20px;
+    background: #f0fdf4; color: #15803d;
+    border: 1px solid #bbf7d0; z-index: 2;
+    letter-spacing: 0.03em;
+  }
+  .brand {
+    font-weight: 700; font-size: 0.83rem; color: #0f172a;
+    overflow: hidden; display: -webkit-box;
+    -webkit-line-clamp: 1; -webkit-box-orient: vertical;
+    margin-top: 4px;
+  }
+  .campaign-name {
+    font-size: 0.74rem; color: #64748b;
+    overflow: hidden; display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    line-height: 1.4;
+  }
+  .cats { display: flex; flex-wrap: wrap; gap: 4px; }
+  .cat-pill {
+    font-size: 0.62rem; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px;
+    letter-spacing: 0.02em;
+  }
+  .card-footer {
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid #f1f5f9;
+    display: flex; flex-direction: column; gap: 5px;
+  }
+  .added-date { font-size: 0.67rem; color: #94a3b8; }
+  .asins { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .asin-link {
+    font-size: 0.65rem; font-family: "SF Mono", "Fira Code", monospace;
+    color: #f97316; text-decoration: none; font-weight: 500;
+  }
+  .asin-link:hover { text-decoration: underline; }
+  .cc-link {
+    font-size: 0.65rem; font-weight: 600;
+    color: #94a3b8; margin-left: auto;
+    letter-spacing: 0.03em;
+  }
+  .cc-link:hover { color: #64748b; text-decoration: underline; }
+  .accepted-badge {
+    font-size: 0.62rem; font-weight: 600;
+    background: #f0fdf4; color: #15803d;
+    border-radius: 4px; padding: 1px 6px;
+  }
+
+  /* ── Empty state ─────────────────────────────────────────────── */
+  .empty {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 80px 24px; gap: 10px; color: #64748b;
+  }
+  .empty h2 { font-size: 1.15rem; font-weight: 700; color: #0f172a; }
+  .empty p { font-size: 0.85rem; }
+
+  /* ── Load more ───────────────────────────────────────────────── */
+  .load-more-wrap { display: flex; justify-content: center; padding: 0 28px 48px; }
+  .load-more-btn {
+    border: 1.5px solid #e2e8f0;
+    background: #fff;
+    color: #374151;
+    border-radius: 10px;
+    padding: 10px 28px;
+    font-size: 0.82rem; font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .load-more-btn:hover { background: #f97316; border-color: #f97316; color: #fff; }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">Paisley &amp; Sparrow — Campaign Discovery</div>
+  <div class="logo">Paisley <span>&amp;</span> Sparrow <span style="color:#94a3b8;font-weight:400;font-size:0.8rem;margin-left:6px">/ Campaign Discovery</span></div>
   <div class="meta-chip" id="meta-chip"></div>
 </header>
 
@@ -112,10 +368,10 @@
     <div class="earning-title">Already Earning</div>
     <div class="earning-total" id="earning-total-label"></div>
     <div class="earning-presets" onclick="event.stopPropagation()">
-      <button class="earning-preset active" onclick="setEarningPreset('all')">All time</button>
-      <button class="earning-preset" onclick="setEarningPreset('90')">Last 90d</button>
-      <button class="earning-preset" onclick="setEarningPreset('30')">Last 30d</button>
-      <button class="earning-preset" onclick="setEarningPreset('7')">Last 7d</button>
+      <button class="earning-preset active" onclick="setEarningPreset('7')">7d</button>
+      <button class="earning-preset" onclick="setEarningPreset('30')">30d</button>
+      <button class="earning-preset" onclick="setEarningPreset('90')">90d</button>
+      <button class="earning-preset" onclick="setEarningPreset('all')">All time</button>
     </div>
     <div class="earning-chevron open" id="earning-chevron">▼</div>
   </div>
@@ -131,21 +387,25 @@
     <span class="clear-search" id="clear-search" onclick="clearSearch()">✕</span>
   </div>
 
+  <div class="filter-divider"></div>
+
   <div class="filter-group" id="date-filters">
-    <span>Added:</span>
+    <span class="filter-label">Added</span>
     <div class="date-presets">
       <button class="preset-btn" onclick="setPreset('all')">All</button>
-      <button class="preset-btn" onclick="setPreset('7')">Last 7 days</button>
-      <button class="preset-btn" onclick="setPreset('30')">Last 30 days</button>
+      <button class="preset-btn" onclick="setPreset('7')">7d</button>
+      <button class="preset-btn" onclick="setPreset('30')">30d</button>
       <button class="preset-btn active" id="preset-custom" style="display:none" onclick="setPreset('custom')">Custom</button>
     </div>
     <input type="date" id="date-from" />
-    <span style="color:#9ca3af">→</span>
+    <span style="color:#cbd5e1;font-size:0.8rem">–</span>
     <input type="date" id="date-to" />
   </div>
 
+  <div class="filter-divider"></div>
+
   <div class="filter-group">
-    <span>Min %</span>
+    <span class="filter-label">Min %</span>
     <input type="number" id="min-rate" value="20" min="0" max="100" style="width:56px" />
   </div>
 
@@ -160,8 +420,8 @@
 
   <div class="spacer"></div>
 
-  <div class="sort-wrap">
-    <span>Sort:</span>
+  <div class="filter-group sort-wrap">
+    <span class="filter-label">Sort</span>
     <div class="sort-pills">
       <button class="sort-pill active" onclick="setSort('rate')">% Rate</button>
       <button class="sort-pill" onclick="setSort('newest')">Newest</button>
@@ -219,8 +479,8 @@ function sortCampaigns(arr) {
 }
 
 // Populate meta chip
-document.getElementById("meta-chip").textContent =
-  `${META.total.toLocaleString()} campaigns · ${META.min_rate}%+ · updated ${META.generated}`;
+document.getElementById("meta-chip").innerHTML =
+  `<strong>${META.total.toLocaleString()}</strong> campaigns &nbsp;·&nbsp; ${META.min_rate}%+ commission &nbsp;·&nbsp; updated ${META.generated}`;
 
 // Set default date range to last 7 days
 function toDateStr(d) { return d.toISOString().split("T")[0]; }
@@ -382,7 +642,7 @@ function renderBatch() {
 function loadMore() { renderBatch(); }
 
 // ── Already Earning panel ──────────────────────────────────────────────────
-let earningPreset = "all";
+let earningPreset = "7";
 let earningOpen   = true;
 
 function toggleEarning() {
@@ -429,9 +689,9 @@ function earningCardHtml(e) {
 function renderEarning() {
   const items = EARNING_SETS[earningPreset] || [];
   const total = items.reduce((s, x) => s + x.income, 0);
-  const label = earningPreset === "all" ? "all time" : `last ${earningPreset} days`;
-  document.getElementById("earning-total-label").textContent =
-    `$${total.toLocaleString("en-US",{minimumFractionDigits:0,maximumFractionDigits:0})} total · ${items.length} campaigns (${label})`;
+  const label = earningPreset === "all" ? "all time" : `last ${earningPreset}d`;
+  document.getElementById("earning-total-label").innerHTML =
+    `<strong>$${total.toLocaleString("en-US",{minimumFractionDigits:0,maximumFractionDigits:0})}</strong> earned · ${items.length} campaigns · ${label}`;
   document.getElementById("earning-strip").innerHTML = items.map(earningCardHtml).join("");
 }
 
