@@ -569,6 +569,7 @@ function matchesSearch(c, term) {
 function applyFilters() {
   const searching = Boolean(state.search);
   filtered = sortCampaigns(CAMPAIGNS.filter(c => {
+    if (c.end && c.end < today) return false;
     if (c.rate < state.minRate) return false;
     if (!searching) {
       if (state.dateFrom && c.added < state.dateFrom) return false;
