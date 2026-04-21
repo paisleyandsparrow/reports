@@ -497,6 +497,7 @@ document.getElementById("meta-chip").innerHTML =
 
 // Set default date range to today (new campaigns only)
 function toDateStr(d) { return d.toISOString().split("T")[0]; }
+function fmtDate(s) { if (!s) return s; const [y,m,d] = s.split("-"); return `${parseInt(m)}/${parseInt(d)}/${y.slice(2)}`; }
 const today = toDateStr(new Date());
 const sevenAgo = toDateStr(new Date(Date.now() - 7*86400000));
 document.getElementById("date-from").value = today;
@@ -648,7 +649,7 @@ function cardHtml(c) {
     ${catPills ? `<div class="cats">${catPills}</div>` : ""}
     <div class="card-footer">
       <div class="added-date">Added ${c.added}${acceptedBadge ? " · " + acceptedBadge : ""}</div>
-      ${(c.start || c.end) ? `<div class="campaign-dates">${c.start || "?"} – ${c.end || "ongoing"}</div>` : ""}
+      ${(c.start || c.end) ? `<div class="campaign-dates">${fmtDate(c.start) || "?"} – ${fmtDate(c.end) || "ongoing"}</div>` : ""}
       <div class="asins">${asinLinks}${ccLink}</div>
     </div>
   </div>`;
