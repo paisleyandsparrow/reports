@@ -317,6 +317,7 @@
     display: flex; flex-direction: column; gap: 5px;
   }
   .added-date { font-size: 0.67rem; color: #94a3b8; }
+  .campaign-dates { font-size: 0.67rem; color: #94a3b8; }
   .asins { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .asin-link {
     font-size: 0.65rem; font-family: "SF Mono", "Fira Code", monospace;
@@ -646,6 +647,7 @@ function cardHtml(c) {
     ${catPills ? `<div class="cats">${catPills}</div>` : ""}
     <div class="card-footer">
       <div class="added-date">Added ${c.added}${acceptedBadge ? " · " + acceptedBadge : ""}</div>
+      ${(c.start || c.end) ? `<div class="campaign-dates">🗓 ${c.start || "?"} – ${c.end || "ongoing"}</div>` : ""}
       <div class="asins">${asinLinks}${ccLink}</div>
     </div>
   </div>`;
