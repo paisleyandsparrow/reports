@@ -648,7 +648,7 @@ function cardHtml(c) {
     ${catPills ? `<div class="cats">${catPills}</div>` : ""}
     <div class="card-footer">
       <div class="added-date">Added ${c.added}${acceptedBadge ? " · " + acceptedBadge : ""}</div>
-      ${(c.start || c.end) ? `<div class="campaign-dates">🗓 ${c.start || "?"} – ${c.end || "ongoing"}</div>` : ""}
+      ${(c.start || c.end) ? `<div class="campaign-dates">${c.start || "?"} – ${c.end || "ongoing"}</div>` : ""}
       <div class="asins">${asinLinks}${ccLink}</div>
     </div>
   </div>`;
