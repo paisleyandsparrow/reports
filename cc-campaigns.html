@@ -370,6 +370,57 @@
     transition: all .15s;
   }
   .load-more-btn:hover { background: #f97316; border-color: #f97316; color: #fff; }
+
+  /* ── Responsive ─────────────────────────────────────────────── */
+  @media (max-width: 640px) {
+    /* Header */
+    header { padding: 0 14px; height: 52px; }
+    .meta-chip { display: none; }
+
+    /* Earning panel */
+    .earning-header { padding: 10px 14px; }
+    .earning-strip { padding: 10px 14px 14px; }
+    .earning-presets { display: none; }
+
+    /* Filter bar */
+    .filters { top: 52px; }
+    .filter-row {
+      padding: 8px 12px;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .filter-divider { display: none; }
+
+    /* Search full width */
+    .search-wrap { width: 100%; order: -1; }
+    #search { width: 100%; }
+
+    /* Date group: presets only, hide manual date inputs */
+    #date-filters { width: 100%; flex-wrap: wrap; gap: 6px; }
+    #date-filters .date-presets { flex-wrap: nowrap; overflow-x: auto; gap: 4px; }
+    input[type=date] { display: none; }
+    #date-filters span[style*="color:#cbd5e1"] { display: none; }
+
+    /* Min % + category on same row */
+    .filter-row:first-child .filter-group:not(.search-wrap):not(#date-filters) { flex-shrink: 0; }
+
+    /* Row 2 toggles + sort */
+    .filter-row:last-child { gap: 6px; }
+    .toggle-btn { font-size: 0.68rem; padding: 5px 10px; }
+    .sort-pill { font-size: 0.65rem; padding: 4px 8px; }
+
+    /* Count badge */
+    .count-badge { font-size: 0.68rem; width: 100%; order: 10; padding-top: 2px; }
+
+    /* Grid */
+    .grid { padding: 14px 10px; gap: 10px; grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); }
+  }
+
+  @media (max-width: 400px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    header { padding: 0 10px; }
+    .logo { font-size: 0.82rem; }
+  }
 </style>
 </head>
 <body>
