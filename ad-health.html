@@ -14,8 +14,11 @@
   .page-title { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.03em; color: #0f172a; margin-bottom: 4px; }
   .subtitle { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: #f97316; margin-bottom: 12px; }
   .date-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 28px; align-items: center; }
-  .date-btn { padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e5e7eb; background: #fff; font-size: 13px; font-weight: 500; cursor: pointer; color: #6b7280; transition: all .15s; }
-  .date-btn.active { border-color: #f97316; background: #fff7ed; color: #c2410c; font-weight: 700; }
+  .date-nav { display: flex; align-items: center; gap: 10px; }
+  .date-nav button { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid #e5e7eb; background: #fff; font-size: 16px; cursor: pointer; color: #6b7280; display: flex; align-items: center; justify-content: center; transition: all .15s; line-height: 1; }
+  .date-nav button:hover:not(:disabled) { border-color: #f97316; color: #f97316; }
+  .date-nav button:disabled { opacity: 0.3; cursor: default; }
+  .date-nav .date-label { font-size: 15px; font-weight: 700; color: #0f172a; min-width: 100px; text-align: center; }
   .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 28px; }
   .kpi { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px 20px; }
   .kpi-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #9ca3af; margin-bottom: 8px; }
@@ -70,7 +73,11 @@
   <div class="subtitle">Daily Report</div>
   <h1 class="page-title">Ad Health</h1>
 
-  <div class="date-bar" id="datebar"></div>
+  <div class="date-nav" id="datenav">
+    <button id="btn-prev" onclick="stepDate(-1)">&#8592;</button>
+    <span class="date-label" id="date-label"></span>
+    <button id="btn-next" onclick="stepDate(1)">&#8594;</button>
+  </div>
   <div id="kpis" class="kpi-grid"></div>
   <div id="cards" class="cards"></div>
 </main>
@@ -117,11 +124,17 @@ function ring(placements) {
   </div>`;
 }
 
-function renderDateBar() {
-  const bar = document.getElementById('datebar');
-  bar.innerHTML = DATES.map(d =>
-    `<button class="date-btn${d === activeDate ? ' active' : ''}" onclick="setDate('${d}')">${fmtDate(d)}</button>`
-  ).join('');
+function renderDateNav() {
+  const idx = DATES.indexOf(activeDate);
+  document.getElementById('date-label').textContent = fmtDate(activeDate);
+  document.getElementById('btn-prev').disabled = idx >= DATES.length - 1;
+  document.getElementById('btn-next').disabled = idx <= 0;
+}
+
+function stepDate(dir) {
+  const idx = DATES.indexOf(activeDate);
+  const next = idx - dir;
+  if (next >= 0 && next < DATES.length) setDate(DATES[next]);
 }
 
 function renderKpis(adSets) {
@@ -216,13 +229,12 @@ function renderCards(adSets) {
 
 function setDate(d) {
   activeDate = d;
-  renderDateBar();
+  renderDateNav();
   const adSets = PAYLOAD[d] || [];
   renderKpis(adSets);
   renderCards(adSets);
 }
 
-renderDateBar();
 if (activeDate) setDate(activeDate);
 else document.getElementById('cards').innerHTML = '<div class="no-data">No placement data stored yet. Run the scheduler or backfill script first.</div>';
 </script>
