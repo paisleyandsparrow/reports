@@ -657,7 +657,8 @@ function cardHtml(c) {
   const asinLinks = c.asins.slice(0,2).map(a =>
     `<a class="asin-link" href="https://www.amazon.com/dp/${a}?tag=${TAG}" target="_blank" rel="noopener">${a}</a>`
   ).join("");
-  const ccLink = `<a class="cc-link" href="https://affiliate-program.amazon.com/p/connect/requests?campaignId=${c.id}" target="_blank" rel="noopener">CC →</a>`;
+  const creatorId = "amzn1.creator.ce51e44c-2eaf-401b-a94a-8a64cd412b82";
+  const ccLink = `<a class="cc-link" href="https://affiliate-program.amazon.com/p/connect/request?creatorId=${creatorId}&adId=${c.id}&campaignId=${c.id}&recc=0&early-acc=1" target="_blank" rel="noopener">CC →</a>`;
   const acceptedBadge = c.accepted ? `<span class="accepted-badge">✓ Accepted</span>` : "";
 
   return `<div class="card" style="position:relative">
