@@ -4,40 +4,100 @@ export default function LoginPage() {
   async function handleGoogleSignIn() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
-      options: {
-        redirectTo: window.location.origin,
-      },
+      options: { redirectTo: window.location.origin },
     })
   }
 
   return (
-    <div className="min-h-screen bg-brand-50 flex flex-col items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-lg p-10 w-full max-w-md text-center">
-        {/* Logo / brand */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-brand-800 tracking-tight">
-            Paisley & Sparrow
+    <div style={{
+      minHeight: '100vh',
+      background: '#fbf7f3',
+      fontFamily: 'Inter, sans-serif',
+      color: '#1a1410',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '32px 20px',
+      position: 'relative',
+      overflow: 'hidden',
+    }}>
+      {/* ambient gradient blooms */}
+      <div style={{ position: 'absolute', top: -120, right: -120, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(236,72,153,0.16), transparent 70%)', pointerEvents: 'none' }} />
+      <div style={{ position: 'absolute', bottom: -160, left: -100, width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,207,232,0.30), transparent 70%)', pointerEvents: 'none' }} />
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 64, maxWidth: 980, width: '100%', position: 'relative', zIndex: 1, alignItems: 'center' }}>
+
+        {/* LEFT: editorial copy */}
+        <div>
+          <p style={{ fontSize: '0.72rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 18 }}>
+            Paisley & Sparrow · Portal
+          </p>
+          <h1 style={{
+            fontFamily: 'Georgia, serif',
+            fontWeight: 400,
+            fontSize: 'clamp(2.4rem, 5vw, 3.6rem)',
+            color: '#1a1410',
+            letterSpacing: '-0.03em',
+            lineHeight: 1.02,
+            margin: '0 0 22px',
+          }}>
+            Your campaigns, <em style={{ color: '#ec4899', fontStyle: 'italic' }}>elevated</em>.
           </h1>
-          <p className="text-sm text-gray-400 mt-1 uppercase tracking-widest">
-            Campaign Portal
+          <p style={{ fontSize: '1.05rem', color: '#7a6b5d', lineHeight: 1.6, maxWidth: 440, margin: 0 }}>
+            Track Creator Connections earnings, surface high-performing campaigns, and tune your Meta ads — all in one quiet, considered place.
           </p>
         </div>
 
-        <p className="text-gray-600 mb-8 text-sm leading-relaxed">
-          Sign in to view your Creator Connections campaigns, commission data, and performance insights.
-        </p>
+        {/* RIGHT: sign-in card */}
+        <div style={{
+          background: '#fff',
+          borderRadius: 28,
+          padding: '40px 36px',
+          border: '1px solid #f1ebe5',
+          boxShadow: '0 20px 50px -20px rgba(26,20,16,0.12)',
+        }}>
+          <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.16em', textTransform: 'uppercase', marginBottom: 12 }}>Sign in</p>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.6rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 28px', lineHeight: 1.2 }}>
+            Welcome back.
+          </h2>
 
-        <button
-          onClick={handleGoogleSignIn}
-          className="w-full flex items-center justify-center gap-3 border border-gray-200 rounded-xl px-5 py-3 text-gray-700 font-medium hover:bg-gray-50 transition-colors"
-        >
-          <GoogleIcon />
-          Sign in with Google
-        </button>
+          <button
+            onClick={handleGoogleSignIn}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 12,
+              background: '#1a1410',
+              color: '#fbf7f3',
+              border: 'none',
+              borderRadius: 999,
+              padding: '15px 22px',
+              fontSize: '0.92rem',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+              letterSpacing: '0.01em',
+              transition: 'transform .12s, background .15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#2a1f18' }}
+            onMouseLeave={e => { e.currentTarget.style.background = '#1a1410' }}
+          >
+            <GoogleIcon />
+            Continue with Google
+          </button>
 
-        <p className="text-xs text-gray-400 mt-6">
-          Access is by invitation only. Contact us if you need access.
-        </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '24px 0' }}>
+            <div style={{ flex: 1, height: 1, background: '#f1ebe5' }} />
+            <span style={{ fontSize: '0.7rem', color: '#a89485', letterSpacing: '0.06em' }}>by invitation only</span>
+            <div style={{ flex: 1, height: 1, background: '#f1ebe5' }} />
+          </div>
+
+          <p style={{ fontSize: '0.78rem', color: '#7a6b5d', lineHeight: 1.55, textAlign: 'center', margin: 0 }}>
+            Need access? <a href="mailto:hello@paisleyandsparrow.com" style={{ color: '#1a1410', fontWeight: 600, textDecoration: 'underline', textDecorationColor: '#fbcfe8', textUnderlineOffset: 3 }}>Get in touch</a>.
+          </p>
+        </div>
       </div>
     </div>
   )

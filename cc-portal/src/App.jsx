@@ -9,60 +9,21 @@ import AdHealthPage from './pages/AdHealthPage'
 import DashboardPage from './pages/DashboardPage'
 import AuthGuard from './components/AuthGuard'
 
+const IS_MOCK = import.meta.env.VITE_MOCK === 'true'
+const Guard = ({ children }) => IS_MOCK ? children : <AuthGuard requireOnboarding={true}>{children}</AuthGuard>
+
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        <Route
-          path="/onboarding"
-          element={
-            <AuthGuard requireOnboarding={false}>
-              <OnboardingWizard />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <AuthGuard requireOnboarding={true}>
-              <DashboardPage />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/"
-          element={
-            <AuthGuard requireOnboarding={true}>
-              <CampaignCatalog />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/settings"
-          element={
-            <AuthGuard requireOnboarding={true}>
-              <SettingsPage />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/earnings"
-          element={
-            <AuthGuard requireOnboarding={true}>
-              <EarningsPage />
-            </AuthGuard>
-          }
-        />
-        <Route
-          path="/ad-health"
-          element={
-            <AuthGuard requireOnboarding={true}>
-              <AdHealthPage />
-            </AuthGuard>
-          }
-        />
+        <Route path="/onboarding" element={IS_MOCK ? <OnboardingWizard /> : <AuthGuard requireOnboarding={false}><OnboardingWizard /></AuthGuard>} />
+        <Route path="/dashboard" element={<Guard><DashboardPage /></Guard>} />
+        <Route path="/" element={<Guard><CampaignCatalog /></Guard>} />
+        <Route path="/settings" element={<Guard><SettingsPage /></Guard>} />
+        <Route path="/earnings" element={<Guard><EarningsPage /></Guard>} />
+        <Route path="/ad-health" element={<Guard><AdHealthPage /></Guard>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

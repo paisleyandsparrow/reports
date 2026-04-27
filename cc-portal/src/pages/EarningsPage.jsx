@@ -75,7 +75,8 @@ export default function EarningsPage() {
 
   useEffect(() => {
     async function init() {
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session: _session } } = await supabase.auth.getSession()
+      const session = _session ?? (import.meta.env.VITE_MOCK === 'true' ? { user: { id: 'mock', email: 'jen@example.com' } } : null)
       if (!session) { window.location.href = '/login'; return }
       setUser(session.user)
       const { data: prefs } = await supabase
@@ -156,8 +157,8 @@ export default function EarningsPage() {
   const totalUnits   = filtered.reduce((s, r) => s + Number(r.total_units), 0)
 
   const sortArrow = (col) => {
-    if (sortCol !== col) return <span style={{ color: '#cbd5e1', marginLeft: '4px' }}>↕</span>
-    return <span style={{ marginLeft: '4px' }}>{sortDir === 'asc' ? '↑' : '↓'}</span>
+    if (sortCol !== col) return <span style={{ color: '#d4c5b3', marginLeft: 6 }}>↕</span>
+    return <span style={{ marginLeft: 6, color: '#ec4899' }}>{sortDir === 'asc' ? '↑' : '↓'}</span>
   }
 
   async function handleSignOut() {
@@ -166,240 +167,237 @@ export default function EarningsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: '#f1f5f9' }}>
-
+    <div style={{ minHeight: '100vh', background: '#fbf7f3', fontFamily: 'Inter, sans-serif', color: '#1a1410' }}>
       <AppHeader page="earnings" storeName={storeName} onSignOut={handleSignOut} />
 
-      {/* Sub-header: back link + title + controls */}
-      <div id="earnings-controls" style={{
-        background: '#fff', borderBottom: '1.5px solid #e2e8f0',
-        padding: '12px 28px', display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap'
-      }}>
-        <Link
-          to="/"
-          style={{
-            fontSize: '0.75rem', fontWeight: 600, color: '#f97316',
-            textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px',
-            border: '1.5px solid #fed7aa', borderRadius: '8px', padding: '4px 12px',
-            whiteSpace: 'nowrap'
-          }}
-          onMouseEnter={e => e.currentTarget.style.background = '#fff7ed'}
-          onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-        >
-          ← Catalog
-        </Link>
+      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 28px 80px', display: 'flex', flexDirection: 'column', gap: 36 }}>
 
-        <span style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0f172a' }}>All Earnings</span>
+        {/* Editorial hero */}
+        <div>
+          <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>
+            Earnings
+          </p>
+          <h1 style={{
+            fontFamily: 'Georgia, serif', fontWeight: 400,
+            fontSize: 'clamp(2.2rem, 4.5vw, 3.4rem)', color: '#1a1410',
+            letterSpacing: '-0.03em', lineHeight: 1.05, margin: 0,
+          }}>
+            Where your work <em style={{ color: '#ec4899', fontStyle: 'italic' }}>is paying off</em>.
+          </h1>
+          <p style={{ fontSize: '1.02rem', color: '#7a6b5d', lineHeight: 1.55, maxWidth: 600, marginTop: 18 }}>
+            Income broken down by campaign and product. Sort, search, and see what's still live.
+          </p>
+        </div>
 
-        <div style={{ flex: 1 }} />
+        {/* Controls bar */}
+        <div id="earnings-controls" style={{
+          background: '#fff', borderRadius: 22, border: '1px solid #f1ebe5',
+          padding: '18px 22px', display: 'flex', alignItems: 'center', gap: 18, flexWrap: 'wrap',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: '0.66rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Period</span>
+            <div style={{ display: 'flex', gap: 4, background: '#faf5ef', borderRadius: 999, padding: 4 }}>
+              {['7', '30', '90', 'all'].map(p => {
+                const active = preset === p
+                return (
+                  <button
+                    key={p}
+                    onClick={() => handlePreset(p)}
+                    style={{
+                      fontSize: '0.74rem', fontWeight: active ? 600 : 500,
+                      padding: '6px 14px', borderRadius: 999, cursor: 'pointer',
+                      border: 'none',
+                      background: active ? '#1a1410' : 'transparent',
+                      color: active ? '#fbf7f3' : '#7a6b5d',
+                      whiteSpace: 'nowrap', transition: 'all .15s',
+                      fontFamily: 'inherit', letterSpacing: '0.02em',
+                    }}
+                  >
+                    {p === 'all' ? 'All time' : `${p} days`}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
 
-        {/* Date preset pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', whiteSpace: 'nowrap' }}>Period</span>
-          <div style={{ display: 'flex', gap: '3px' }}>
-            {['7', '30', '90', 'all'].map(p => {
-              const active = preset === p
-              return (
-                <button
-                  key={p}
-                  onClick={() => handlePreset(p)}
-                  style={{
-                    fontSize: '0.68rem', fontWeight: active ? 700 : 500,
-                    padding: '4px 10px', borderRadius: '20px', cursor: 'pointer',
-                    border: `1.5px solid ${active ? '#f97316' : '#e2e8f0'}`,
-                    background: active ? '#fff7ed' : '#fff',
-                    color: active ? '#ea580c' : '#64748b',
-                    whiteSpace: 'nowrap', transition: 'all .15s'
-                  }}
-                >
-                  {p === 'all' ? 'All time' : `${p}d`}
-                </button>
-              )
-            })}
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <input
+              type="text"
+              placeholder="Search campaign or ASIN…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              style={{
+                width: '100%', border: '1px solid #f1ebe5', borderRadius: 999,
+                padding: '10px 18px', fontSize: '0.85rem',
+                background: '#faf5ef', color: '#1a1410', outline: 'none',
+                fontFamily: 'inherit', transition: 'border-color .15s, background .15s',
+              }}
+              onFocus={e => { e.target.style.borderColor = '#ec4899'; e.target.style.background = '#fff' }}
+              onBlur={e => { e.target.style.borderColor = '#f1ebe5'; e.target.style.background = '#faf5ef' }}
+            />
           </div>
         </div>
 
-        {/* Search */}
-        <div style={{ position: 'relative' }}>
-          <span style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.72rem', pointerEvents: 'none' }}>🔍</span>
-          <input
-            type="text"
-            placeholder="Search campaign or ASIN…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            style={{
-              border: '1.5px solid #e2e8f0', borderRadius: '8px',
-              padding: '5px 10px 5px 28px', fontSize: '0.78rem',
-              background: '#fff', color: '#0f172a', outline: 'none', width: '220px'
-            }}
-            onFocus={e => e.target.style.borderColor = '#f97316'}
-            onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-          />
+        {/* Stats summary row */}
+        <div id="earnings-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16 }}>
+          {[
+            { label: 'Income',     value: fmt$(totalIncome),  accent: true },
+            { label: 'Revenue',    value: fmt$(totalRevenue) },
+            { label: 'Units',      value: totalUnits.toLocaleString() },
+            { label: 'Campaigns',  value: [...new Set(filtered.map(r => r.campaign_title))].length.toLocaleString() },
+            { label: 'Products',   value: filtered.length.toLocaleString() },
+          ].map(({ label, value, accent }) => (
+            <div key={label} style={{
+              background: accent ? '#1a1410' : '#fff',
+              color: accent ? '#fbf7f3' : '#1a1410',
+              borderRadius: 22,
+              padding: '22px 24px',
+              border: accent ? 'none' : '1px solid #f1ebe5',
+            }}>
+              <div style={{ fontSize: '0.64rem', fontWeight: 700, color: accent ? '#fbcfe8' : '#a89485', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 12 }}>{label}</div>
+              <div style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.7rem', letterSpacing: '-0.02em', lineHeight: 1, color: accent ? '#fbcfe8' : '#1a1410' }}>{value}</div>
+            </div>
+          ))}
         </div>
-      </div>
 
-      {/* Stats summary row */}
-      <div id="earnings-stats" style={{ padding: '16px 28px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-        {[
-          { label: 'Total Income',   value: fmt$(totalIncome),                  color: '#16a34a' },
-          { label: 'Total Revenue',  value: fmt$(totalRevenue),                 color: '#0f172a' },
-          { label: 'Total Units',    value: totalUnits.toLocaleString(),         color: '#0f172a' },
-          { label: 'Campaigns',      value: [...new Set(filtered.map(r => r.campaign_title))].length.toLocaleString(), color: '#0f172a' },
-          { label: 'Products (ASIN)',value: filtered.length.toLocaleString(),    color: '#0f172a' },
-        ].map(({ label, value, color }) => (
-          <div key={label} style={{ background: '#fff', borderRadius: '12px', padding: '12px 20px', boxShadow: '0 1px 4px rgba(0,0,0,0.05)', minWidth: '120px' }}>
-            <div style={{ fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', marginBottom: '4px' }}>{label}</div>
-            <div style={{ fontSize: '1.05rem', fontWeight: 800, color }}>{value}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Table */}
-      <div id="earnings-table" style={{ padding: '0 28px 48px' }}>
-        <div style={{ background: '#fff', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 1px 6px rgba(0,0,0,0.06)' }}>
-          {loading ? (
-            <div style={{ padding: '60px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>Loading earnings…</div>
-          ) : sorted.length === 0 ? (
-            <div style={{ padding: '60px', textAlign: 'center', color: '#94a3b8', fontSize: '0.85rem' }}>No earnings found</div>
-          ) : (
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8rem' }}>
-                <thead>
-                  <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
-                    {COL_META.map(col => (
-                      <th
-                        key={col.key}
-                        onClick={() => toggleSort(col.key)}
-                        style={{
-                          padding: '10px 16px',
-                          textAlign: col.align,
-                          fontWeight: 700,
-                          fontSize: '0.7rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.06em',
-                          color: sortCol === col.key ? '#f97316' : '#64748b',
-                          cursor: 'pointer',
-                          whiteSpace: 'nowrap',
-                          userSelect: 'none',
-                          borderRight: col.key !== 'total_income' ? '1px solid #f1f5f9' : 'none'
-                        }}
+        {/* Table */}
+        <div id="earnings-table">
+          <div style={{ background: '#fff', borderRadius: 22, overflow: 'hidden', border: '1px solid #f1ebe5' }}>
+            {loading ? (
+              <div style={{ padding: 80, textAlign: 'center', color: '#a89485', fontSize: '0.95rem', fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>Loading earnings…</div>
+            ) : sorted.length === 0 ? (
+              <div style={{ padding: 80, textAlign: 'center', color: '#a89485', fontSize: '0.95rem', fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>No earnings found.</div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                  <thead>
+                    <tr style={{ background: '#faf5ef', borderBottom: '1px solid #f1ebe5' }}>
+                      {COL_META.map(col => (
+                        <th
+                          key={col.key}
+                          onClick={() => toggleSort(col.key)}
+                          style={{
+                            padding: '14px 20px',
+                            textAlign: col.align,
+                            fontWeight: 700,
+                            fontSize: '0.62rem',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.18em',
+                            color: sortCol === col.key ? '#1a1410' : '#a89485',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap',
+                            userSelect: 'none',
+                          }}
+                        >
+                          {col.label}{sortArrow(col.key)}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {sorted.map((row, i) => (
+                      <tr
+                        key={i}
+                        style={{ borderBottom: '1px solid #f5ede5', transition: 'background .15s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = '#fdf8f2'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                       >
-                        {col.label}{sortArrow(col.key)}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {sorted.map((row, i) => (
-                    <tr
-                      key={i}
-                      style={{ borderBottom: '1px solid #f1f5f9', background: i % 2 === 0 ? '#fff' : '#fafafa' }}
-                      onMouseEnter={e => e.currentTarget.style.background = '#fff7ed'}
-                      onMouseLeave={e => e.currentTarget.style.background = i % 2 === 0 ? '#fff' : '#fafafa'}
-                    >
-                      {/* Campaign */}
-                      <td style={{ padding: '10px 16px', maxWidth: '320px', borderRight: '1px solid #f1f5f9' }}>
-                        <span style={{
-                          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden', lineHeight: '1.35', color: '#0f172a', fontWeight: 500
-                        }}>
-                          {row.campaign_title || '—'}
-                        </span>
-                        {row.asin && activeAsins !== null && (
+                        <td style={{ padding: '14px 20px', maxWidth: 360 }}>
                           <span style={{
-                            display: 'inline-block', marginTop: '3px',
-                            fontSize: '0.58rem', fontWeight: 700, padding: '1px 6px',
-                            borderRadius: '20px', letterSpacing: '0.03em', whiteSpace: 'nowrap',
-                            ...(activeAsins.has(row.asin)
-                              ? { background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0' }
-                              : { background: '#f9fafb', color: '#94a3b8', border: '1px solid #e2e8f0' })
+                            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden', lineHeight: 1.35, color: '#1a1410', fontFamily: 'Georgia, serif', fontSize: '0.95rem', letterSpacing: '-0.005em',
                           }}>
-                            {activeAsins.has(row.asin) ? '✓ Live' : '✗ Expired'}
+                            {row.campaign_title || '—'}
                           </span>
-                        )}
+                          {row.asin && activeAsins !== null && (
+                            <span style={{
+                              display: 'inline-block', marginTop: 6,
+                              fontSize: '0.56rem', fontWeight: 700, padding: '3px 9px',
+                              borderRadius: 999, letterSpacing: '0.16em', textTransform: 'uppercase', whiteSpace: 'nowrap',
+                              ...(activeAsins.has(row.asin)
+                                ? { background: '#fdf2f8', color: '#9d174d' }
+                                : { background: '#faf5ef', color: '#a89485' })
+                            }}>
+                              {activeAsins.has(row.asin) ? 'Live' : 'Expired'}
+                            </span>
+                          )}
+                        </td>
+                        <td style={{ padding: '14px 20px', whiteSpace: 'nowrap' }}>
+                          {row.asin ? (
+                            <a
+                              href={`https://www.amazon.com/dp/${row.asin}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              style={{ color: '#7a6b5d', fontFamily: '"SF Mono", monospace', fontSize: '0.78rem', textDecoration: 'none', fontWeight: 500 }}
+                              onMouseEnter={e => { e.target.style.color = '#1a1410' }}
+                              onMouseLeave={e => { e.target.style.color = '#7a6b5d' }}
+                            >
+                              {row.asin}
+                            </a>
+                          ) : <span style={{ color: '#d4c5b3' }}>—</span>}
+                        </td>
+                        <td style={{ padding: '14px 20px', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                          <span style={{
+                            background: '#fdf2f8', color: '#9d174d', fontWeight: 700,
+                            fontSize: '0.7rem', padding: '4px 10px', borderRadius: 999,
+                            letterSpacing: '0.04em',
+                          }}>
+                            {Number(row.max_rate).toFixed(0)}%
+                          </span>
+                        </td>
+                        <td style={{ padding: '14px 20px', textAlign: 'right', color: '#7a6b5d', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                          {Number(row.total_units).toLocaleString()}
+                        </td>
+                        <td style={{ padding: '14px 20px', textAlign: 'right', color: '#7a6b5d', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                          {fmt$(row.total_revenue)}
+                        </td>
+                        <td style={{ padding: '14px 20px', textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                          <span style={{ color: '#1a1410', fontFamily: 'Georgia, serif', fontSize: '1rem', letterSpacing: '-0.005em' }}>{fmt$(row.total_income)}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr style={{ background: '#faf5ef', borderTop: '1px solid #f1ebe5' }}>
+                      <td style={{ padding: '14px 20px', color: '#1a1410', fontWeight: 600, fontSize: '0.78rem' }}>
+                        {sorted.length.toLocaleString()} rows
                       </td>
-                      {/* ASIN */}
-                      <td style={{ padding: '10px 16px', whiteSpace: 'nowrap', borderRight: '1px solid #f1f5f9' }}>
-                        {row.asin ? (
-                          <a
-                            href={`https://www.amazon.com/dp/${row.asin}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ color: '#f97316', fontFamily: 'monospace', fontSize: '0.75rem', textDecoration: 'none', fontWeight: 600 }}
-                            onMouseEnter={e => e.target.style.textDecoration = 'underline'}
-                            onMouseLeave={e => e.target.style.textDecoration = 'none'}
-                          >
-                            {row.asin}
-                          </a>
-                        ) : '—'}
+                      <td />
+                      <td />
+                      <td style={{ padding: '14px 20px', textAlign: 'right', color: '#1a1410', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                        {sorted.reduce((s, r) => s + Number(r.total_units), 0).toLocaleString()}
                       </td>
-                      {/* Rate */}
-                      <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap', borderRight: '1px solid #f1f5f9' }}>
-                        <span style={{
-                          background: '#fff7ed', color: '#ea580c', fontWeight: 700,
-                          fontSize: '0.72rem', padding: '2px 7px', borderRadius: '20px'
-                        }}>
-                          {Number(row.max_rate).toFixed(0)}%
-                        </span>
+                      <td style={{ padding: '14px 20px', textAlign: 'right', color: '#1a1410', fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+                        {fmt$(sorted.reduce((s, r) => s + Number(r.total_revenue), 0))}
                       </td>
-                      {/* Units */}
-                      <td style={{ padding: '10px 16px', textAlign: 'right', color: '#475569', whiteSpace: 'nowrap', borderRight: '1px solid #f1f5f9' }}>
-                        {Number(row.total_units).toLocaleString()}
-                      </td>
-                      {/* Revenue */}
-                      <td style={{ padding: '10px 16px', textAlign: 'right', color: '#475569', whiteSpace: 'nowrap', borderRight: '1px solid #f1f5f9' }}>
-                        {fmt$(row.total_revenue)}
-                      </td>
-                      {/* Income */}
-                      <td style={{ padding: '10px 16px', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                        <span style={{ color: '#16a34a', fontWeight: 700 }}>{fmt$(row.total_income)}</span>
+                      <td style={{ padding: '14px 20px', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>
+                        <span style={{ color: '#ec4899', fontFamily: 'Georgia, serif', fontSize: '1.05rem', letterSpacing: '-0.01em' }}>{fmt$(sorted.reduce((s, r) => s + Number(r.total_income), 0))}</span>
                       </td>
                     </tr>
-                  ))}
-                </tbody>
-                {/* Totals footer */}
-                <tfoot>
-                  <tr style={{ background: '#f8fafc', borderTop: '2px solid #e2e8f0', fontWeight: 700 }}>
-                    <td style={{ padding: '10px 16px', color: '#0f172a', borderRight: '1px solid #f1f5f9' }}>
-                      {sorted.length.toLocaleString()} rows
-                    </td>
-                    <td style={{ padding: '10px 16px', borderRight: '1px solid #f1f5f9' }} />
-                    <td style={{ padding: '10px 16px', borderRight: '1px solid #f1f5f9' }} />
-                    <td style={{ padding: '10px 16px', textAlign: 'right', color: '#475569', borderRight: '1px solid #f1f5f9' }}>
-                      {sorted.reduce((s, r) => s + Number(r.total_units), 0).toLocaleString()}
-                    </td>
-                    <td style={{ padding: '10px 16px', textAlign: 'right', color: '#475569', borderRight: '1px solid #f1f5f9' }}>
-                      {fmt$(sorted.reduce((s, r) => s + Number(r.total_revenue), 0))}
-                    </td>
-                    <td style={{ padding: '10px 16px', textAlign: 'right', color: '#16a34a' }}>
-                      {fmt$(sorted.reduce((s, r) => s + Number(r.total_income), 0))}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          )}
+                  </tfoot>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Tour replay button */}
       <button
         onClick={startEarningsTour}
         title="Take the tour"
         style={{
-          position: 'fixed', bottom: '28px', right: '28px', zIndex: 1000,
-          background: '#0f172a', color: '#fff', border: 'none', borderRadius: '99px',
-          padding: '10px 18px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.22)',
-          display: 'flex', alignItems: 'center', gap: '6px',
-          transition: 'background .15s, transform .1s',
+          position: 'fixed', bottom: 28, right: 28, zIndex: 1000,
+          background: '#1a1410', color: '#fbf7f3', border: 'none', borderRadius: 999,
+          padding: '12px 22px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
+          boxShadow: '0 14px 32px -12px rgba(26,20,16,0.4)',
+          fontFamily: 'inherit', letterSpacing: '0.02em',
+          transition: 'background .15s, transform .12s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = '#1e293b'; e.currentTarget.style.transform = 'scale(1.05)' }}
-        onMouseLeave={e => { e.currentTarget.style.background = '#0f172a'; e.currentTarget.style.transform = 'scale(1)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = '#2a1f18'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = '#1a1410'; e.currentTarget.style.transform = 'none' }}
       >
-        🎯 Tour
+        Take the tour
       </button>
-
     </div>
   )
 }

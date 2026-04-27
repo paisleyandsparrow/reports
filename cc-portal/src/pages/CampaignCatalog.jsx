@@ -255,30 +255,36 @@ export default function CampaignCatalog() {
   const hasMore = sorted.length > displayLimit
 
   return (
-    <div className="min-h-screen" style={{ background: '#f1f5f9' }}>
+    <div style={{ minHeight: '100vh', background: '#fbf7f3', fontFamily: 'Inter, sans-serif', color: '#1a1410' }}>
 
       {/* Badge Legend Modal */}
       {showLegend && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }} onClick={() => setShowLegend(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-sm" onClick={e => e.stopPropagation()}>
-            <h2 className="font-bold text-slate-900 mb-4" style={{ fontSize: '0.95rem' }}>Campaign Badge Guide</h2>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '3px 8px', borderRadius: '20px', background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', whiteSpace: 'nowrap', flexShrink: 0 }}>✓ Accepted</span>
-                <p style={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.5 }}>You have accepted this Creator Connections campaign. It's live on your storefront.</p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '3px 8px', borderRadius: '20px', background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', whiteSpace: 'nowrap', flexShrink: 0 }}>⏰ Ending</span>
-                <p style={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.5 }}>Campaign ends within 7 days. Promote now or it will expire.</p>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
-                <span style={{ fontSize: '0.58rem', fontWeight: 700, background: '#f0fdf4', color: '#15803d', border: '1px solid #bbf7d0', borderRadius: '20px', padding: '1px 6px', letterSpacing: '0.03em', whiteSpace: 'nowrap', flexShrink: 0 }}>ACTIVE</span>
-                <p style={{ fontSize: '0.78rem', color: '#64748b', lineHeight: 1.5 }}>Campaign status is Active — currently accepting creators.</p>
-              </div>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(26,20,16,0.5)', backdropFilter: 'blur(4px)' }} onClick={() => setShowLegend(false)}>
+          <div style={{ background: '#fff', borderRadius: 28, padding: 32, width: '100%', maxWidth: 420, boxShadow: '0 30px 80px -20px rgba(26,20,16,0.4)' }} onClick={e => e.stopPropagation()}>
+            <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 10 }}>Reference</p>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.6rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 22px' }}>Badge guide</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              {[
+                { label: 'Accepted', bg: '#fdf2f8', color: '#9d174d', desc: "You've accepted this campaign. It's live on your storefront." },
+                { label: 'Ends today', bg: '#1a1410', color: '#fbf7f3', desc: 'Campaign ends within 7 days. Promote now.' },
+                { label: 'Active', bg: 'transparent', color: '#ec4899', isText: true, desc: 'Currently accepting creators.' },
+              ].map(({ label, bg, color, desc, isText }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
+                  <span style={{
+                    fontSize: '0.6rem', fontWeight: 700, padding: '4px 10px',
+                    borderRadius: 999, letterSpacing: '0.14em', textTransform: 'uppercase',
+                    whiteSpace: 'nowrap', flexShrink: 0, background: bg, color,
+                    minWidth: 90, textAlign: 'center',
+                  }}>{label}</span>
+                  <p style={{ fontSize: '0.85rem', color: '#7a6b5d', lineHeight: 1.5, margin: 0 }}>{desc}</p>
+                </div>
+              ))}
             </div>
             <button
               onClick={() => setShowLegend(false)}
-              style={{ marginTop: '20px', width: '100%', padding: '9px', borderRadius: '10px', background: '#f1f5f9', border: 'none', fontSize: '0.82rem', fontWeight: 600, color: '#64748b', cursor: 'pointer' }}
+              style={{ marginTop: 28, width: '100%', padding: 14, borderRadius: 999, background: '#1a1410', color: '#fbf7f3', border: 'none', fontSize: '0.88rem', fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '0.01em' }}
+              onMouseEnter={e => e.currentTarget.style.background = '#2a1f18'}
+              onMouseLeave={e => e.currentTarget.style.background = '#1a1410'}
             >Close</button>
           </div>
         </div>
@@ -286,25 +292,26 @@ export default function CampaignCatalog() {
 
       {/* Edit Niches Modal */}
       {editingNiches && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: 'rgba(0,0,0,0.4)' }}>
-          <div className="bg-white rounded-2xl shadow-2xl p-6 w-full max-w-md">
-            <h2 className="font-bold text-slate-900 mb-1" style={{ fontSize: '0.95rem' }}>My niches</h2>
-            <p className="text-slate-400 mb-4" style={{ fontSize: '0.78rem' }}>Select the categories you promote. Your default view will show only these.</p>
-            <div className="flex flex-wrap gap-2 mb-6">
+        <div style={{ position: 'fixed', inset: 0, zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, background: 'rgba(26,20,16,0.5)', backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: '#fff', borderRadius: 28, padding: 32, width: '100%', maxWidth: 480, boxShadow: '0 30px 80px -20px rgba(26,20,16,0.4)' }}>
+            <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 10 }}>Personalize</p>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.7rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 8px' }}>Your <em style={{ color: '#ec4899', fontStyle: 'italic' }}>niches</em></h2>
+            <p style={{ fontSize: '0.88rem', color: '#7a6b5d', margin: '0 0 24px', lineHeight: 1.5 }}>Pick the categories you promote — we'll filter to those by default.</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
               {Object.keys(CATEGORY_KEYWORDS).map(cat => {
                 const on = pendingNiches.includes(cat)
                 return (
                   <button
                     key={cat}
                     onClick={() => setPendingNiches(prev => on ? prev.filter(c => c !== cat) : [...prev, cat])}
-                    className="transition-all"
                     style={{
-                      fontSize: '0.72rem', fontWeight: on ? 700 : 500,
-                      padding: '4px 12px', borderRadius: '20px',
-                      border: `1.5px solid ${on ? '#f97316' : '#e2e8f0'}`,
-                      background: on ? '#fff7ed' : '#fff',
-                      color: on ? '#ea580c' : '#64748b',
-                      cursor: 'pointer'
+                      fontSize: '0.78rem', fontWeight: on ? 600 : 500,
+                      padding: '7px 16px', borderRadius: 999,
+                      border: 'none',
+                      background: on ? '#1a1410' : '#faf5ef',
+                      color: on ? '#fbf7f3' : '#7a6b5d',
+                      cursor: 'pointer', fontFamily: 'inherit', letterSpacing: '0.01em',
+                      transition: 'all .15s',
                     }}
                   >
                     {cat}
@@ -312,10 +319,12 @@ export default function CampaignCatalog() {
                 )
               })}
             </div>
-            <div className="flex justify-end gap-2">
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
               <button
                 onClick={() => setEditingNiches(false)}
-                style={{ fontSize: '0.82rem', color: '#94a3b8', padding: '8px 16px', cursor: 'pointer', background: 'none', border: 'none' }}
+                style={{ fontSize: '0.88rem', color: '#7a6b5d', padding: '12px 22px', cursor: 'pointer', background: 'none', border: 'none', fontFamily: 'inherit', fontWeight: 500 }}
+                onMouseEnter={e => e.currentTarget.style.color = '#1a1410'}
+                onMouseLeave={e => e.currentTarget.style.color = '#7a6b5d'}
               >
                 Cancel
               </button>
@@ -323,11 +332,14 @@ export default function CampaignCatalog() {
                 onClick={saveNiches}
                 disabled={savingNiches}
                 style={{
-                  fontSize: '0.82rem', fontWeight: 600,
-                  background: '#f97316', color: '#fff',
-                  padding: '8px 20px', borderRadius: '10px',
-                  border: 'none', cursor: 'pointer', opacity: savingNiches ? 0.5 : 1
+                  fontSize: '0.88rem', fontWeight: 600,
+                  background: savingNiches ? '#d4c5b3' : '#ec4899', color: '#fff',
+                  padding: '12px 26px', borderRadius: 999,
+                  border: 'none', cursor: savingNiches ? 'not-allowed' : 'pointer',
+                  fontFamily: 'inherit', letterSpacing: '0.01em',
                 }}
+                onMouseEnter={e => { if (!savingNiches) e.currentTarget.style.background = '#db2777' }}
+                onMouseLeave={e => { if (!savingNiches) e.currentTarget.style.background = '#ec4899' }}
               >
                 {savingNiches ? 'Saving…' : 'Save'}
               </button>
@@ -338,45 +350,44 @@ export default function CampaignCatalog() {
 
       <AppHeader page="catalog" storeName={storeName} onSignOut={handleSignOut}>
         <div style={{
-          fontSize: '0.72rem', color: '#94a3b8', whiteSpace: 'nowrap',
-          background: 'rgba(255,255,255,0.06)', borderRadius: '20px',
-          padding: '3px 12px', letterSpacing: '0.02em'
+          fontSize: '0.7rem', color: '#7a6b5d', whiteSpace: 'nowrap',
+          background: '#faf5ef', borderRadius: 999,
+          padding: '4px 12px', letterSpacing: '0.04em',
+          border: '1px solid #f1ebe5',
         }}>
-          <strong style={{ color: '#e2e8f0' }}>{campaigns.length.toLocaleString()}</strong>
-          {' campaigns\u00a0·\u00a0'}
-          {filterMinRate}%+ commission
-          {'\u00a0·\u00a0updated '}
+          <strong style={{ color: '#1a1410', fontWeight: 600 }}>{campaigns.length.toLocaleString()}</strong>
+          {' · '}
+          {filterMinRate}%+
+          {' · updated '}
           {new Date().toISOString().slice(0, 10)}
         </div>
       </AppHeader>
 
       {/* Already Earning Panel */}
       {(earningItems.length > 0 || earningLoading) && (
-        <div id="catalog-earning-panel" style={{ background: '#fff', borderBottom: '2px solid #f1f5f9' }}>
-          {/* Panel header */}
+        <div id="catalog-earning-panel" style={{ background: '#fff', borderBottom: '1px solid #f1ebe5' }}>
           <div
             onClick={() => setEarningOpen(o => !o)}
             style={{
-              padding: '11px 28px', display: 'flex', alignItems: 'center',
-              gap: '14px', cursor: 'pointer', userSelect: 'none',
-              borderLeft: '4px solid #f97316'
+              padding: '14px 28px', display: 'flex', alignItems: 'center',
+              gap: 16, cursor: 'pointer', userSelect: 'none',
+              flexWrap: 'wrap',
             }}
           >
-            <span style={{ fontSize: '0.78rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#0f172a' }}>
-              Already Earning
+            <span style={{ fontSize: '0.66rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+              Already earning
             </span>
             {earningLoading ? (
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Loading…</span>
+              <span style={{ fontSize: '0.82rem', color: '#a89485', fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>Loading…</span>
             ) : (
-              <span style={{ fontSize: '0.78rem', color: '#64748b' }}>
-                <strong style={{ color: '#16a34a' }}>
+              <span style={{ fontSize: '0.85rem', color: '#7a6b5d' }}>
+                <strong style={{ color: '#1a1410', fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.05rem', letterSpacing: '-0.01em' }}>
                   ${earningItems.reduce((s, x) => s + Number(x.total_income), 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                 </strong>
-                {' '}· {earningItems.length} campaigns · {earningPreset === 'all' ? 'all time' : `last ${earningPreset}d`}
+                {' · '}{earningItems.length} campaigns{' · '}{earningPreset === 'all' ? 'all time' : `last ${earningPreset}d`}
               </span>
             )}
-            {/* Date preset pills */}
-            <div style={{ display: 'flex', gap: '4px' }} onClick={e => e.stopPropagation()}>
+            <div style={{ display: 'flex', gap: 4, background: '#faf5ef', borderRadius: 999, padding: 3 }} onClick={e => e.stopPropagation()}>
               {['7', '30', '90', 'all'].map(p => {
                 const active = earningPreset === p
                 return (
@@ -384,12 +395,13 @@ export default function CampaignCatalog() {
                     key={p}
                     onClick={() => handleEarningPreset(p)}
                     style={{
-                      fontSize: '0.68rem', fontWeight: active ? 700 : 500,
-                      padding: '3px 10px', borderRadius: '20px', cursor: 'pointer',
-                      border: `1.5px solid ${active ? '#f97316' : '#e2e8f0'}`,
-                      background: active ? '#fff7ed' : 'transparent',
-                      color: active ? '#ea580c' : '#64748b',
-                      whiteSpace: 'nowrap', transition: 'all .15s'
+                      fontSize: '0.7rem', fontWeight: active ? 600 : 500,
+                      padding: '4px 12px', borderRadius: 999, cursor: 'pointer',
+                      border: 'none',
+                      background: active ? '#1a1410' : 'transparent',
+                      color: active ? '#fbf7f3' : '#7a6b5d',
+                      whiteSpace: 'nowrap', transition: 'all .15s',
+                      fontFamily: 'inherit', letterSpacing: '0.02em',
                     }}
                   >
                     {p === 'all' ? 'All' : `${p}d`}
@@ -397,40 +409,36 @@ export default function CampaignCatalog() {
                 )
               })}
             </div>
-            {/* View all link — inline next to preset pills */}
             <Link
               to="/earnings"
               onClick={e => e.stopPropagation()}
               style={{
-                fontSize: '0.68rem', fontWeight: 600, color: '#f97316',
-                textDecoration: 'none', whiteSpace: 'nowrap',
-                padding: '3px 10px', borderRadius: '20px',
-                border: '1.5px solid #fed7aa', background: 'transparent'
+                fontSize: '0.74rem', fontWeight: 600, color: '#ec4899',
+                textDecoration: 'none', whiteSpace: 'nowrap', letterSpacing: '0.02em',
               }}
-              onMouseEnter={e => e.currentTarget.style.background = '#fff7ed'}
-              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              onMouseEnter={e => e.currentTarget.style.textDecoration = 'underline'}
+              onMouseLeave={e => e.currentTarget.style.textDecoration = 'none'}
             >
               View all →
             </Link>
             <span style={{
-              marginLeft: 'auto', fontSize: '0.68rem', color: '#94a3b8',
+              marginLeft: 'auto', fontSize: '0.7rem', color: '#a89485',
               display: 'inline-block',
               transform: earningOpen ? 'rotate(180deg)' : 'none',
-              transition: 'transform .2s'
+              transition: 'transform .2s',
             }}>▼</span>
           </div>
 
-          {/* Card strip */}
           {earningOpen && (
             earningLoading ? (
-              <div style={{ overflowX: 'auto', padding: '10px 28px 16px', display: 'flex', gap: '12px' }}>
+              <div style={{ overflowX: 'auto', padding: '4px 28px 20px', display: 'flex', gap: 14 }}>
                 {Array.from({ length: 6 }).map((_, i) => <EarningCardSkeleton key={i} />)}
               </div>
             ) : (
               <div style={{
-                overflowX: 'auto', padding: '10px 28px 16px',
-                display: 'flex', gap: '12px',
-                scrollbarWidth: 'thin', scrollbarColor: '#e2e8f0 transparent'
+                overflowX: 'auto', padding: '4px 28px 20px',
+                display: 'flex', gap: 14,
+                scrollbarWidth: 'thin', scrollbarColor: '#f1ebe5 transparent',
               }}>
                 {earningItems.map((item, i) => (
                   <EarningCard key={i} item={item} />
@@ -443,38 +451,31 @@ export default function CampaignCatalog() {
 
       {/* Filter bar */}
       <div id="catalog-filter-bar" style={{
-        background: '#fff', borderBottom: '1.5px solid #e2e8f0',
-        position: 'sticky', top: '60px', zIndex: 20,
-        boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+        background: 'rgba(251,247,243,0.92)',
+        backdropFilter: 'saturate(140%) blur(12px)',
+        WebkitBackdropFilter: 'saturate(140%) blur(12px)',
+        borderBottom: '1px solid #f1ebe5',
+        position: 'sticky', top: 64, zIndex: 20,
       }}>
+        <div style={{ padding: '14px 28px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            placeholder="Search brand or product…"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            style={{
+              border: '1px solid #f1ebe5', borderRadius: 999,
+              padding: '9px 18px', fontSize: '0.85rem',
+              background: '#fff', color: '#1a1410', outline: 'none', minWidth: 220,
+              fontFamily: 'inherit', transition: 'border-color .15s',
+            }}
+            onFocus={e => e.target.style.borderColor = '#ec4899'}
+            onBlur={e => e.target.style.borderColor = '#f1ebe5'}
+          />
 
-        {/* Row 1: search · date presets · min % · category */}
-        <div style={{ padding: '9px 28px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'nowrap' }}>
-
-          {/* Search */}
-          <div style={{ position: 'relative' }}>
-            <span style={{ position: 'absolute', left: '9px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.72rem', pointerEvents: 'none' }}>🔍</span>
-            <input
-              type="text"
-              placeholder="Search brand or product…"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{
-                border: '1.5px solid #e2e8f0', borderRadius: '8px',
-                padding: '5px 10px 5px 28px', fontSize: '0.78rem',
-                background: '#fff', color: '#0f172a', outline: 'none', width: '200px'
-              }}
-              onFocus={e => e.target.style.borderColor = '#f97316'}
-              onBlur={e => e.target.style.borderColor = '#e2e8f0'}
-            />
-          </div>
-
-          <div style={{ width: '1px', height: '20px', background: '#e2e8f0', margin: '0 4px' }} />
-
-          {/* Date added presets */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', whiteSpace: 'nowrap' }}>Added</span>
-            <div style={{ display: 'flex', gap: '3px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Added</span>
+            <div style={{ display: 'flex', gap: 3, background: '#fff', borderRadius: 999, padding: 3, border: '1px solid #f1ebe5' }}>
               {['all', '1', '7', '30'].map(p => {
                 const isActive = datePreset === p
                 return (
@@ -482,12 +483,13 @@ export default function CampaignCatalog() {
                     key={p}
                     onClick={() => setDatePreset(p)}
                     style={{
-                      fontSize: '0.68rem', fontWeight: isActive ? 700 : 500,
-                      padding: '4px 10px', borderRadius: '20px', cursor: 'pointer',
-                      border: `1.5px solid ${isActive ? '#f97316' : '#e2e8f0'}`,
-                      background: isActive ? '#fff7ed' : '#fff',
-                      color: isActive ? '#ea580c' : '#64748b',
-                      whiteSpace: 'nowrap', transition: 'all .15s'
+                      fontSize: '0.7rem', fontWeight: isActive ? 600 : 500,
+                      padding: '4px 12px', borderRadius: 999, cursor: 'pointer',
+                      border: 'none',
+                      background: isActive ? '#1a1410' : 'transparent',
+                      color: isActive ? '#fbf7f3' : '#7a6b5d',
+                      whiteSpace: 'nowrap', transition: 'all .15s',
+                      fontFamily: 'inherit', letterSpacing: '0.02em',
                     }}
                   >
                     {p === 'all' ? 'All' : `${p}d`}
@@ -497,44 +499,40 @@ export default function CampaignCatalog() {
             </div>
           </div>
 
-          <div style={{ width: '1px', height: '20px', background: '#e2e8f0', margin: '0 4px' }} />
-
-          {/* Min % number input */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', whiteSpace: 'nowrap' }}>Min %</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Min %</span>
             <input
               type="number"
               value={minRateInput}
               min={0} max={100}
               onChange={e => setMinRateInput(e.target.value)}
               onBlur={e => {
-                e.target.style.borderColor = '#e2e8f0'
+                e.target.style.borderColor = '#f1ebe5'
                 const v = Number(minRateInput) || 0
                 if (v !== filterMinRate) setFilterMinRate(v)
               }}
               onKeyDown={e => { if (e.key === 'Enter') { const v = Number(minRateInput) || 0; setFilterMinRate(v); e.target.blur() } }}
               style={{
-                width: '56px', border: '1.5px solid #e2e8f0', borderRadius: '8px',
-                padding: '5px 10px', fontSize: '0.78rem',
-                background: '#fff', color: '#0f172a', outline: 'none'
+                width: 64, border: '1px solid #f1ebe5', borderRadius: 999,
+                padding: '7px 14px', fontSize: '0.85rem',
+                background: '#fff', color: '#1a1410', outline: 'none',
+                fontFamily: 'inherit',
               }}
-              onFocus={e => e.target.style.borderColor = '#f97316'}
+              onFocus={e => e.target.style.borderColor = '#ec4899'}
             />
           </div>
 
-          <div style={{ width: '1px', height: '20px', background: '#e2e8f0', margin: '0 4px' }} />
-
-          {/* Category — My niches + All + specific categories */}
           <select
             value={categoryFilter}
             onChange={e => setCategoryFilter(e.target.value)}
             style={{
-              border: '1.5px solid #e2e8f0', borderRadius: '8px',
-              padding: '5px 10px', fontSize: '0.78rem',
-              background: '#fff', color: '#0f172a', outline: 'none'
+              border: '1px solid #f1ebe5', borderRadius: 999,
+              padding: '8px 16px', fontSize: '0.82rem',
+              background: '#fff', color: '#1a1410', outline: 'none',
+              fontFamily: 'inherit', cursor: 'pointer',
             }}
-            onFocus={e => e.target.style.borderColor = '#f97316'}
-            onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+            onFocus={e => e.target.style.borderColor = '#ec4899'}
+            onBlur={e => e.target.style.borderColor = '#f1ebe5'}
           >
             {userCategories.length > 0 && <option value="niches">★ My niches</option>}
             <option value="all">All categories</option>
@@ -543,18 +541,35 @@ export default function CampaignCatalog() {
               <option key={cat} value={cat}>{cat}</option>
             ))}
           </select>
+
+          <div style={{ flex: 1 }} />
+
+          <button
+            id="catalog-niches-btn"
+            onClick={() => { setPendingNiches(userCategories); setEditingNiches(true) }}
+            style={{
+              fontSize: '0.78rem', fontWeight: 600, color: '#ec4899',
+              background: 'none', border: '1px solid #fbcfe8', borderRadius: 999,
+              padding: '7px 16px', cursor: 'pointer', whiteSpace: 'nowrap',
+              fontFamily: 'inherit', letterSpacing: '0.01em',
+              transition: 'all .15s',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = '#fdf2f8' }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
+          >
+            {userCategories.length > 0 ? `My niches · ${userCategories.length}` : 'Set up niches →'}
+          </button>
         </div>
 
-        {/* Row 2: count · sort pills · edit niches */}
-        <div id="catalog-sort-row" style={{ padding: '8px 28px', display: 'flex', alignItems: 'center', gap: '10px', borderTop: '1px solid #f1f5f9' }}>
-
-          {/* Count */}
-          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-            {loading && campaigns.length === 0 ? 'Loading…' : (
+        <div id="catalog-sort-row" style={{ padding: '12px 28px', display: 'flex', alignItems: 'center', gap: 14, borderTop: '1px solid #f5ede5', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.82rem', color: '#7a6b5d' }}>
+            {loading && campaigns.length === 0 ? (
+              <span style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', color: '#a89485' }}>Loading…</span>
+            ) : (
               <>
-                <strong style={{ color: '#0f172a', fontWeight: 700 }}>{displayed.length.toLocaleString()}</strong>
+                <strong style={{ color: '#1a1410', fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.05rem', letterSpacing: '-0.01em' }}>{displayed.length.toLocaleString()}</strong>
                 {' of '}
-                <strong style={{ color: '#0f172a', fontWeight: 700 }}>{sorted.length.toLocaleString()}</strong>
+                <strong style={{ color: '#1a1410', fontWeight: 600 }}>{sorted.length.toLocaleString()}</strong>
                 {' campaigns'}
               </>
             )}
@@ -562,16 +577,15 @@ export default function CampaignCatalog() {
 
           <div style={{ flex: 1 }} />
 
-          {/* Sort pills */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', whiteSpace: 'nowrap' }}>Sort</span>
-            <div style={{ display: 'flex', gap: '2px', background: '#f1f5f9', borderRadius: '8px', padding: '2px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Sort</span>
+            <div style={{ display: 'flex', gap: 3, background: '#fff', borderRadius: 999, padding: 3, border: '1px solid #f1ebe5' }}>
               {[
-                { value: 'rate', label: '% Rate' },
+                { value: 'rate', label: 'Rate' },
                 { value: 'newest', label: 'Newest' },
                 { value: 'oldest', label: 'Oldest' },
                 { value: 'brand', label: 'Brand A–Z' },
-                { value: 'ending', label: '⏰ Ending' },
+                { value: 'ending', label: 'Ending' },
               ].map(({ value, label }) => {
                 const isActive = sortBy === value
                 return (
@@ -579,13 +593,13 @@ export default function CampaignCatalog() {
                     key={value}
                     onClick={() => setSortBy(value)}
                     style={{
-                      fontSize: '0.68rem', fontWeight: isActive ? 700 : 500,
-                      padding: '4px 10px', borderRadius: '6px',
+                      fontSize: '0.7rem', fontWeight: isActive ? 600 : 500,
+                      padding: '4px 12px', borderRadius: 999,
                       cursor: 'pointer', border: 'none',
-                      background: isActive ? '#fff' : 'transparent',
-                      color: isActive ? '#0f172a' : '#64748b',
+                      background: isActive ? '#1a1410' : 'transparent',
+                      color: isActive ? '#fbf7f3' : '#7a6b5d',
                       whiteSpace: 'nowrap', transition: 'all .15s',
-                      boxShadow: isActive ? '0 1px 4px rgba(0,0,0,0.08)' : 'none'
+                      fontFamily: 'inherit', letterSpacing: '0.02em',
                     }}
                   >
                     {label}
@@ -595,12 +609,9 @@ export default function CampaignCatalog() {
             </div>
           </div>
 
-          <div style={{ width: '1px', height: '20px', background: '#e2e8f0', margin: '0 4px' }} />
-
-          {/* Platform filter */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <span style={{ fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: '#94a3b8', whiteSpace: 'nowrap' }}>Platform</span>
-            <div style={{ display: 'flex', gap: '3px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Platform</span>
+            <div style={{ display: 'flex', gap: 3, background: '#fff', borderRadius: 999, padding: 3, border: '1px solid #f1ebe5' }}>
               {['all', 'instagram', 'tiktok', 'youtube', 'pinterest', 'facebook'].map(p => {
                 const isActive = platformFilter === p
                 const label = p === 'all' ? 'All' : p === 'instagram' ? 'IG' : p === 'tiktok' ? 'TT' : p === 'youtube' ? 'YT' : p === 'pinterest' ? 'PIN' : 'FB'
@@ -609,12 +620,13 @@ export default function CampaignCatalog() {
                     key={p}
                     onClick={() => setPlatformFilter(p)}
                     style={{
-                      fontSize: '0.68rem', fontWeight: isActive ? 700 : 500,
-                      padding: '4px 9px', borderRadius: '20px', cursor: 'pointer',
-                      border: `1.5px solid ${isActive ? '#f97316' : '#e2e8f0'}`,
-                      background: isActive ? '#fff7ed' : '#fff',
-                      color: isActive ? '#ea580c' : '#64748b',
-                      whiteSpace: 'nowrap', transition: 'all .15s'
+                      fontSize: '0.7rem', fontWeight: isActive ? 600 : 500,
+                      padding: '4px 11px', borderRadius: 999, cursor: 'pointer',
+                      border: 'none',
+                      background: isActive ? '#1a1410' : 'transparent',
+                      color: isActive ? '#fbf7f3' : '#7a6b5d',
+                      whiteSpace: 'nowrap', transition: 'all .15s',
+                      fontFamily: 'inherit', letterSpacing: '0.02em',
                     }}
                   >{label}</button>
                 )
@@ -622,37 +634,19 @@ export default function CampaignCatalog() {
             </div>
           </div>
 
-          <div style={{ width: '1px', height: '20px', background: '#e2e8f0', margin: '0 4px' }} />
-
-          {/* Badge legend */}
           <button
             onClick={() => setShowLegend(true)}
             style={{
-              fontSize: '0.72rem', color: '#94a3b8', background: 'none',
-              border: '1.5px solid #e2e8f0', borderRadius: '8px',
-              padding: '4px 10px', cursor: 'pointer', whiteSpace: 'nowrap'
+              fontSize: '0.74rem', color: '#7a6b5d', background: 'none',
+              border: '1px solid #f1ebe5', borderRadius: 999,
+              padding: '6px 14px', cursor: 'pointer', whiteSpace: 'nowrap',
+              fontFamily: 'inherit', fontWeight: 500,
+              transition: 'all .15s',
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = '#94a3b8' }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#1a1410'; e.currentTarget.style.borderColor = '#e8dfd6' }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#7a6b5d'; e.currentTarget.style.borderColor = '#f1ebe5' }}
           >
-            ? Badges
-          </button>
-
-          <div style={{ width: '1px', height: '20px', background: '#e2e8f0', margin: '0 4px' }} />
-
-          {/* Edit niches */}
-          <button
-            id="catalog-niches-btn"
-            onClick={() => { setPendingNiches(userCategories); setEditingNiches(true) }}
-            style={{
-              fontSize: '0.72rem', fontWeight: 600, color: '#f97316',
-              background: 'none', border: '1.5px solid #fed7aa', borderRadius: '8px',
-              padding: '4px 12px', cursor: 'pointer', whiteSpace: 'nowrap'
-            }}
-            onMouseEnter={e => { e.currentTarget.style.background = '#fff7ed' }}
-            onMouseLeave={e => { e.currentTarget.style.background = 'none' }}
-          >
-            {userCategories.length > 0 ? `My niches (${userCategories.length}) ✏` : 'Set up niches →'}
+            Badge guide
           </button>
         </div>
       </div>
@@ -661,23 +655,24 @@ export default function CampaignCatalog() {
       {loading ? (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '16px',
-          padding: '24px 28px'
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gap: 18,
+          padding: '32px 28px',
         }}>
           {Array.from({ length: 24 }).map((_, i) => <CampaignCardSkeleton key={i} />)}
         </div>
       ) : sorted.length === 0 ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '80px 24px', gap: '10px', color: '#64748b' }}>
-          <h2 style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>No campaigns found</h2>
-          <p style={{ fontSize: '0.85rem' }}>Try adjusting your filters</p>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '120px 24px', gap: 14 }}>
+          <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase', margin: 0 }}>Nothing here</p>
+          <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '2rem', color: '#1a1410', letterSpacing: '-0.02em', margin: 0 }}>No campaigns <em style={{ color: '#ec4899', fontStyle: 'italic' }}>match</em>.</h2>
+          <p style={{ fontSize: '0.95rem', color: '#7a6b5d', margin: 0 }}>Try loosening your filters.</p>
         </div>
       ) : (
         <div id="catalog-grid" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-          gap: '16px',
-          padding: '24px 28px'
+          gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+          gap: 18,
+          padding: '32px 28px',
         }}>
           {displayed.map(c => (
             <CampaignCard key={c.campaign_id} campaign={c} creatorId={creatorId} />
@@ -685,42 +680,42 @@ export default function CampaignCatalog() {
         </div>
       )}
 
-      {/* Load more — client-side only, always adds exactly DISPLAY_CHUNK */}
       {hasMore && (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '0 28px 48px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '0 28px 64px' }}>
           <button
             onClick={() => setDisplayLimit(p => p + DISPLAY_CHUNK)}
             disabled={loading}
             style={{
-              border: '1.5px solid #e2e8f0', background: '#fff', color: '#374151',
-              borderRadius: '10px', padding: '10px 28px',
-              fontSize: '0.82rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.5 : 1, transition: 'all .15s'
+              border: 'none', background: '#1a1410', color: '#fbf7f3',
+              borderRadius: 999, padding: '14px 32px',
+              fontSize: '0.88rem', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.5 : 1, transition: 'background .15s, transform .12s',
+              fontFamily: 'inherit', letterSpacing: '0.01em',
+              boxShadow: '0 14px 32px -16px rgba(26,20,16,0.3)',
             }}
-            onMouseEnter={e => { if (!loading) { e.target.style.background = '#f97316'; e.target.style.borderColor = '#f97316'; e.target.style.color = '#fff' } }}
-            onMouseLeave={e => { e.target.style.background = '#fff'; e.target.style.borderColor = '#e2e8f0'; e.target.style.color = '#374151' }}
+            onMouseEnter={e => { if (!loading) { e.target.style.background = '#2a1f18'; e.target.style.transform = 'translateY(-1px)' } }}
+            onMouseLeave={e => { e.target.style.background = '#1a1410'; e.target.style.transform = 'none' }}
           >
-            {loading ? 'Loading…' : `Show more (${Math.min(DISPLAY_CHUNK, sorted.length - displayLimit)} more)`}
+            {loading ? 'Loading…' : `Show ${Math.min(DISPLAY_CHUNK, sorted.length - displayLimit)} more`}
           </button>
         </div>
       )}
 
-      {/* Tour replay button */}
       <button
         onClick={startCatalogTour}
         title="Take the tour"
         style={{
-          position: 'fixed', bottom: '28px', right: '28px', zIndex: 1000,
-          background: '#0f172a', color: '#fff', border: 'none', borderRadius: '99px',
-          padding: '10px 18px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.22)',
-          display: 'flex', alignItems: 'center', gap: '6px',
-          transition: 'background .15s, transform .1s',
+          position: 'fixed', bottom: 28, right: 28, zIndex: 1000,
+          background: '#1a1410', color: '#fbf7f3', border: 'none', borderRadius: 999,
+          padding: '12px 22px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
+          boxShadow: '0 14px 32px -12px rgba(26,20,16,0.4)',
+          fontFamily: 'inherit', letterSpacing: '0.02em',
+          transition: 'background .15s, transform .12s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = '#1e293b'; e.currentTarget.style.transform = 'scale(1.05)' }}
-        onMouseLeave={e => { e.currentTarget.style.background = '#0f172a'; e.currentTarget.style.transform = 'scale(1)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = '#2a1f18'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = '#1a1410'; e.currentTarget.style.transform = 'none' }}
       >
-        🎯 Tour
+        Take the tour
       </button>
 
     </div>
@@ -731,13 +726,13 @@ function EarningCardSkeleton() {
   return (
     <div className="animate-pulse" style={{
       flexShrink: 0, width: 148,
-      background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 12,
+      background: '#fbf7f3', border: '1px solid #f1ebe5', borderRadius: 14,
       padding: 12, display: 'flex', flexDirection: 'column', gap: 7
     }}>
-      <div style={{ width: '100%', aspectRatio: '1', borderRadius: 8, background: '#e2e8f0' }} />
-      <div style={{ height: '16px', borderRadius: '20px', background: '#e2e8f0', width: '55%' }} />
-      <div style={{ height: '12px', borderRadius: '4px', background: '#f1f5f9', width: '90%' }} />
-      <div style={{ height: '12px', borderRadius: '4px', background: '#f1f5f9', width: '70%' }} />
+      <div style={{ width: '100%', aspectRatio: '1', borderRadius: 10, background: '#f5ede5' }} />
+      <div style={{ height: '16px', borderRadius: '20px', background: '#f5ede5', width: '55%' }} />
+      <div style={{ height: '12px', borderRadius: '4px', background: '#faf5ef', width: '90%' }} />
+      <div style={{ height: '12px', borderRadius: '4px', background: '#faf5ef', width: '70%' }} />
     </div>
   )
 }
@@ -760,17 +755,17 @@ function EarningCard({ item }) {
     <div
       style={{
         flexShrink: 0, width: 148,
-        background: '#fff', border: '1.5px solid #e2e8f0', borderRadius: 12,
+        background: '#ffffff', border: '1px solid #f1ebe5', borderRadius: 14,
         padding: 12, display: 'flex', flexDirection: 'column', gap: 7,
-        transition: 'box-shadow .15s, border-color .15s', cursor: 'default'
+        transition: 'box-shadow .15s, border-color .15s, transform .15s', cursor: 'default'
       }}
-      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.08)'; e.currentTarget.style.borderColor = '#f97316' }}
-      onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#e2e8f0' }}
+      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 14px 32px -18px rgba(26,20,16,0.18)'; e.currentTarget.style.borderColor = '#fbcfe8'; e.currentTarget.style.transform = 'translateY(-2px)' }}
+      onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#f1ebe5'; e.currentTarget.style.transform = 'none' }}
     >
       {/* Product image or initial avatar */}
       <div style={{
-        width: '100%', aspectRatio: '1', borderRadius: 8,
-        background: '#f8fafc', display: 'flex', alignItems: 'center',
+        width: '100%', aspectRatio: '1', borderRadius: 10,
+        background: '#faf5ef', display: 'flex', alignItems: 'center',
         justifyContent: 'center', overflow: 'hidden'
       }}>
         {!imgFailed && imgSrc ? (
@@ -782,23 +777,25 @@ function EarningCard({ item }) {
             onError={() => setImgFailed(true)}
           />
         ) : (
-          <span style={{ fontSize: '2rem', fontWeight: 800, color: '#94a3b8' }}>{initial}</span>
+          <span style={{ fontFamily: 'Georgia, serif', fontSize: '2rem', fontWeight: 600, color: '#a89485', fontStyle: 'italic' }}>{initial}</span>
         )}
       </div>
 
       {/* Commission rate badge */}
       <span style={{
-        fontSize: '0.7rem', fontWeight: 800,
-        background: '#fff7ed', color: '#ea580c',
-        padding: '2px 7px', borderRadius: 20,
-        alignSelf: 'flex-start', letterSpacing: '0.02em', whiteSpace: 'nowrap'
+        fontSize: '0.66rem', fontWeight: 700,
+        background: '#fdf2f8', color: '#9d174d',
+        padding: '3px 9px', borderRadius: 999,
+        alignSelf: 'flex-start', letterSpacing: '0.04em', whiteSpace: 'nowrap',
+        textTransform: 'uppercase'
       }}>
         {rate.toFixed(0)}% max
       </span>
 
       {/* Campaign title */}
       <div style={{
-        fontSize: '0.7rem', fontWeight: 600, color: '#0f172a',
+        fontFamily: 'Georgia, serif', fontSize: '0.78rem', fontWeight: 500, color: '#1a1410',
+        lineHeight: 1.25,
         overflow: 'hidden', display: '-webkit-box',
         WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
       }}>
@@ -806,12 +803,12 @@ function EarningCard({ item }) {
       </div>
 
       {/* Income earned */}
-      <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#16a34a' }}>
+      <div style={{ fontFamily: 'Georgia, serif', fontSize: '0.95rem', fontWeight: 600, color: '#ec4899', letterSpacing: '-0.01em' }}>
         ${income.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
       </div>
 
       {/* Units + product count */}
-      <div style={{ fontSize: '0.68rem', color: '#94a3b8', marginTop: 'auto' }}>
+      <div style={{ fontSize: '0.66rem', color: '#a89485', marginTop: 'auto', letterSpacing: '0.02em' }}>
         {units > 0 && <span>{units.toLocaleString()} unit{units !== 1 ? 's' : ''}</span>}
         {units > 0 && asins > 0 && <span> · </span>}
         {asins > 0 && <span>{asins} product{asins !== 1 ? 's' : ''}</span>}

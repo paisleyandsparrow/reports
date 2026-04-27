@@ -1,40 +1,21 @@
 import { Link } from 'react-router-dom'
 
 const NAV_PAGES = [
-  { key: 'dashboard',  label: '🏠 Dashboard',  to: '/dashboard' },
+  { key: 'dashboard',  label: 'Dashboard',   to: '/dashboard' },
   { key: 'catalog',    label: 'Campaigns',   to: '/' },
-  { key: 'earnings',   label: '💰 Earnings',  to: '/earnings' },
-  { key: 'ad-health',  label: '📊 Ad Health', to: '/ad-health' },
-  { key: 'settings',   label: '⚙ Settings',  to: '/settings' },
+  { key: 'earnings',   label: 'Earnings',    to: '/earnings' },
+  { key: 'ad-health',  label: 'Ad Health',   to: '/ad-health' },
+  { key: 'settings',   label: 'Settings',    to: '/settings' },
 ]
 
-const BREADCRUMB_LABELS = {
-  dashboard:   'Dashboard',
-  catalog:    'Campaign Discovery',
-  'ad-health': 'Ad Health',
-  earnings:   'Earnings',
-  settings:   'Settings',
-}
-
-const linkStyle = {
-  fontSize: '0.72rem',
-  color: '#94a3b8',
-  textDecoration: 'none',
-  letterSpacing: '0.03em',
-  background: 'none',
-  border: 'none',
-  cursor: 'pointer',
-  padding: 0,
-  fontFamily: 'inherit',
-}
-
 export default function AppHeader({ storeName, page, onSignOut, children }) {
-
   return (
     <header style={{
-      background: '#0f172a',
+      background: 'rgba(251, 247, 243, 0.85)',
+      backdropFilter: 'saturate(140%) blur(12px)',
+      WebkitBackdropFilter: 'saturate(140%) blur(12px)',
       padding: '0 28px',
-      height: '60px',
+      height: '64px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
@@ -42,23 +23,36 @@ export default function AppHeader({ storeName, page, onSignOut, children }) {
       top: 0,
       zIndex: 30,
       flexShrink: 0,
+      borderBottom: '1px solid #f1ebe5',
+      fontFamily: 'Inter, sans-serif',
     }}>
-      {/* Left: store name / breadcrumb + optional pill */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', whiteSpace: 'nowrap' }}>
-          <span style={{ fontWeight: 800, fontSize: '0.95rem', color: '#fff', letterSpacing: '0.02em' }}>
-            {storeName}
+      {/* Left: editorial wordmark */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 18, minWidth: 0 }}>
+        <Link to="/dashboard" style={{ display: 'flex', alignItems: 'baseline', gap: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+          <span style={{
+            fontFamily: 'Georgia, serif',
+            fontWeight: 400,
+            fontSize: '1.15rem',
+            color: '#1a1410',
+            letterSpacing: '-0.02em',
+          }}>
+            {storeName || 'Paisley & Sparrow'}
           </span>
-          <span style={{ color: '#475569', fontSize: '0.85rem', margin: '0 7px' }}>/</span>
-          <span style={{ color: '#94a3b8', fontWeight: 400, fontSize: '0.85rem' }}>
-            {BREADCRUMB_LABELS[page]}
+          <span style={{
+            fontSize: '0.62rem',
+            fontWeight: 700,
+            color: '#ec4899',
+            letterSpacing: '0.18em',
+            textTransform: 'uppercase',
+          }}>
+            Portal
           </span>
-        </div>
+        </Link>
         {children}
       </div>
 
-      {/* Right: nav links + sign out */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+      {/* Right: nav */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
         {NAV_PAGES.map(p => {
           const isActive = p.key === page
           return (
@@ -67,25 +61,41 @@ export default function AppHeader({ storeName, page, onSignOut, children }) {
               key={p.key}
               to={p.to}
               style={{
-                ...linkStyle,
-                padding: '4px 10px',
-                borderRadius: '6px',
-                color: isActive ? '#fff' : '#94a3b8',
-                fontWeight: isActive ? 700 : 400,
-                background: isActive ? 'rgba(255,255,255,0.1)' : 'transparent',
+                fontSize: '0.82rem',
+                fontWeight: isActive ? 600 : 500,
+                color: isActive ? '#1a1410' : '#7a6b5d',
+                textDecoration: 'none',
+                padding: '7px 14px',
+                borderRadius: 999,
+                background: isActive ? '#fff' : 'transparent',
+                border: isActive ? '1px solid #f1ebe5' : '1px solid transparent',
+                transition: 'color .15s, background .15s',
                 pointerEvents: isActive ? 'none' : 'auto',
               }}
-              onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = '#e2e8f0' }}
-              onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = '#94a3b8' }}
+              onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = '#1a1410' }}
+              onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = '#7a6b5d' }}
             >
               {p.label}
             </Link>
           )
         })}
-        <span style={{ width: '1px', height: '16px', background: '#334155', margin: '0 8px' }} />
-        <button style={{ ...linkStyle, padding: '4px 10px', borderRadius: '6px' }} onClick={onSignOut}
-          onMouseEnter={e => e.currentTarget.style.color = '#e2e8f0'}
-          onMouseLeave={e => e.currentTarget.style.color = '#94a3b8'}>
+        <span style={{ width: 1, height: 18, background: '#e8dfd6', margin: '0 10px' }} />
+        <button
+          onClick={onSignOut}
+          style={{
+            fontSize: '0.78rem',
+            fontWeight: 500,
+            color: '#a89485',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            padding: '6px 8px',
+            fontFamily: 'inherit',
+            transition: 'color .15s',
+          }}
+          onMouseEnter={e => e.currentTarget.style.color = '#1a1410'}
+          onMouseLeave={e => e.currentTarget.style.color = '#a89485'}
+        >
           Sign out
         </button>
       </div>
