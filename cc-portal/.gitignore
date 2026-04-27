@@ -1,0 +1,24 @@
+# Environment & secrets
+.env
+.env.*
+creds.txt
+key.txt
+*.p8
+*.pem
+
+# Dependencies & build
+node_modules/
+dist/
+
+# Supabase
+.supabase/
+
+# Firebase deploy cache
+.firebase/
+
+# Data files
+*.csv
+results.html
+
+# macOS
+.DS_Store
