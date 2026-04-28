@@ -56,11 +56,11 @@ export default function CampaignCatalog() {
 
   function startCatalogTour() {
     const allSteps = [
-      { element: '#catalog-earning-panel', popover: { title: '💰 Already Earning', description: "Campaigns you're currently earning from — see your top performers at a glance.", side: 'bottom', align: 'start' } },
-      { element: '#catalog-filter-bar', popover: { title: '🔍 Filter Bar', description: 'Search by brand or keyword, filter by date added, and set a minimum commission %.' , side: 'bottom', align: 'start' } },
-      { element: '#catalog-sort-row', popover: { title: '↕ Sort & Platform', description: 'Sort by highest rate, newest first, or ending soonest. Filter to Instagram, TikTok, YouTube, and more.', side: 'bottom', align: 'start' } },
-      { element: '#catalog-niches-btn', popover: { title: '⭐ My Niches', description: 'Set your categories once — your default view only shows relevant campaigns for your niche.', side: 'bottom', align: 'start' } },
-      { element: '#catalog-grid', popover: { title: '📋 Campaign Grid', description: 'Every card shows product image, commission %, category, and dates. Click CC → to accept on Amazon.', side: 'top', align: 'start' } },
+      { element: '#catalog-earning-panel', popover: { title: 'Already Earning', description: "Campaigns you're currently earning from — see your top performers at a glance.", side: 'bottom', align: 'start' } },
+      { element: '#catalog-filter-bar', popover: { title: 'Filter Bar', description: 'Search by brand or keyword, filter by date added, and set a minimum commission %.' , side: 'bottom', align: 'start' } },
+      { element: '#catalog-sort-row', popover: { title: 'Sort & Platform', description: 'Sort by highest rate, newest first, or ending soonest. Filter to Instagram, TikTok, YouTube, and more.', side: 'bottom', align: 'start' } },
+      { element: '#catalog-niches-btn', popover: { title: 'My Niches', description: 'Set your categories once — your default view only shows relevant campaigns for your niche.', side: 'bottom', align: 'start' } },
+      { element: '#catalog-grid', popover: { title: 'Campaign Grid', description: 'Every card shows product image, commission %, category, and dates. Click CC → to accept on Amazon.', side: 'top', align: 'start' } },
     ]
     const steps = allSteps.filter(s => document.querySelector(s.element))
     if (steps.length === 0) return

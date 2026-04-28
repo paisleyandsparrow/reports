@@ -232,16 +232,16 @@ export default function DashboardPage() {
 
   function startTour() {
     const allSteps = [
-      { element: '#stat-earnings-30', popover: { title: '💰 Earnings (30d)', description: 'Your total income from Creator Connections campaigns in the last 30 days.', side: 'bottom', align: 'start' } },
-      { element: '#stat-ad-spend', popover: { title: '📊 Ad Spend Today', description: 'Live Meta Ads spend across all ad sets — pulled directly from your account.', side: 'bottom', align: 'start' } },
-      { element: '#stat-active-campaigns', popover: { title: '🏷 Active Campaigns', description: 'Campaigns currently delivering or scheduled on Amazon Creator Connections.', side: 'bottom', align: 'start' } },
-      { element: '#earnings-goal', popover: { title: '🎯 Monthly Goal', description: 'Your earnings target for the month. Set it in Settings → Monthly Earnings Goal.', side: 'top', align: 'start' } },
-      { element: '#what-to-promote', popover: { title: '🚀 What to Promote', description: "High-commission campaigns you haven't promoted yet — your best revenue opportunities.", side: 'top', align: 'start' } },
-      { element: '#new-this-week', popover: { title: '🆕 New This Week', description: 'Campaigns just added to Amazon CC — get in early for maximum exposure.', side: 'top', align: 'start' } },
-      { element: '#nav-catalog', popover: { title: '📋 Campaign Catalog', description: 'Browse 10,000+ live Amazon CC campaigns filtered to your niches. Click CC → to accept.', side: 'bottom', align: 'start' } },
-      { element: '#nav-earnings', popover: { title: '💰 Earnings', description: 'Detailed income breakdown by campaign and ASIN, filterable by time period.', side: 'bottom', align: 'start' } },
-      { element: '#nav-ad-health', popover: { title: '📊 Ad Health', description: 'Live Meta Ads placement analysis — identify wasted spend and underperforming placements.', side: 'bottom', align: 'start' } },
-      { element: '#nav-settings', popover: { title: '⚙ Settings', description: 'Connect Meta Ads, set your niche categories, and configure your monthly earnings goal.', side: 'bottom', align: 'start' } },
+      { element: '#stat-earnings-30', popover: { title: 'Earnings (30d)', description: 'Your total income from Creator Connections campaigns in the last 30 days.', side: 'bottom', align: 'start' } },
+      { element: '#stat-ad-spend', popover: { title: 'Ad Spend Today', description: 'Live Meta Ads spend across all ad sets — pulled directly from your account.', side: 'bottom', align: 'start' } },
+      { element: '#stat-active-campaigns', popover: { title: 'Active Campaigns', description: 'Campaigns currently delivering or scheduled on Amazon Creator Connections.', side: 'bottom', align: 'start' } },
+      { element: '#earnings-goal', popover: { title: 'Monthly Goal', description: 'Your earnings target for the month. Set it in Settings → Monthly Earnings Goal.', side: 'top', align: 'start' } },
+      { element: '#what-to-promote', popover: { title: 'What to Promote', description: "High-commission campaigns you haven't promoted yet — your best revenue opportunities.", side: 'top', align: 'start' } },
+      { element: '#new-this-week', popover: { title: 'New This Week', description: 'Campaigns just added to Amazon CC — get in early for maximum exposure.', side: 'top', align: 'start' } },
+      { element: '#nav-catalog', popover: { title: 'Campaign Catalog', description: 'Browse 10,000+ live Amazon CC campaigns filtered to your niches. Click CC → to accept.', side: 'bottom', align: 'start' } },
+      { element: '#nav-earnings', popover: { title: 'Earnings', description: 'Detailed income breakdown by campaign and ASIN, filterable by time period.', side: 'bottom', align: 'start' } },
+      { element: '#nav-ad-health', popover: { title: 'Ad Health', description: 'Live Meta Ads placement analysis — identify wasted spend and underperforming placements.', side: 'bottom', align: 'start' } },
+      { element: '#nav-settings', popover: { title: 'Settings', description: 'Connect Meta Ads, set your niche categories, and configure your monthly earnings goal.', side: 'bottom', align: 'start' } },
     ]
     const steps = allSteps.filter(s => document.querySelector(s.element))
     if (steps.length === 0) return

@@ -46,9 +46,9 @@ export default function EarningsPage() {
 
   function startEarningsTour() {
     const allSteps = [
-      { element: '#earnings-controls', popover: { title: '📅 Time Period & Search', description: 'Switch between 7d, 30d, 90d, or all-time earnings. Search by campaign name or ASIN.', side: 'bottom', align: 'start' } },
-      { element: '#earnings-stats', popover: { title: '📊 Summary Stats', description: 'Total income, revenue, units sold, and unique campaigns in your selected period.', side: 'bottom', align: 'start' } },
-      { element: '#earnings-table', popover: { title: '📋 Earnings Breakdown', description: 'Full detail per ASIN — click any column to sort. ✓ Live / ✗ Expired shows if the campaign is still active.', side: 'top', align: 'start' } },
+      { element: '#earnings-controls', popover: { title: 'Time Period & Search', description: 'Switch between 7d, 30d, 90d, or all-time earnings. Search by campaign name or ASIN.', side: 'bottom', align: 'start' } },
+      { element: '#earnings-stats', popover: { title: 'Summary Stats', description: 'Total income, revenue, units sold, and unique campaigns in your selected period.', side: 'bottom', align: 'start' } },
+      { element: '#earnings-table', popover: { title: 'Earnings Breakdown', description: 'Full detail per ASIN — click any column to sort. ✓ Live / ✗ Expired shows if the campaign is still active.', side: 'top', align: 'start' } },
     ]
     const steps = allSteps.filter(s => document.querySelector(s.element))
     if (steps.length === 0) return
