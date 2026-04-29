@@ -109,7 +109,7 @@ export function CampaignCardSkeleton() {
   )
 }
 
-export function CampaignCard({ campaign, creatorId }) {
+export function CampaignCard({ campaign, creatorId, queueStatus = null, onQueueToggle }) {
   const cats = categorize(campaign)
   const isActive = campaign.status?.toLowerCase() === 'active'
   const isAccepted = campaign.is_selected === true
@@ -165,13 +165,15 @@ export function CampaignCard({ campaign, creatorId }) {
     <div
       style={{
         background: '#fff', border: '1px solid #f1ebe5', borderRadius: 20,
-        padding: 16, display: 'flex', flexDirection: 'column', gap: 10,
+        overflow: 'hidden',
+        display: 'flex', flexDirection: 'column',
         cursor: 'default', transition: 'box-shadow .2s, border-color .2s, transform .15s',
         fontFamily: 'Inter, sans-serif',
       }}
       onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 12px 32px -16px rgba(26,20,16,0.18)'; e.currentTarget.style.borderColor = '#e8dfd6'; e.currentTarget.style.transform = 'translateY(-2px)' }}
       onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#f1ebe5'; e.currentTarget.style.transform = 'none' }}
     >
+      <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
       {/* Image */}
       <div style={{
         width: '100%', aspectRatio: '1',
@@ -320,6 +322,42 @@ export function CampaignCard({ campaign, creatorId }) {
           )}
         </div>
       </div>
+      </div>
+
+      {/* Full-width queue strip */}
+      {onQueueToggle && (() => {
+        const isAcceptedInQueue = queueStatus === 'accepted'
+        const isPending = queueStatus === 'pending'
+        const isFailed = queueStatus === 'failed'
+        const bg = isAcceptedInQueue ? '#f0fdf4' : isPending ? '#fdf2f8' : '#faf5ef'
+        const bgHover = isAcceptedInQueue ? '#dcfce7' : isPending ? '#fce7f3' : '#f1ebe5'
+        const color = isAcceptedInQueue ? '#166534' : isPending ? '#9d174d' : isFailed ? '#b45309' : '#7a6b5d'
+        const label = isAcceptedInQueue ? '✓ Accepted' : isPending ? '✓ Queued' : isFailed ? '✗ Failed' : '+ Queue'
+        return (
+          <button
+            onClick={e => { e.stopPropagation(); if (!isAcceptedInQueue && !isFailed) onQueueToggle(campaign.campaign_id) }}
+            style={{
+              display: 'block', width: '100%',
+              padding: '11px 0',
+              border: 'none',
+              borderTop: '1px solid #f1ebe5',
+              background: bg,
+              color,
+              fontSize: '0.7rem', fontWeight: 700,
+              letterSpacing: '0.08em', textTransform: 'uppercase',
+              fontFamily: 'inherit',
+              cursor: isAcceptedInQueue || isFailed ? 'default' : 'pointer',
+              transition: 'background .15s',
+              textAlign: 'center',
+              flexShrink: 0,
+            }}
+            onMouseEnter={e => { if (!isAcceptedInQueue && !isFailed) e.currentTarget.style.background = bgHover }}
+            onMouseLeave={e => { e.currentTarget.style.background = bg }}
+          >
+            {label}
+          </button>
+        )
+      })()}
     </div>
   )
 }

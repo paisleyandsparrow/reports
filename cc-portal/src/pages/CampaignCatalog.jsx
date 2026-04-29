@@ -52,6 +52,10 @@ export default function CampaignCatalog() {
   const [earningOpen, setEarningOpen] = useState(true)
   const [earningLoading, setEarningLoading] = useState(false)
 
+  // Queue state — map of campaign_id → 'pending' | 'accepted' | 'failed'
+  const [queueStatus, setQueueStatus] = useState({})
+  const [queueFilter, setQueueFilter] = useState('all') // 'all' | 'queued' | 'accepted'
+
   const tourStartedRef = useRef(false)
 
   function startCatalogTour() {
@@ -120,10 +124,41 @@ export default function CampaignCatalog() {
         if (prefs.store_name) setStoreName(prefs.store_name)
         if (prefs.categories?.length > 0) setUserCategories(prefs.categories)
       }
+
+      // Load queue statuses for all campaigns
+      const { data: queued } = await supabase
+        .from('user_campaign_queue')
+        .select('campaign_id, status')
+        .eq('user_id', session.user.id)
+      if (queued) {
+        const map = {}
+        queued.forEach(r => { map[r.campaign_id] = r.status })
+        setQueueStatus(map)
+      }
+
       fetchEarning('7')
     }
     init()
   }, [])
+
+  async function handleQueueToggle(campaignId) {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) return
+    const currentStatus = queueStatus[campaignId]
+    // Only allow toggling pending off; accepted campaigns stay accepted
+    if (currentStatus === 'accepted') return
+    if (currentStatus === 'pending') {
+      await supabase.from('user_campaign_queue')
+        .delete()
+        .eq('user_id', session.user.id)
+        .eq('campaign_id', campaignId)
+      setQueueStatus(prev => { const next = { ...prev }; delete next[campaignId]; return next })
+    } else {
+      await supabase.from('user_campaign_queue')
+        .upsert({ user_id: session.user.id, campaign_id: campaignId, status: 'pending' }, { onConflict: 'user_id,campaign_id' })
+      setQueueStatus(prev => ({ ...prev, [campaignId]: 'pending' }))
+    }
+  }
 
   // Re-fetch from server when commission filter changes
   useEffect(() => {
@@ -216,7 +251,12 @@ export default function CampaignCatalog() {
       matchesDate = new Date(c.first_seen) >= cutoff
     }
     const matchesPlatform = platformFilter === 'all' || (c.social_platforms || []).some(p => p.toLowerCase().includes(platformFilter.toLowerCase()))
-    return matchesSearch && matchesCategory && matchesDate && matchesPlatform
+    const matchesQueue =
+      queueFilter === 'all' ? true :
+      queueFilter === 'queued' ? (queueStatus[c.campaign_id] === 'pending') :
+      queueFilter === 'accepted' ? (queueStatus[c.campaign_id] === 'accepted') :
+      true
+    return matchesSearch && matchesCategory && matchesDate && matchesPlatform && matchesQueue
   })
 
   // Deduplicate by primary_asin — same product can have many campaign entries per brand.
@@ -529,6 +569,32 @@ export default function CampaignCatalog() {
             ))}
           </select>
 
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Queue</span>
+            <div style={{ display: 'flex', gap: 3, background: '#fff', borderRadius: 999, padding: 3, border: '1px solid #f1ebe5' }}>
+              {[['all', 'All'], ['queued', 'Queued'], ['accepted', 'Accepted']].map(([val, label]) => {
+                const isActive = queueFilter === val
+                return (
+                  <button
+                    key={val}
+                    onClick={() => setQueueFilter(val)}
+                    style={{
+                      fontSize: '0.7rem', fontWeight: isActive ? 600 : 500,
+                      padding: '4px 12px', borderRadius: 999, cursor: 'pointer',
+                      border: 'none',
+                      background: isActive ? (val === 'accepted' ? '#166534' : val === 'queued' ? '#9d174d' : '#1a1410') : 'transparent',
+                      color: isActive ? '#fff' : '#7a6b5d',
+                      whiteSpace: 'nowrap', transition: 'all .15s',
+                      fontFamily: 'inherit', letterSpacing: '0.02em',
+                    }}
+                  >
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           <div style={{ flex: 1 }} />
 
           <button
@@ -662,7 +728,13 @@ export default function CampaignCatalog() {
           padding: '32px 28px',
         }}>
           {displayed.map(c => (
-            <CampaignCard key={c.campaign_id} campaign={c} creatorId={creatorId} />
+            <CampaignCard
+              key={c.campaign_id}
+              campaign={c}
+              creatorId={creatorId}
+              queueStatus={queueStatus[c.campaign_id] || null}
+              onQueueToggle={handleQueueToggle}
+            />
           ))}
         </div>
       )}

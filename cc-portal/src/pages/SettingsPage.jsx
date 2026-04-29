@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { parseEarningsCsv } from '../lib/parseEarningsCsv'
 import AppHeader from '../components/AppHeader'
+import { categorize } from '../components/CampaignCard'
 
 export default function SettingsPage() {
   const location = useLocation()
@@ -29,6 +30,62 @@ export default function SettingsPage() {
   const [monthlyGoal, setMonthlyGoal] = useState('')
   const [goalSaving, setGoalSaving] = useState(false)
   const [goalSaveResult, setGoalSaveResult] = useState(null)
+
+  // Automation settings state
+  const [autoEnabled, setAutoEnabled] = useState(false)
+  const [maxPerDay, setMaxPerDay] = useState('500')
+  const [maxPerRun, setMaxPerRun] = useState('100')
+  const [runStartHour, setRunStartHour] = useState('8')
+  const [runEndHour, setRunEndHour] = useState('20')
+  const [autoSaving, setAutoSaving] = useState(false)
+  const [autoSaveResult, setAutoSaveResult] = useState(null)
+
+  // Amazon session state
+  const [amazonSession, setAmazonSession] = useState(null)
+
+  // Auto-accept rules state
+  const [rules, setRules] = useState([])
+  const [newRuleCategory, setNewRuleCategory] = useState('')
+  const [newRuleMinCommission, setNewRuleMinCommission] = useState('')
+  const [newRuleBrand, setNewRuleBrand] = useState('')
+  const [addingRule, setAddingRule] = useState(false)
+  const [ruleQueuedCount, setRuleQueuedCount] = useState(null)
+  const [rulePreviewCount, setRulePreviewCount] = useState(null)
+  const [rulePreviewLoading, setRulePreviewLoading] = useState(false)
+
+  // Live preview: count catalog matches as user fills in rule form
+  useEffect(() => {
+    const hasAny = newRuleCategory || newRuleMinCommission || newRuleBrand.trim()
+    if (!hasAny) {
+      setRulePreviewCount(null)
+      return
+    }
+    setRulePreviewLoading(true)
+    const timer = setTimeout(async () => {
+      try {
+        // browse_nodes is a text[] array — ilike doesn't work server-side, filter in JS
+        const { data: rows } = await supabase
+          .from('cc_campaign_catalog')
+          .select('campaign_id, browse_nodes, commission_rate, brand_name')
+          .limit(1000)
+        const cat = newRuleCategory.trim()
+        const brand = newRuleBrand.toLowerCase().trim()
+        const minComm = newRuleMinCommission ? Number(newRuleMinCommission) : null
+        const matches = (rows || []).filter(c => {
+          if (cat && !categorize(c).includes(cat)) return false
+          if (minComm !== null && parseFloat(c.commission_rate ?? 0) < minComm) return false
+          if (brand && !(c.brand_name || '').toLowerCase().includes(brand)) return false
+          return true
+        })
+        setRulePreviewCount(matches.length)
+      } catch {
+        setRulePreviewCount(null)
+      } finally {
+        setRulePreviewLoading(false)
+      }
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [newRuleCategory, newRuleMinCommission, newRuleBrand])
 
   useEffect(() => {
     async function init() {
@@ -65,11 +122,39 @@ export default function SettingsPage() {
       try {
         const { data: goalData } = await supabase
           .from('user_preferences')
-          .select('monthly_earnings_goal')
+          .select('monthly_earnings_goal, acceptance_enabled, max_campaigns_per_day, max_per_run, run_start_hour, run_end_hour')
           .eq('id', session.user.id)
           .maybeSingle()
         if (goalData?.monthly_earnings_goal) setMonthlyGoal(String(goalData.monthly_earnings_goal))
-      } catch { /* column may not exist yet */ }
+        if (goalData) {
+          setAutoEnabled(!!goalData.acceptance_enabled)
+          if (goalData.max_campaigns_per_day != null) setMaxPerDay(String(goalData.max_campaigns_per_day))
+          if (goalData.max_per_run != null) setMaxPerRun(String(goalData.max_per_run))
+          if (goalData.run_start_hour != null) setRunStartHour(String(goalData.run_start_hour))
+          if (goalData.run_end_hour != null) setRunEndHour(String(goalData.run_end_hour))
+        }
+      } catch { /* columns may not exist yet */ }
+
+      // Load auto-accept rules
+      try {
+        const { data: rulesData } = await supabase
+          .from('user_campaign_rules')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .eq('enabled', true)
+          .order('created_at', { ascending: true })
+        if (rulesData) setRules(rulesData)
+      } catch { /* table may not exist yet */ }
+
+      // Load Amazon session info
+      try {
+        const { data: amzSession } = await supabase
+          .from('user_amazon_sessions')
+          .select('captured_at, expires_at, is_valid')
+          .eq('user_id', session.user.id)
+          .maybeSingle()
+        if (amzSession) setAmazonSession(amzSession)
+      } catch { /* table may not exist yet */ }
     }
     init()
   }, [])
@@ -119,6 +204,97 @@ export default function SettingsPage() {
     } finally {
       setGoalSaving(false)
     }
+  }
+
+  async function handleSaveAutoSettings() {
+    if (!userId) return
+    setAutoSaving(true)
+    setAutoSaveResult(null)
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({
+          id: userId,
+          acceptance_enabled: autoEnabled,
+          max_campaigns_per_day: Number(maxPerDay) || 500,
+          max_per_run: Number(maxPerRun) || 100,
+          run_start_hour: Number(runStartHour) || 8,
+          run_end_hour: Number(runEndHour) || 20,
+        }, { onConflict: 'id' })
+      if (error) throw error
+      setAutoSaveResult('saved')
+    } catch {
+      setAutoSaveResult('error')
+    } finally {
+      setAutoSaving(false)
+    }
+  }
+
+  async function handleAddRule() {
+    if (!userId || !newRuleCategory) return
+    setAddingRule(true)
+    setRuleQueuedCount(null)
+    try {
+      // 1. Save the rule
+      const { data, error } = await supabase
+        .from('user_campaign_rules')
+        .insert({
+          user_id: userId,
+          category: newRuleCategory || null,
+          min_commission: newRuleMinCommission ? Number(newRuleMinCommission) : null,
+          brand_contains: newRuleBrand.trim() || null,
+          enabled: true,
+        })
+        .select()
+        .single()
+      if (error) throw error
+      setRules(prev => [...prev, data])
+
+      // 2. Query catalog and filter client-side (browse_nodes is text[], ilike doesn't work on arrays)
+      const { data: catalogRows } = await supabase
+        .from('cc_campaign_catalog')
+        .select('campaign_id, browse_nodes, commission_rate, brand_name')
+        .limit(1000)
+      const cat = newRuleCategory.trim()
+      const brand = newRuleBrand.trim().toLowerCase()
+      const minComm = newRuleMinCommission ? Number(newRuleMinCommission) : null
+      const matches = (catalogRows || []).filter(c => {
+        if (cat && !categorize(c).includes(cat)) return false
+        if (minComm !== null && parseFloat(c.commission_rate ?? 0) < minComm) return false
+        if (brand && !(c.brand_name || '').toLowerCase().includes(brand)) return false
+        return true
+      })
+
+      // 3. Bulk-insert matches into queue, skip any already present (UNIQUE constraint)
+      if (matches && matches.length > 0) {
+        const now = new Date().toISOString()
+        const rows = matches.map(m => ({
+          user_id: userId,
+          campaign_id: m.campaign_id,
+          status: 'pending',
+          marked_at: now,
+        }))
+        const { data: inserted } = await supabase
+          .from('user_campaign_queue')
+          .upsert(rows, { onConflict: 'user_id,campaign_id', ignoreDuplicates: true })
+          .select('id')
+        setRuleQueuedCount(inserted?.length ?? matches.length)
+      } else {
+        setRuleQueuedCount(0)
+      }
+
+      setNewRuleCategory('')
+      setNewRuleMinCommission('')
+      setNewRuleBrand('')
+      setRulePreviewCount(null)
+    } catch { /* ignore */ } finally {
+      setAddingRule(false)
+    }
+  }
+
+  async function handleDeleteRule(ruleId) {
+    await supabase.from('user_campaign_rules').delete().eq('id', ruleId)
+    setRules(prev => prev.filter(r => r.id !== ruleId))
   }
 
   function handleCsvFile(file) {
@@ -209,6 +385,50 @@ export default function SettingsPage() {
             To use Ad Health, add your <strong style={{ color: '#fbcfe8' }}>Meta access token</strong> and <strong style={{ color: '#fbcfe8' }}>ad account ID</strong> below and save.
           </div>
         )}
+
+        {/* Amazon session warning */}
+        {(() => {
+          if (!amazonSession) return (
+            <div style={{
+              marginBottom: 24, padding: '14px 18px', borderRadius: 14,
+              background: '#fff7ed', border: '1px solid #fed7aa',
+              fontSize: '0.82rem', lineHeight: 1.55, color: '#92400e',
+            }}>
+              <strong>Amazon session not connected.</strong> Install the Paisley &amp; Sparrow Chrome extension and click <em>Capture Amazon Session</em> to enable automated campaign acceptance.
+            </div>
+          )
+          if (!amazonSession.is_valid) return (
+            <div style={{
+              marginBottom: 24, padding: '14px 18px', borderRadius: 14,
+              background: '#fff1f2', border: '1px solid #fecdd3',
+              fontSize: '0.82rem', lineHeight: 1.55, color: '#9f1239',
+            }}>
+              <strong>Amazon session invalidated.</strong> Open the Chrome extension and recapture your session to restore automated acceptance.
+            </div>
+          )
+          if (amazonSession.expires_at) {
+            const days = Math.ceil((new Date(amazonSession.expires_at) - Date.now()) / 86400000)
+            if (days <= 0) return (
+              <div style={{
+                marginBottom: 24, padding: '14px 18px', borderRadius: 14,
+                background: '#fff1f2', border: '1px solid #fecdd3',
+                fontSize: '0.82rem', lineHeight: 1.55, color: '#9f1239',
+              }}>
+                <strong>Amazon session expired.</strong> Open the Chrome extension and recapture your session.
+              </div>
+            )
+            if (days <= 7) return (
+              <div style={{
+                marginBottom: 24, padding: '14px 18px', borderRadius: 14,
+                background: '#fff7ed', border: '1px solid #fed7aa',
+                fontSize: '0.82rem', lineHeight: 1.55, color: '#92400e',
+              }}>
+                <strong>Amazon session expires in {days} day{days === 1 ? '' : 's'}.</strong> Open the Chrome extension soon and recapture your session to avoid interruptions.
+              </div>
+            )
+          }
+          return null
+        })()}
 
         <div style={{ background: '#fff', borderRadius: 28, border: '1px solid #f1ebe5', padding: '40px 36px' }}>
 
@@ -414,6 +634,189 @@ export default function SettingsPage() {
               {metaSaveResult === 'error' && (
                 <p style={errorText}>Could not save. Try again.</p>
               )}
+            </div>
+          </section>
+
+          <div style={sectionDivider} />
+
+          {/* Automation Settings */}
+          <section>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, flexWrap: 'wrap', gap: 12 }}>
+              <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: 0 }}>Bulk acceptance</h2>
+              {/* Enable toggle */}
+              <button
+                onClick={() => { setAutoEnabled(v => !v); setAutoSaveResult(null) }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontFamily: 'inherit', padding: 0,
+                }}
+              >
+                <div style={{
+                  width: 40, height: 22, borderRadius: 999,
+                  background: autoEnabled ? '#1a1410' : '#e8dfd6',
+                  position: 'relative', transition: 'background .2s',
+                  flexShrink: 0,
+                }}>
+                  <div style={{
+                    position: 'absolute', top: 3, left: autoEnabled ? 21 : 3,
+                    width: 16, height: 16, borderRadius: 999,
+                    background: '#fff', transition: 'left .2s',
+                  }} />
+                </div>
+                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: autoEnabled ? '#1a1410' : '#a89485' }}>
+                  {autoEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </button>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px', lineHeight: 1.55 }}>
+              Controls how many campaigns the automation accepts per day and per run. Runs every 2 hours during your active window.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <div>
+                <label style={labelStyle}>Max per day</label>
+                <input type="number" min="1" max="5000" value={maxPerDay}
+                  onChange={e => { setMaxPerDay(e.target.value); setAutoSaveResult(null) }}
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="500" />
+              </div>
+              <div>
+                <label style={labelStyle}>Max per run</label>
+                <input type="number" min="1" max="5000" value={maxPerRun}
+                  onChange={e => { setMaxPerRun(e.target.value); setAutoSaveResult(null) }}
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="100" />
+              </div>
+              <div>
+                <label style={labelStyle}>Start hour (24h)</label>
+                <input type="number" min="0" max="23" value={runStartHour}
+                  onChange={e => { setRunStartHour(e.target.value); setAutoSaveResult(null) }}
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="8" />
+              </div>
+              <div>
+                <label style={labelStyle}>End hour (24h)</label>
+                <input type="number" min="0" max="23" value={runEndHour}
+                  onChange={e => { setRunEndHour(e.target.value); setAutoSaveResult(null) }}
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="20" />
+              </div>
+            </div>
+
+            {/* Runs preview */}
+            {runStartHour && runEndHour && Number(runEndHour) > Number(runStartHour) && (
+              <p style={{ fontSize: '0.78rem', color: '#a89485', margin: '0 0 20px', lineHeight: 1.6 }}>
+                {(() => {
+                  const start = Number(runStartHour), end = Number(runEndHour)
+                  const runs = []
+                  for (let h = start; h < end; h += 2) runs.push(`${h % 12 || 12}${h < 12 ? 'am' : 'pm'}`)
+                  const perRun = Math.min(Number(maxPerRun) || 100, Math.ceil((Number(maxPerDay) || 500) / runs.length))
+                  return `${runs.length} runs · ${runs.join(', ')} · ~${perRun} campaigns each`
+                })()}
+              </p>
+            )}
+
+            <button
+              onClick={handleSaveAutoSettings}
+              disabled={autoSaving}
+              style={{ ...primaryBtn(autoSaving), marginBottom: 0 }}
+              onMouseEnter={e => { if (!autoSaving) e.currentTarget.style.background = '#2a1f18' }}
+              onMouseLeave={e => { if (!autoSaving) e.currentTarget.style.background = '#1a1410' }}
+            >
+              {autoSaving ? 'Saving…' : 'Save automation settings'}
+            </button>
+            {autoSaveResult === 'saved' && <p style={successText}>Saved.</p>}
+            {autoSaveResult === 'error' && <p style={errorText}>Could not save.</p>}
+          </section>
+
+          <div style={sectionDivider} />
+
+          {/* Auto-Accept Rules */}
+          <section>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 6px' }}>Auto-accept rules</h2>
+            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px', lineHeight: 1.55 }}>
+              Campaigns matching any rule will be automatically queued. Manually queued campaigns always run too.
+            </p>
+
+            {/* Existing rules */}
+            {rules.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                {rules.map(rule => (
+                  <div key={rule.id} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '12px 16px', background: '#faf5ef', borderRadius: 14,
+                    border: '1px solid #f1ebe5', gap: 12, flexWrap: 'wrap',
+                  }}>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flex: 1 }}>
+                      {rule.category && (
+                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 12px', borderRadius: 999, background: '#fdf2f8', color: '#9d174d' }}>{rule.category}</span>
+                      )}
+                      {rule.min_commission != null && (
+                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 12px', borderRadius: 999, background: '#f0fdf4', color: '#166534' }}>≥{rule.min_commission}%</span>
+                      )}
+                      {rule.brand_contains && (
+                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 12px', borderRadius: 999, background: '#eff6ff', color: '#1e40af' }}>brand: "{rule.brand_contains}"</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteRule(rule.id)}
+                      style={{ fontSize: '0.72rem', color: '#a89485', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px', flexShrink: 0 }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#1a1410'}
+                      onMouseLeave={e => e.currentTarget.style.color = '#a89485'}
+                    >Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add rule form */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '20px', background: '#faf5ef', borderRadius: 18, border: '1px solid #f1ebe5' }}>
+              <p style={{ fontSize: '0.66rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>New rule</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={labelStyle}>Category</label>
+                  <select
+                    value={newRuleCategory}
+                    onChange={e => { setNewRuleCategory(e.target.value); setRuleQueuedCount(null) }}
+                    style={{ ...inputStyle, cursor: 'pointer' }}
+                    onFocus={focusInput} onBlur={blurInput}
+                  >
+                    <option value="">Any category</option>
+                    {["Women's Fashion","Beauty & Skincare","Health & Wellness","Shoes","Jewelry & Accessories","Home & Kitchen","Fitness & Activewear","Men's Fashion","Kids & Baby","Pets","Electronics","Books & Lifestyle"].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>Min commission %</label>
+                  <input type="number" min="0" max="100" value={newRuleMinCommission}
+                    onChange={e => { setNewRuleMinCommission(e.target.value); setRuleQueuedCount(null) }}
+                    placeholder="e.g. 15"
+                    style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>Brand contains (optional)</label>
+                <input type="text" value={newRuleBrand}
+                  onChange={e => { setNewRuleBrand(e.target.value); setRuleQueuedCount(null) }}
+                  placeholder="e.g. Nike"
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+              </div>
+              {(rulePreviewLoading || rulePreviewCount !== null) && (
+                <p style={{ margin: 0, fontSize: '0.72rem', color: rulePreviewLoading ? '#a89485' : rulePreviewCount === 0 ? '#a89485' : '#166534', fontWeight: 600 }}>
+                  {rulePreviewLoading
+                    ? 'Checking catalog…'
+                    : rulePreviewCount === 0
+                      ? 'No matching campaigns in catalog right now'
+                      : `This will add ${rulePreviewCount} campaign${rulePreviewCount === 1 ? '' : 's'} to your queue`}
+                </p>
+              )}
+              <button
+                onClick={handleAddRule}
+                disabled={addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand)}
+                style={primaryBtn(addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand))}
+                onMouseEnter={e => { if (!(addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand))) e.currentTarget.style.background = '#2a1f18' }}
+                onMouseLeave={e => { if (!(addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand))) e.currentTarget.style.background = '#1a1410' }}
+              >
+                {addingRule ? 'Queuing matches…' : ruleQueuedCount !== null ? `✓ ${ruleQueuedCount} queued` : 'Add rule'}
+              </button>
             </div>
           </section>
         </div>

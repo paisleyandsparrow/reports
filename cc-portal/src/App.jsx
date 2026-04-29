@@ -7,6 +7,7 @@ import SettingsPage from './pages/SettingsPage'
 import EarningsPage from './pages/EarningsPage'
 import AdHealthPage from './pages/AdHealthPage'
 import DashboardPage from './pages/DashboardPage'
+import QueuePage from './pages/QueuePage'
 import AuthGuard from './components/AuthGuard'
 
 const IS_MOCK = import.meta.env.VITE_MOCK === 'true'
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/settings" element={<Guard><SettingsPage /></Guard>} />
         <Route path="/earnings" element={<Guard><EarningsPage /></Guard>} />
         <Route path="/ad-health" element={<Guard><AdHealthPage /></Guard>} />
+        <Route path="/queue" element={<Guard><QueuePage /></Guard>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
