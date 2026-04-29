@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 const NAV_PAGES = [
   { key: 'dashboard',  label: 'Dashboard',   to: '/dashboard' },
   { key: 'catalog',    label: 'Campaigns',   to: '/' },
-  { key: 'earnings',   label: 'Earnings',    to: '/earnings' },
+  { key: 'earnings',   label: 'CC Earnings', to: '/earnings' },
   { key: 'ad-health',  label: 'Ad Health',   to: '/ad-health' },
   { key: 'settings',   label: 'Settings',    to: '/settings' },
 ]
@@ -36,7 +36,7 @@ export default function AppHeader({ storeName, page, onSignOut, children }) {
             color: '#1a1410',
             letterSpacing: '-0.02em',
           }}>
-            {storeName || 'Paisley & Sparrow'}
+            {storeName || ''}
           </span>
           <span style={{
             fontSize: '0.62rem',

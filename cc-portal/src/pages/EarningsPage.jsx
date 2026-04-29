@@ -85,7 +85,7 @@ export default function EarningsPage() {
         .eq('id', session.user.id)
         .single()
       if (prefs?.store_name) setStoreName(prefs.store_name)
-      fetchDetail('all')
+      fetchDetail('7')
       fetchActiveAsins()
     }
     init()
@@ -175,7 +175,7 @@ export default function EarningsPage() {
         {/* Editorial hero */}
         <div>
           <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>
-            Earnings
+            Creator Connections earnings
           </p>
           <h1 style={{
             fontFamily: 'Georgia, serif', fontWeight: 400,
@@ -185,7 +185,7 @@ export default function EarningsPage() {
             Where your work <em style={{ color: '#ec4899', fontStyle: 'italic' }}>is paying off</em>.
           </h1>
           <p style={{ fontSize: '1.02rem', color: '#7a6b5d', lineHeight: 1.55, maxWidth: 600, marginTop: 18 }}>
-            Income broken down by campaign and product. Sort, search, and see what's still live.
+            Creator Connections income, broken down by campaign and product. Sort, search, and see what's still live.
           </p>
         </div>
 

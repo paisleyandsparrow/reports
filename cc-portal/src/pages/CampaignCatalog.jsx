@@ -348,20 +348,7 @@ export default function CampaignCatalog() {
         </div>
       )}
 
-      <AppHeader page="catalog" storeName={storeName} onSignOut={handleSignOut}>
-        <div style={{
-          fontSize: '0.7rem', color: '#7a6b5d', whiteSpace: 'nowrap',
-          background: '#faf5ef', borderRadius: 999,
-          padding: '4px 12px', letterSpacing: '0.04em',
-          border: '1px solid #f1ebe5',
-        }}>
-          <strong style={{ color: '#1a1410', fontWeight: 600 }}>{campaigns.length.toLocaleString()}</strong>
-          {' · '}
-          {filterMinRate}%+
-          {' · updated '}
-          {new Date().toISOString().slice(0, 10)}
-        </div>
-      </AppHeader>
+      <AppHeader page="catalog" storeName={storeName} onSignOut={handleSignOut} />
 
       {/* Already Earning Panel */}
       {(earningItems.length > 0 || earningLoading) && (

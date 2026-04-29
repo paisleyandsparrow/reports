@@ -214,7 +214,7 @@ export default function SettingsPage() {
 
           {/* Earnings Upload Section */}
           <section>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 6px' }}>Earnings history</h2>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 6px' }}>Creator Connections earnings history</h2>
             {existingCount !== null && (
               <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px' }}>
                 {existingCount > 0
