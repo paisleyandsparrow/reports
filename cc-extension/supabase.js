@@ -65,94 +65,24 @@ async function signOut() {
   await clearStoredSession()
 }
 
-// ── Amazon cookie capture ─────────────────────────────────────────────────────
+// ── Queue stats ───────────────────────────────────────────────────────────────
 
-// These are the cookies Playwright needs to operate as the user on Amazon
-const CRITICAL_COOKIE_NAMES = [
-  'session-id',
-  'session-id-time',
-  'ubid-main',
-  'at-main',
-  'sess-at-main',
-  'x-main',
-  'lc-main',
-  'i18n-prefs',
-]
-
-async function captureAmazonSession(userId) {
-  const allCookies = await new Promise((resolve, reject) => {
-    chrome.cookies.getAll({ domain: '.amazon.com' }, (cookies) => {
-      if (chrome.runtime.lastError) return reject(new Error(chrome.runtime.lastError.message))
-      resolve(cookies)
-    })
-  })
-
-  if (!allCookies || allCookies.length === 0) {
-    throw new Error('No Amazon cookies found. Make sure you are logged into Amazon in this browser.')
+async function getQueueStats(userId) {
+  const today = new Date().toISOString().slice(0, 10)
+  const [pendingData, acceptedData] = await Promise.all([
+    supabaseFetch(`/rest/v1/user_campaign_queue?user_id=eq.${userId}&status=eq.pending&select=id`),
+    supabaseFetch(`/rest/v1/user_campaign_queue?user_id=eq.${userId}&status=eq.accepted&accepted_date=eq.${today}&select=id`),
+  ])
+  return {
+    pending: (pendingData || []).length,
+    acceptedToday: (acceptedData || []).length,
   }
-
-  // Prefer critical cookies but include everything — Playwright may need them
-  const criticalCookies = allCookies.filter(c => CRITICAL_COOKIE_NAMES.includes(c.name))
-  if (criticalCookies.length < 3) {
-    throw new Error('Amazon session cookies not found. Please log into Amazon first, then try again.')
-  }
-
-  // Compute expiry from the soonest-expiring critical cookie that has an expiry
-  const expiryTimes = criticalCookies
-    .filter(c => c.expirationDate && c.expirationDate > 0)
-    .map(c => c.expirationDate * 1000) // convert to ms
-  const soonestExpiry = expiryTimes.length > 0
-    ? new Date(Math.min(...expiryTimes)).toISOString()
-    : null
-
-  const cookiePayload = allCookies.map(c => ({
-    name: c.name,
-    value: c.value,
-    domain: c.domain,
-    path: c.path,
-    secure: c.secure,
-    httpOnly: c.httpOnly,
-    sameSite: c.sameSite,
-    expirationDate: c.expirationDate || null,
-  }))
-
-  const now = new Date().toISOString()
-  const userAgent = navigator.userAgent
-
-  // Upsert into Supabase (one row per user — always overwrites with latest)
-  await supabaseFetch('/rest/v1/user_amazon_sessions', {
-    method: 'POST',
-    headers: {
-      'Prefer': 'resolution=merge-duplicates',
-    },
-    body: JSON.stringify({
-      user_id: userId,
-      cookies: cookiePayload,
-      captured_at: now,
-      expires_at: soonestExpiry,
-      user_agent: userAgent,
-      is_valid: true,
-    }),
-  })
-
-  return { capturedAt: now, expiresAt: soonestExpiry, cookieCount: cookiePayload.length }
-}
-
-// ── Load existing session info from Supabase ──────────────────────────────────
-
-async function loadAmazonSessionInfo(userId) {
-  const data = await supabaseFetch(
-    `/rest/v1/user_amazon_sessions?user_id=eq.${userId}&select=captured_at,expires_at,is_valid&limit=1`,
-    { method: 'GET' }
-  )
-  return data && data.length > 0 ? data[0] : null
 }
 
 // Export for popup.js
 window.__ps = {
   signOut,
   getStoredSession,
-  captureAmazonSession,
-  loadAmazonSessionInfo,
+  getQueueStats,
 }
 })();

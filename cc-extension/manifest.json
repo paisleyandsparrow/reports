@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "Paisley & Sparrow — CC Session Capture",
+  "name": "Paisley & Sparrow — Campaign Automation",
   "version": "1.0.0",
-  "description": "Capture your Amazon Creator Connections session for automated campaign management.",
+  "description": "Automatically accept Amazon Creator Connections campaigns based on your saved rules.",
 
   "permissions": [
-    "cookies",
+    "alarms",
     "identity",
-    "storage"
+    "storage",
+    "tabs"
   ],
   "host_permissions": [
     "https://*.amazon.com/*"

@@ -109,9 +109,18 @@
     .status-ok { color: #065f46; }
     .status-none { color: #a89485; font-style: italic; }
 
-    .capture-btn {
+    .feedback {
+      font-size: 0.75rem;
+      text-align: center;
+      font-weight: 500;
+      min-height: 18px;
+    }
+    .feedback.success { color: #065f46; }
+    .feedback.error { color: #9f1239; }
+
+    .run-btn {
       width: 100%;
-      background: #ec4899;
+      background: #1a1410;
       color: #fff;
       border: none;
       border-radius: 999px;
@@ -123,17 +132,8 @@
       letter-spacing: 0.01em;
       transition: background 0.15s;
     }
-    .capture-btn:hover { background: #db2777; }
-    .capture-btn:disabled { background: #d4c5b3; cursor: not-allowed; }
-
-    .feedback {
-      font-size: 0.75rem;
-      text-align: center;
-      font-weight: 500;
-      min-height: 18px;
-    }
-    .feedback.success { color: #065f46; }
-    .feedback.error { color: #9f1239; }
+    .run-btn:hover { background: #2d2419; }
+    .run-btn:disabled { background: #d4c5b3; cursor: not-allowed; }
 
     .divider { height: 1px; background: #f1ebe5; }
   </style>
@@ -169,16 +169,16 @@
 
     <div class="divider"></div>
 
-    <div class="status-box" id="session-status-box">
-      <div class="status-label">Amazon session</div>
-      <div class="status-value status-none" id="session-status-text">No session captured yet</div>
+    <div class="status-box">
+      <div class="status-label">Campaign Queue</div>
+      <div class="status-value status-none" id="queue-stats-text">Loading…</div>
     </div>
 
-    <button class="capture-btn" id="capture-btn">
-      Capture Amazon Session
+    <button class="run-btn" id="run-queue-btn">
+      ▶️ Run Queue Now
     </button>
 
-    <div class="feedback" id="capture-feedback"></div>
+    <div class="feedback" id="run-feedback"></div>
   </div>
 
   <script src="supabase.js"></script>
