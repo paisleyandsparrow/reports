@@ -354,13 +354,72 @@ export default function SettingsPage() {
   const sectionDivider = { height: 1, background: '#f1ebe5', margin: '40px 0' }
   const successText = { fontSize: '0.78rem', color: '#9d174d', textAlign: 'center', marginTop: 12, fontWeight: 500 }
   const errorText = { fontSize: '0.78rem', color: '#1a1410', textAlign: 'center', marginTop: 12 }
+  const cardStyle = { background: '#fff', borderRadius: 28, border: '1px solid #f1ebe5', padding: '36px 32px', marginBottom: 24, scrollMarginTop: 24 }
+  const sectionHeaderEyebrow = (color = '#ec4899') => ({ fontSize: '0.66rem', fontWeight: 700, color, letterSpacing: '0.2em', textTransform: 'uppercase', margin: '0 0 10px' })
+  const sectionHeaderTitle = { fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.7rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 6px', lineHeight: 1.15 }
+  const sectionHeaderSub = { fontSize: '0.88rem', color: '#7a6b5d', margin: 0, lineHeight: 1.55 }
+
+  // Derived statuses for the connection strip
+  const amazonStatus = (() => {
+    if (!amazonSession) return 'idle'
+    if (!amazonSession.is_valid) return 'error'
+    if (amazonSession.expires_at) {
+      const days = Math.ceil((new Date(amazonSession.expires_at) - Date.now()) / 86400000)
+      if (days <= 0) return 'error'
+      if (days <= 7) return 'warning'
+    }
+    return 'connected'
+  })()
+  const metaStatus = metaConnected ? 'connected' : 'idle'
+  const csvStatus = existingCount && existingCount > 0 ? 'connected' : 'idle'
+
+  const pillTone = {
+    connected: { bg: '#fdf2f8', fg: '#9d174d', dot: '#ec4899', label: 'Connected' },
+    warning:   { bg: '#fff7ed', fg: '#92400e', dot: '#f59e0b', label: 'Renew soon' },
+    error:     { bg: '#fff1f2', fg: '#9f1239', dot: '#e11d48', label: 'Action needed' },
+    idle:      { bg: '#faf5ef', fg: '#a89485', dot: '#d4c5b3', label: 'Not connected' },
+  }
+  const StatusPill = ({ label, status, href }) => {
+    const tone = pillTone[status]
+    return (
+      <a href={href} style={{
+        display: 'flex', alignItems: 'center', gap: 10,
+        padding: '12px 16px', borderRadius: 16,
+        background: tone.bg, color: tone.fg,
+        border: `1px solid ${status === 'idle' ? '#f1ebe5' : 'transparent'}`,
+        textDecoration: 'none', fontFamily: 'inherit',
+        flex: 1, minWidth: 0, transition: 'transform .15s, box-shadow .15s',
+      }}
+        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(26,20,16,0.06)' }}
+        onMouseLeave={e => { e.currentTarget.style.transform = 'none'; e.currentTarget.style.boxShadow = 'none' }}
+      >
+        <span style={{ width: 8, height: 8, borderRadius: 999, background: tone.dot, flexShrink: 0 }} />
+        <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+          <span style={{ fontSize: '0.6rem', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', opacity: 0.75 }}>{label}</span>
+          <span style={{ fontSize: '0.84rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tone.label}</span>
+        </span>
+      </a>
+    )
+  }
+  const SectionHeader = ({ number, eyebrow, title, sub, right }) => (
+    <header style={{ marginBottom: 26, display: 'flex', alignItems: 'flex-start', gap: 16, justifyContent: 'space-between', flexWrap: 'wrap' }}>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <p style={sectionHeaderEyebrow()}>
+          {number} · {eyebrow}
+        </p>
+        <h2 style={sectionHeaderTitle}>{title}</h2>
+        {sub && <p style={sectionHeaderSub}>{sub}</p>}
+      </div>
+      {right}
+    </header>
+  )
 
   return (
     <div style={{ minHeight: '100vh', background: '#fbf7f3', fontFamily: 'Inter, sans-serif', color: '#1a1410' }}>
       <AppHeader page="settings" storeName={storeName}
         onSignOut={async () => { await supabase.auth.signOut(); navigate('/login') }} />
 
-      <div style={{ maxWidth: 720, margin: '0 auto', padding: '48px 28px 80px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 28px 80px' }}>
 
         {/* Editorial hero */}
         <div style={{ marginBottom: 36 }}>
@@ -374,6 +433,13 @@ export default function SettingsPage() {
           }}>
             Your <em style={{ color: '#ec4899', fontStyle: 'italic' }}>connections</em>, configured.
           </h1>
+        </div>
+
+        {/* Connection status strip */}
+        <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
+          <StatusPill label="Amazon" status={amazonStatus} href="#automation" />
+          <StatusPill label="Meta Ads" status={metaStatus} href="#meta" />
+          <StatusPill label="Earnings CSV" status={csvStatus} href="#data" />
         </div>
 
         {fromAdHealth && (
@@ -430,18 +496,334 @@ export default function SettingsPage() {
           return null
         })()}
 
-        <div style={{ background: '#fff', borderRadius: 28, border: '1px solid #f1ebe5', padding: '40px 36px' }}>
+        {/* Card 01 — Connections (Meta Ads) */}
+        <section id="meta" style={cardStyle}>
+          <SectionHeader
+            number="01"
+            eyebrow="Connections"
+            title="Meta Ads"
+            sub={<>Powers the <Link to="/ad-health" style={{ color: '#ec4899', textDecoration: 'underline' }}>Ad Health</Link> dashboard. Your token stays private.</>}
+            right={metaConnected
+              ? <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#9d174d', background: '#fdf2f8', padding: '5px 12px', borderRadius: 999, letterSpacing: '0.16em', textTransform: 'uppercase' }}>Connected</span>
+              : <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#a89485', background: '#faf5ef', padding: '5px 12px', borderRadius: 999, letterSpacing: '0.16em', textTransform: 'uppercase' }}>Not connected</span>
+            }
+          />
 
-          {/* Earnings Upload Section */}
-          <section>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 6px' }}>Creator Connections earnings history</h2>
-            {existingCount !== null && (
-              <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px' }}>
-                {existingCount > 0
-                  ? `${existingCount.toLocaleString()} rows uploaded`
-                  : 'No earnings data uploaded yet'}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div>
+                <label style={labelStyle}>Access token</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={metaShowToken ? 'text' : 'password'}
+                    value={metaToken}
+                    onChange={e => { setMetaToken(e.target.value); setMetaSaveResult(null) }}
+                    placeholder="EAAxxxxxxxxxxxxxxx..."
+                    style={{ ...inputStyle, paddingRight: 64, fontFamily: '"SF Mono", monospace', fontSize: '0.82rem' }}
+                    onFocus={focusInput}
+                    onBlur={blurInput}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setMetaShowToken(v => !v)}
+                    style={{
+                      position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+                      fontSize: '0.7rem', color: '#7a6b5d', background: 'none', border: 'none',
+                      cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600,
+                      letterSpacing: '0.06em', textTransform: 'uppercase',
+                    }}
+                  >
+                    {metaShowToken ? 'Hide' : 'Show'}
+                  </button>
+                </div>
+                <p style={{ fontSize: '0.74rem', color: '#a89485', marginTop: 6, lineHeight: 1.5 }}>
+                  Meta Business Suite → Settings → System Users → Generate Token.
+                </p>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Ad account ID</label>
+                <input
+                  type="text"
+                  value={metaAccountId}
+                  onChange={e => { setMetaAccountId(e.target.value); setMetaSaveResult(null) }}
+                  placeholder="act_123456789"
+                  style={{ ...inputStyle, fontFamily: '"SF Mono", monospace', fontSize: '0.82rem' }}
+                  onFocus={focusInput}
+                  onBlur={blurInput}
+                />
+                <p style={{ fontSize: '0.74rem', color: '#a89485', marginTop: 6, lineHeight: 1.5 }}>
+                  Found in Meta Ads Manager URL. The <code style={{ background: '#faf5ef', padding: '1px 5px', borderRadius: 4 }}>act_</code> prefix is optional.
+                </p>
+              </div>
+
+              <button
+                onClick={handleSaveMeta}
+                disabled={metaSaving || !metaToken.trim() || !metaAccountId.trim()}
+                style={primaryBtn(metaSaving || !metaToken.trim() || !metaAccountId.trim())}
+                onMouseEnter={e => { if (!(metaSaving || !metaToken.trim() || !metaAccountId.trim())) e.currentTarget.style.background = '#2a1f18' }}
+                onMouseLeave={e => { if (!(metaSaving || !metaToken.trim() || !metaAccountId.trim())) e.currentTarget.style.background = '#1a1410' }}
+              >
+                {metaSaving ? 'Saving…' : 'Save integration'}
+              </button>
+
+              {metaSaveResult === 'saved' && (
+                <p style={successText}>Integration saved. <Link to="/ad-health" style={{ color: '#ec4899', textDecoration: 'underline' }}>View Ad Health →</Link></p>
+              )}
+              {metaSaveResult === 'error' && (
+                <p style={errorText}>Could not save. Try again.</p>
+              )}
+            </div>
+        </section>
+
+        {/* Card 02 — Automation (Bulk acceptance + Auto-accept rules) */}
+        <section id="automation" style={cardStyle}>
+          <SectionHeader
+            number="02"
+            eyebrow="Automation"
+            title="Bulk acceptance & rules"
+            sub="Two halves of the same engine. Set the limits below, then add rules to keep the queue full."
+            right={
+              <button
+                onClick={() => { setAutoEnabled(v => !v); setAutoSaveResult(null) }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  fontFamily: 'inherit', padding: 0,
+                }}
+              >
+                <div style={{
+                  width: 40, height: 22, borderRadius: 999,
+                  background: autoEnabled ? '#1a1410' : '#e8dfd6',
+                  position: 'relative', transition: 'background .2s',
+                  flexShrink: 0,
+                }}>
+                  <div style={{
+                    position: 'absolute', top: 3, left: autoEnabled ? 21 : 3,
+                    width: 16, height: 16, borderRadius: 999,
+                    background: '#fff', transition: 'left .2s',
+                  }} />
+                </div>
+                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: autoEnabled ? '#1a1410' : '#a89485' }}>
+                  {autoEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </button>
+            }
+          />
+
+          {/* Sub-section A: Acceptance limits */}
+          <div style={{ marginBottom: 8 }}>
+            <p style={{ fontSize: '0.66rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 14px' }}>Acceptance limits</p>
+            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 18px', lineHeight: 1.55 }}>
+              How many campaigns the automation accepts per day and per run. Runs every 2 hours during your active window.
+            </p>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <div>
+                <label style={labelStyle}>Max per day</label>
+                <input type="number" min="1" max="5000" value={maxPerDay}
+                  onChange={e => { setMaxPerDay(e.target.value); setAutoSaveResult(null) }}
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="500" />
+              </div>
+              <div>
+                <label style={labelStyle}>Max per run</label>
+                <input type="number" min="1" max="5000" value={maxPerRun}
+                  onChange={e => { setMaxPerRun(e.target.value); setAutoSaveResult(null) }}
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="100" />
+              </div>
+              <div>
+                <label style={labelStyle}>Start hour (24h)</label>
+                <input type="number" min="0" max="23" value={runStartHour}
+                  onChange={e => { setRunStartHour(e.target.value); setAutoSaveResult(null) }}
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="8" />
+              </div>
+              <div>
+                <label style={labelStyle}>End hour (24h)</label>
+                <input type="number" min="0" max="23" value={runEndHour}
+                  onChange={e => { setRunEndHour(e.target.value); setAutoSaveResult(null) }}
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="20" />
+              </div>
+            </div>
+
+            {runStartHour && runEndHour && Number(runEndHour) > Number(runStartHour) && (
+              <p style={{ fontSize: '0.78rem', color: '#a89485', margin: '0 0 20px', lineHeight: 1.6 }}>
+                {(() => {
+                  const start = Number(runStartHour), end = Number(runEndHour)
+                  const runs = []
+                  for (let h = start; h < end; h += 2) runs.push(`${h % 12 || 12}${h < 12 ? 'am' : 'pm'}`)
+                  const perRun = Math.min(Number(maxPerRun) || 100, Math.ceil((Number(maxPerDay) || 500) / runs.length))
+                  return `${runs.length} runs · ${runs.join(', ')} · ~${perRun} campaigns each`
+                })()}
               </p>
             )}
+
+            <button
+              onClick={handleSaveAutoSettings}
+              disabled={autoSaving}
+              style={{ ...primaryBtn(autoSaving), marginBottom: 0 }}
+              onMouseEnter={e => { if (!autoSaving) e.currentTarget.style.background = '#2a1f18' }}
+              onMouseLeave={e => { if (!autoSaving) e.currentTarget.style.background = '#1a1410' }}
+            >
+              {autoSaving ? 'Saving…' : 'Save automation settings'}
+            </button>
+            {autoSaveResult === 'saved' && <p style={successText}>Saved.</p>}
+            {autoSaveResult === 'error' && <p style={errorText}>Could not save.</p>}
+          </div>
+
+          <div style={sectionDivider} />
+
+          {/* Sub-section B: Auto-accept rules */}
+          <div>
+            <p style={{ fontSize: '0.66rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 14px' }}>Auto-accept rules</p>
+            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px', lineHeight: 1.55 }}>
+              Campaigns matching any rule will be automatically queued. Manually queued campaigns always run too.
+            </p>
+
+            {/* Existing rules */}
+            {rules.length > 0 && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
+                {rules.map(rule => (
+                  <div key={rule.id} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '12px 16px', background: '#faf5ef', borderRadius: 14,
+                    border: '1px solid #f1ebe5', gap: 12, flexWrap: 'wrap',
+                  }}>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flex: 1 }}>
+                      {rule.category && (
+                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 12px', borderRadius: 999, background: '#fdf2f8', color: '#9d174d' }}>{rule.category}</span>
+                      )}
+                      {rule.min_commission != null && (
+                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 12px', borderRadius: 999, background: '#f0fdf4', color: '#166534' }}>≥{rule.min_commission}%</span>
+                      )}
+                      {rule.brand_contains && (
+                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 12px', borderRadius: 999, background: '#eff6ff', color: '#1e40af' }}>brand: "{rule.brand_contains}"</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteRule(rule.id)}
+                      style={{ fontSize: '0.72rem', color: '#a89485', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px', flexShrink: 0 }}
+                      onMouseEnter={e => e.currentTarget.style.color = '#1a1410'}
+                      onMouseLeave={e => e.currentTarget.style.color = '#a89485'}
+                    >Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Add rule form */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '20px', background: '#faf5ef', borderRadius: 18, border: '1px solid #f1ebe5' }}>
+              <p style={{ fontSize: '0.66rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>New rule</p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+                <div>
+                  <label style={labelStyle}>Category</label>
+                  <select
+                    value={newRuleCategory}
+                    onChange={e => { setNewRuleCategory(e.target.value); setRuleQueuedCount(null) }}
+                    style={{
+                      ...inputStyle,
+                      cursor: 'pointer',
+                      appearance: 'none',
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'none',
+                      paddingRight: 40,
+                      backgroundImage: "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%23a89485' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>\")",
+                      backgroundRepeat: 'no-repeat',
+                      backgroundPosition: 'right 16px center',
+                      backgroundSize: '12px 8px',
+                    }}
+                    onFocus={focusInput} onBlur={blurInput}
+                  >
+                    <option value="">Any category</option>
+                    {["Women's Fashion","Beauty & Skincare","Health & Wellness","Shoes","Jewelry & Accessories","Home & Kitchen","Fitness & Activewear","Men's Fashion","Kids & Baby","Pets","Electronics","Books & Lifestyle"].map(c => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label style={labelStyle}>Min commission %</label>
+                  <input type="number" min="0" max="100" value={newRuleMinCommission}
+                    onChange={e => { setNewRuleMinCommission(e.target.value); setRuleQueuedCount(null) }}
+                    placeholder="e.g. 15"
+                    style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>Brand contains (optional)</label>
+                <input type="text" value={newRuleBrand}
+                  onChange={e => { setNewRuleBrand(e.target.value); setRuleQueuedCount(null) }}
+                  placeholder="e.g. Nike"
+                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
+              </div>
+              {(rulePreviewLoading || rulePreviewCount !== null) && (
+                <p style={{ margin: 0, fontSize: '0.72rem', color: rulePreviewLoading ? '#a89485' : rulePreviewCount === 0 ? '#a89485' : '#166534', fontWeight: 600 }}>
+                  {rulePreviewLoading
+                    ? 'Checking catalog…'
+                    : rulePreviewCount === 0
+                      ? 'No matching campaigns in catalog right now'
+                      : `This will add ${rulePreviewCount} campaign${rulePreviewCount === 1 ? '' : 's'} to your queue`}
+                </p>
+              )}
+              <button
+                onClick={handleAddRule}
+                disabled={addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand)}
+                style={primaryBtn(addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand))}
+                onMouseEnter={e => { if (!(addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand))) e.currentTarget.style.background = '#2a1f18' }}
+                onMouseLeave={e => { if (!(addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand))) e.currentTarget.style.background = '#1a1410' }}
+              >
+                {addingRule ? 'Queuing matches…' : ruleQueuedCount !== null ? `✓ ${ruleQueuedCount} queued` : 'Add rule'}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        {/* Card 03 — Tracking (Monthly goal) */}
+        <section id="goal" style={cardStyle}>
+          <SectionHeader
+            number="03"
+            eyebrow="Tracking"
+            title="Monthly goal"
+            sub="Set a target to track monthly progress on the dashboard."
+          />
+          <div>
+            <label style={labelStyle}>Goal · USD</label>
+            <input
+              type="number"
+              min="0"
+              step="50"
+              value={monthlyGoal}
+              onChange={e => { setMonthlyGoal(e.target.value); setGoalSaveResult(null) }}
+              placeholder="e.g. 2000"
+              style={inputStyle}
+              onFocus={focusInput}
+              onBlur={blurInput}
+            />
+          </div>
+          <button
+            onClick={handleSaveGoal}
+            disabled={goalSaving || monthlyGoal === ''}
+            style={{ ...primaryBtn(goalSaving || monthlyGoal === ''), marginTop: 20 }}
+            onMouseEnter={e => { if (!(goalSaving || monthlyGoal === '')) e.currentTarget.style.background = '#2a1f18' }}
+            onMouseLeave={e => { if (!(goalSaving || monthlyGoal === '')) e.currentTarget.style.background = '#1a1410' }}
+          >
+            {goalSaving ? 'Saving…' : 'Save goal'}
+          </button>
+          {goalSaveResult === 'saved' && (
+            <p style={successText}>Goal saved. <Link to="/dashboard" style={{ color: '#ec4899', textDecoration: 'underline' }}>See your progress →</Link></p>
+          )}
+          {goalSaveResult === 'error' && (
+            <p style={errorText}>Could not save. Check that <code style={{ background: '#faf5ef', padding: '2px 6px', borderRadius: 4 }}>monthly_earnings_goal</code> exists on <code style={{ background: '#faf5ef', padding: '2px 6px', borderRadius: 4 }}>user_preferences</code>.</p>
+          )}
+        </section>
+
+        {/* Card 04 — Data import (Earnings history) */}
+        <section id="data" style={cardStyle}>
+          <SectionHeader
+            number="04"
+            eyebrow="Data import"
+            title="Earnings history"
+            sub={existingCount !== null
+              ? (existingCount > 0 ? `${existingCount.toLocaleString()} rows uploaded.` : 'No earnings data uploaded yet.')
+              : 'Upload your Creator Connections earnings export.'}
+          />
 
             <div
               onClick={() => fileInputRef.current?.click()}
@@ -514,312 +896,8 @@ export default function SettingsPage() {
               Amazon Associates → Creator Connections → Earnings → Download CSV.
               Re-uploading merges — no duplicates.
             </p>
-          </section>
+        </section>
 
-          <div style={sectionDivider} />
-
-          {/* Monthly Earnings Goal */}
-          <section>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 6px' }}>Monthly goal</h2>
-            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px' }}>
-              Set a target to track monthly progress on the dashboard.
-            </p>
-            <div>
-              <label style={labelStyle}>Goal · USD</label>
-              <input
-                type="number"
-                min="0"
-                step="50"
-                value={monthlyGoal}
-                onChange={e => { setMonthlyGoal(e.target.value); setGoalSaveResult(null) }}
-                placeholder="e.g. 2000"
-                style={inputStyle}
-                onFocus={focusInput}
-                onBlur={blurInput}
-              />
-            </div>
-            <button
-              onClick={handleSaveGoal}
-              disabled={goalSaving || monthlyGoal === ''}
-              style={{ ...primaryBtn(goalSaving || monthlyGoal === ''), marginTop: 20 }}
-              onMouseEnter={e => { if (!(goalSaving || monthlyGoal === '')) e.currentTarget.style.background = '#2a1f18' }}
-              onMouseLeave={e => { if (!(goalSaving || monthlyGoal === '')) e.currentTarget.style.background = '#1a1410' }}
-            >
-              {goalSaving ? 'Saving…' : 'Save goal'}
-            </button>
-            {goalSaveResult === 'saved' && (
-              <p style={successText}>Goal saved. <Link to="/dashboard" style={{ color: '#ec4899', textDecoration: 'underline' }}>See your progress →</Link></p>
-            )}
-            {goalSaveResult === 'error' && (
-              <p style={errorText}>Could not save. Check that <code style={{ background: '#faf5ef', padding: '2px 6px', borderRadius: 4 }}>monthly_earnings_goal</code> exists on <code style={{ background: '#faf5ef', padding: '2px 6px', borderRadius: 4 }}>user_preferences</code>.</p>
-            )}
-          </section>
-
-          <div style={sectionDivider} />
-
-          {/* Meta Ads Integration */}
-          <section>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
-              <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: 0 }}>Meta Ads</h2>
-              {metaConnected
-                ? <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#9d174d', background: '#fdf2f8', padding: '4px 12px', borderRadius: 999, letterSpacing: '0.16em', textTransform: 'uppercase' }}>Connected</span>
-                : <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#a89485', background: '#faf5ef', padding: '4px 12px', borderRadius: 999, letterSpacing: '0.16em', textTransform: 'uppercase' }}>Not connected</span>
-              }
-            </div>
-            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px', lineHeight: 1.55 }}>
-              Powers the <Link to="/ad-health" style={{ color: '#ec4899', textDecoration: 'underline' }}>Ad Health</Link> dashboard.
-              Your token stays private.
-            </p>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-              <div>
-                <label style={labelStyle}>Access token</label>
-                <div style={{ position: 'relative' }}>
-                  <input
-                    type={metaShowToken ? 'text' : 'password'}
-                    value={metaToken}
-                    onChange={e => { setMetaToken(e.target.value); setMetaSaveResult(null) }}
-                    placeholder="EAAxxxxxxxxxxxxxxx..."
-                    style={{ ...inputStyle, paddingRight: 64, fontFamily: '"SF Mono", monospace', fontSize: '0.82rem' }}
-                    onFocus={focusInput}
-                    onBlur={blurInput}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setMetaShowToken(v => !v)}
-                    style={{
-                      position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
-                      fontSize: '0.7rem', color: '#7a6b5d', background: 'none', border: 'none',
-                      cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600,
-                      letterSpacing: '0.06em', textTransform: 'uppercase',
-                    }}
-                  >
-                    {metaShowToken ? 'Hide' : 'Show'}
-                  </button>
-                </div>
-                <p style={{ fontSize: '0.74rem', color: '#a89485', marginTop: 6, lineHeight: 1.5 }}>
-                  Meta Business Suite → Settings → System Users → Generate Token.
-                </p>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Ad account ID</label>
-                <input
-                  type="text"
-                  value={metaAccountId}
-                  onChange={e => { setMetaAccountId(e.target.value); setMetaSaveResult(null) }}
-                  placeholder="act_123456789"
-                  style={{ ...inputStyle, fontFamily: '"SF Mono", monospace', fontSize: '0.82rem' }}
-                  onFocus={focusInput}
-                  onBlur={blurInput}
-                />
-                <p style={{ fontSize: '0.74rem', color: '#a89485', marginTop: 6, lineHeight: 1.5 }}>
-                  Found in Meta Ads Manager URL. The <code style={{ background: '#faf5ef', padding: '1px 5px', borderRadius: 4 }}>act_</code> prefix is optional.
-                </p>
-              </div>
-
-              <button
-                onClick={handleSaveMeta}
-                disabled={metaSaving || !metaToken.trim() || !metaAccountId.trim()}
-                style={primaryBtn(metaSaving || !metaToken.trim() || !metaAccountId.trim())}
-                onMouseEnter={e => { if (!(metaSaving || !metaToken.trim() || !metaAccountId.trim())) e.currentTarget.style.background = '#2a1f18' }}
-                onMouseLeave={e => { if (!(metaSaving || !metaToken.trim() || !metaAccountId.trim())) e.currentTarget.style.background = '#1a1410' }}
-              >
-                {metaSaving ? 'Saving…' : 'Save integration'}
-              </button>
-
-              {metaSaveResult === 'saved' && (
-                <p style={successText}>Integration saved. <Link to="/ad-health" style={{ color: '#ec4899', textDecoration: 'underline' }}>View Ad Health →</Link></p>
-              )}
-              {metaSaveResult === 'error' && (
-                <p style={errorText}>Could not save. Try again.</p>
-              )}
-            </div>
-          </section>
-
-          <div style={sectionDivider} />
-
-          {/* Automation Settings */}
-          <section>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6, flexWrap: 'wrap', gap: 12 }}>
-              <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: 0 }}>Bulk acceptance</h2>
-              {/* Enable toggle */}
-              <button
-                onClick={() => { setAutoEnabled(v => !v); setAutoSaveResult(null) }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 8,
-                  background: 'none', border: 'none', cursor: 'pointer',
-                  fontFamily: 'inherit', padding: 0,
-                }}
-              >
-                <div style={{
-                  width: 40, height: 22, borderRadius: 999,
-                  background: autoEnabled ? '#1a1410' : '#e8dfd6',
-                  position: 'relative', transition: 'background .2s',
-                  flexShrink: 0,
-                }}>
-                  <div style={{
-                    position: 'absolute', top: 3, left: autoEnabled ? 21 : 3,
-                    width: 16, height: 16, borderRadius: 999,
-                    background: '#fff', transition: 'left .2s',
-                  }} />
-                </div>
-                <span style={{ fontSize: '0.78rem', fontWeight: 600, color: autoEnabled ? '#1a1410' : '#a89485' }}>
-                  {autoEnabled ? 'Enabled' : 'Disabled'}
-                </span>
-              </button>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px', lineHeight: 1.55 }}>
-              Controls how many campaigns the automation accepts per day and per run. Runs every 2 hours during your active window.
-            </p>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-              <div>
-                <label style={labelStyle}>Max per day</label>
-                <input type="number" min="1" max="5000" value={maxPerDay}
-                  onChange={e => { setMaxPerDay(e.target.value); setAutoSaveResult(null) }}
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="500" />
-              </div>
-              <div>
-                <label style={labelStyle}>Max per run</label>
-                <input type="number" min="1" max="5000" value={maxPerRun}
-                  onChange={e => { setMaxPerRun(e.target.value); setAutoSaveResult(null) }}
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="100" />
-              </div>
-              <div>
-                <label style={labelStyle}>Start hour (24h)</label>
-                <input type="number" min="0" max="23" value={runStartHour}
-                  onChange={e => { setRunStartHour(e.target.value); setAutoSaveResult(null) }}
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="8" />
-              </div>
-              <div>
-                <label style={labelStyle}>End hour (24h)</label>
-                <input type="number" min="0" max="23" value={runEndHour}
-                  onChange={e => { setRunEndHour(e.target.value); setAutoSaveResult(null) }}
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} placeholder="20" />
-              </div>
-            </div>
-
-            {/* Runs preview */}
-            {runStartHour && runEndHour && Number(runEndHour) > Number(runStartHour) && (
-              <p style={{ fontSize: '0.78rem', color: '#a89485', margin: '0 0 20px', lineHeight: 1.6 }}>
-                {(() => {
-                  const start = Number(runStartHour), end = Number(runEndHour)
-                  const runs = []
-                  for (let h = start; h < end; h += 2) runs.push(`${h % 12 || 12}${h < 12 ? 'am' : 'pm'}`)
-                  const perRun = Math.min(Number(maxPerRun) || 100, Math.ceil((Number(maxPerDay) || 500) / runs.length))
-                  return `${runs.length} runs · ${runs.join(', ')} · ~${perRun} campaigns each`
-                })()}
-              </p>
-            )}
-
-            <button
-              onClick={handleSaveAutoSettings}
-              disabled={autoSaving}
-              style={{ ...primaryBtn(autoSaving), marginBottom: 0 }}
-              onMouseEnter={e => { if (!autoSaving) e.currentTarget.style.background = '#2a1f18' }}
-              onMouseLeave={e => { if (!autoSaving) e.currentTarget.style.background = '#1a1410' }}
-            >
-              {autoSaving ? 'Saving…' : 'Save automation settings'}
-            </button>
-            {autoSaveResult === 'saved' && <p style={successText}>Saved.</p>}
-            {autoSaveResult === 'error' && <p style={errorText}>Could not save.</p>}
-          </section>
-
-          <div style={sectionDivider} />
-
-          {/* Auto-Accept Rules */}
-          <section>
-            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 6px' }}>Auto-accept rules</h2>
-            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px', lineHeight: 1.55 }}>
-              Campaigns matching any rule will be automatically queued. Manually queued campaigns always run too.
-            </p>
-
-            {/* Existing rules */}
-            {rules.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
-                {rules.map(rule => (
-                  <div key={rule.id} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px 16px', background: '#faf5ef', borderRadius: 14,
-                    border: '1px solid #f1ebe5', gap: 12, flexWrap: 'wrap',
-                  }}>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', flex: 1 }}>
-                      {rule.category && (
-                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 12px', borderRadius: 999, background: '#fdf2f8', color: '#9d174d' }}>{rule.category}</span>
-                      )}
-                      {rule.min_commission != null && (
-                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 12px', borderRadius: 999, background: '#f0fdf4', color: '#166534' }}>≥{rule.min_commission}%</span>
-                      )}
-                      {rule.brand_contains && (
-                        <span style={{ fontSize: '0.72rem', fontWeight: 600, padding: '3px 12px', borderRadius: 999, background: '#eff6ff', color: '#1e40af' }}>brand: "{rule.brand_contains}"</span>
-                      )}
-                    </div>
-                    <button
-                      onClick={() => handleDeleteRule(rule.id)}
-                      style={{ fontSize: '0.72rem', color: '#a89485', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: '4px 8px', flexShrink: 0 }}
-                      onMouseEnter={e => e.currentTarget.style.color = '#1a1410'}
-                      onMouseLeave={e => e.currentTarget.style.color = '#a89485'}
-                    >Remove</button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Add rule form */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '20px', background: '#faf5ef', borderRadius: 18, border: '1px solid #f1ebe5' }}>
-              <p style={{ fontSize: '0.66rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase', margin: 0 }}>New rule</p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <label style={labelStyle}>Category</label>
-                  <select
-                    value={newRuleCategory}
-                    onChange={e => { setNewRuleCategory(e.target.value); setRuleQueuedCount(null) }}
-                    style={{ ...inputStyle, cursor: 'pointer' }}
-                    onFocus={focusInput} onBlur={blurInput}
-                  >
-                    <option value="">Any category</option>
-                    {["Women's Fashion","Beauty & Skincare","Health & Wellness","Shoes","Jewelry & Accessories","Home & Kitchen","Fitness & Activewear","Men's Fashion","Kids & Baby","Pets","Electronics","Books & Lifestyle"].map(c => (
-                      <option key={c} value={c}>{c}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label style={labelStyle}>Min commission %</label>
-                  <input type="number" min="0" max="100" value={newRuleMinCommission}
-                    onChange={e => { setNewRuleMinCommission(e.target.value); setRuleQueuedCount(null) }}
-                    placeholder="e.g. 15"
-                    style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Brand contains (optional)</label>
-                <input type="text" value={newRuleBrand}
-                  onChange={e => { setNewRuleBrand(e.target.value); setRuleQueuedCount(null) }}
-                  placeholder="e.g. Nike"
-                  style={inputStyle} onFocus={focusInput} onBlur={blurInput} />
-              </div>
-              {(rulePreviewLoading || rulePreviewCount !== null) && (
-                <p style={{ margin: 0, fontSize: '0.72rem', color: rulePreviewLoading ? '#a89485' : rulePreviewCount === 0 ? '#a89485' : '#166534', fontWeight: 600 }}>
-                  {rulePreviewLoading
-                    ? 'Checking catalog…'
-                    : rulePreviewCount === 0
-                      ? 'No matching campaigns in catalog right now'
-                      : `This will add ${rulePreviewCount} campaign${rulePreviewCount === 1 ? '' : 's'} to your queue`}
-                </p>
-              )}
-              <button
-                onClick={handleAddRule}
-                disabled={addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand)}
-                style={primaryBtn(addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand))}
-                onMouseEnter={e => { if (!(addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand))) e.currentTarget.style.background = '#2a1f18' }}
-                onMouseLeave={e => { if (!(addingRule || (!newRuleCategory && !newRuleMinCommission && !newRuleBrand))) e.currentTarget.style.background = '#1a1410' }}
-              >
-                {addingRule ? 'Queuing matches…' : ruleQueuedCount !== null ? `✓ ${ruleQueuedCount} queued` : 'Add rule'}
-              </button>
-            </div>
-          </section>
-        </div>
       </div>
     </div>
   )

@@ -170,7 +170,7 @@ export default function EarningsPage() {
     <div style={{ minHeight: '100vh', background: '#fbf7f3', fontFamily: 'Inter, sans-serif', color: '#1a1410' }}>
       <AppHeader page="earnings" storeName={storeName} onSignOut={handleSignOut} />
 
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '48px 28px 80px', display: 'flex', flexDirection: 'column', gap: 36 }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 28px 80px', display: 'flex', flexDirection: 'column', gap: 36 }}>
 
         {/* Editorial hero */}
         <div>

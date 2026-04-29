@@ -104,7 +104,7 @@ export default function QueuePage() {
       <AppHeader page="queue" storeName={storeName}
         onSignOut={async () => { await supabase.auth.signOut(); navigate('/login') }} />
 
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '48px 28px 80px' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 28px 80px' }}>
 
         {/* Header */}
         <div style={{ marginBottom: 36 }}>
