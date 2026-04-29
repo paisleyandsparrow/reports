@@ -5,3 +5,110 @@
 body {
   font-family: 'Inter', sans-serif;
 }
+
+/* ─── Driver.js tour — editorial cream/serif theme ─────────────────────── */
+
+.driver-popover {
+  background: #ffffff !important;
+  border: 1px solid #f1ebe5 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 30px 80px -24px rgba(26, 20, 16, 0.22), 0 0 0 1px #f1ebe5 !important;
+  padding: 24px 26px 20px !important;
+  max-width: 320px !important;
+  font-family: 'Inter', -apple-system, sans-serif !important;
+  color: #1a1410 !important;
+}
+
+.driver-popover-title {
+  font-family: 'Georgia', serif !important;
+  font-size: 1.05rem !important;
+  font-weight: 400 !important;
+  color: #1a1410 !important;
+  letter-spacing: -0.01em !important;
+  margin-bottom: 8px !important;
+  line-height: 1.25 !important;
+}
+
+.driver-popover-description {
+  font-size: 0.85rem !important;
+  color: #7a6b5d !important;
+  line-height: 1.6 !important;
+}
+
+.driver-popover-progress-text {
+  font-size: 0.7rem !important;
+  color: #ec4899 !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+}
+
+.driver-popover-footer {
+  margin-top: 18px !important;
+  gap: 8px !important;
+}
+
+.driver-popover-prev-btn,
+.driver-popover-next-btn,
+.driver-popover-close-btn {
+  font-family: 'Inter', sans-serif !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  border-radius: 999px !important;
+  padding: 8px 18px !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background 0.15s, transform 0.12s !important;
+  text-shadow: none !important;
+}
+
+.driver-popover-next-btn {
+  background: #1a1410 !important;
+  color: #fbf7f3 !important;
+  box-shadow: 0 8px 20px -8px rgba(26, 20, 16, 0.35) !important;
+}
+
+.driver-popover-next-btn:hover,
+.driver-popover-next-btn:focus {
+  background: #2a1f18 !important;
+  transform: translateY(-1px) !important;
+}
+
+.driver-popover-prev-btn {
+  background: transparent !important;
+  color: #a89485 !important;
+  box-shadow: none !important;
+}
+
+.driver-popover-prev-btn:hover,
+.driver-popover-prev-btn:focus {
+  background: #faf5ef !important;
+  color: #1a1410 !important;
+}
+
+.driver-popover-close-btn {
+  background: transparent !important;
+  color: #a89485 !important;
+  padding: 4px 8px !important;
+  font-size: 1rem !important;
+  box-shadow: none !important;
+  position: absolute !important;
+  top: 14px !important;
+  right: 14px !important;
+}
+
+.driver-popover-close-btn:hover {
+  color: #1a1410 !important;
+  background: #faf5ef !important;
+}
+
+/* Arrow tip — match popover bg */
+.driver-popover-arrow-side-top.driver-popover-arrow::before { border-bottom-color: #ffffff !important; }
+.driver-popover-arrow-side-bottom.driver-popover-arrow::before { border-top-color: #ffffff !important; }
+.driver-popover-arrow-side-left.driver-popover-arrow::before { border-right-color: #ffffff !important; }
+.driver-popover-arrow-side-right.driver-popover-arrow::before { border-left-color: #ffffff !important; }
+
+/* Highlight overlay — soft warm tint */
+.driver-overlay {
+  background: rgba(26, 20, 16, 0.45) !important;
+}

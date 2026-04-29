@@ -60,7 +60,8 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function init() {
-      const { data: { session } } = await supabase.auth.getSession()
+      const { data: { session: _session } } = await supabase.auth.getSession()
+      const session = _session ?? (import.meta.env.VITE_MOCK === 'true' ? { user: { id: 'mock', email: 'jen@example.com' } } : null)
       if (!session) { window.location.href = '/login'; return }
       setUser(session.user)
       const { data: prefs } = await supabase
@@ -231,16 +232,16 @@ export default function DashboardPage() {
 
   function startTour() {
     const allSteps = [
-      { element: '#stat-earnings-30', popover: { title: '💰 Earnings (30d)', description: 'Your total income from Creator Connections campaigns in the last 30 days.', side: 'bottom', align: 'start' } },
-      { element: '#stat-ad-spend', popover: { title: '📊 Ad Spend Today', description: 'Live Meta Ads spend across all ad sets — pulled directly from your account.', side: 'bottom', align: 'start' } },
-      { element: '#stat-active-campaigns', popover: { title: '🏷 Active Campaigns', description: 'Campaigns currently delivering or scheduled on Amazon Creator Connections.', side: 'bottom', align: 'start' } },
-      { element: '#earnings-goal', popover: { title: '🎯 Monthly Goal', description: 'Your earnings target for the month. Set it in Settings → Monthly Earnings Goal.', side: 'top', align: 'start' } },
-      { element: '#what-to-promote', popover: { title: '🚀 What to Promote', description: "High-commission campaigns you haven't promoted yet — your best revenue opportunities.", side: 'top', align: 'start' } },
-      { element: '#new-this-week', popover: { title: '🆕 New This Week', description: 'Campaigns just added to Amazon CC — get in early for maximum exposure.', side: 'top', align: 'start' } },
-      { element: '#nav-catalog', popover: { title: '📋 Campaign Catalog', description: 'Browse 10,000+ live Amazon CC campaigns filtered to your niches. Click CC → to accept.', side: 'bottom', align: 'start' } },
-      { element: '#nav-earnings', popover: { title: '💰 Earnings', description: 'Detailed income breakdown by campaign and ASIN, filterable by time period.', side: 'bottom', align: 'start' } },
-      { element: '#nav-ad-health', popover: { title: '📊 Ad Health', description: 'Live Meta Ads placement analysis — identify wasted spend and underperforming placements.', side: 'bottom', align: 'start' } },
-      { element: '#nav-settings', popover: { title: '⚙ Settings', description: 'Connect Meta Ads, set your niche categories, and configure your monthly earnings goal.', side: 'bottom', align: 'start' } },
+      { element: '#stat-earnings-30', popover: { title: 'Earnings (30d)', description: 'Your total income from Creator Connections campaigns in the last 30 days.', side: 'bottom', align: 'start' } },
+      { element: '#stat-ad-spend', popover: { title: 'Ad Spend Today', description: 'Live Meta Ads spend across all ad sets — pulled directly from your account.', side: 'bottom', align: 'start' } },
+      { element: '#stat-active-campaigns', popover: { title: 'Active Campaigns', description: 'Campaigns currently delivering or scheduled on Amazon Creator Connections.', side: 'bottom', align: 'start' } },
+      { element: '#earnings-goal', popover: { title: 'Monthly Goal', description: 'Your earnings target for the month. Set it in Settings → Monthly Earnings Goal.', side: 'top', align: 'start' } },
+      { element: '#what-to-promote', popover: { title: 'What to Promote', description: "High-commission campaigns you haven't promoted yet — your best revenue opportunities.", side: 'top', align: 'start' } },
+      { element: '#new-this-week', popover: { title: 'New This Week', description: 'Campaigns just added to Amazon CC — get in early for maximum exposure.', side: 'top', align: 'start' } },
+      { element: '#nav-catalog', popover: { title: 'Campaign Catalog', description: 'Browse 10,000+ live Amazon CC campaigns filtered to your niches. Click CC → to accept.', side: 'bottom', align: 'start' } },
+      { element: '#nav-earnings', popover: { title: 'Earnings', description: 'Detailed income breakdown by campaign and ASIN, filterable by time period.', side: 'bottom', align: 'start' } },
+      { element: '#nav-ad-health', popover: { title: 'Ad Health', description: 'Live Meta Ads placement analysis — identify wasted spend and underperforming placements.', side: 'bottom', align: 'start' } },
+      { element: '#nav-settings', popover: { title: 'Settings', description: 'Connect Meta Ads, set your niche categories, and configure your monthly earnings goal.', side: 'bottom', align: 'start' } },
     ]
     const steps = allSteps.filter(s => document.querySelector(s.element))
     if (steps.length === 0) return
@@ -290,26 +291,29 @@ export default function DashboardPage() {
     }
   }, [earningAll, activeCampaigns])
 
-  const statCard = (label, value, sub, color = '#0f172a', loading = false, id = undefined) => (
+  const statCard = (label, value, sub, color = '#1a1410', loading = false, id = undefined) => (
     <div id={id} style={{
-      background: '#fff', borderRadius: '14px', padding: '20px 24px',
-      border: '1.5px solid #e2e8f0', flex: '1 1 160px', minWidth: 0
+      background: '#fff', borderRadius: 22, padding: '24px 26px',
+      border: '1px solid #f1ebe5', flex: '1 1 180px', minWidth: 0,
     }}>
-      <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', marginBottom: '8px' }}>{label}</div>
+      <div style={{ fontSize: '0.66rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.18em', color: '#a89485', marginBottom: 12 }}>{label}</div>
       {loading ? (
         <>
-          <div className="dash-skel" style={{ height: '28px', width: '60%' }} />
-          <div className="dash-skel" style={{ height: '12px', width: '40%', marginTop: '8px' }} />
+          <div className="dash-skel" style={{ height: 30, width: '60%' }} />
+          <div className="dash-skel" style={{ height: 12, width: '40%', marginTop: 8 }} />
         </>
       ) : (
-        <div style={{ fontSize: '1.5rem', fontWeight: 800, color, lineHeight: 1.1 }}>{value}</div>
+        <div style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '2rem', color, lineHeight: 1, letterSpacing: '-0.02em' }}>{value}</div>
       )}
-      {sub && !loading && <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '4px' }}>{sub}</div>}
+      {sub && !loading && <div style={{ fontSize: '0.74rem', color: '#a89485', marginTop: 8, lineHeight: 1.4 }}>{sub}</div>}
     </div>
   )
 
+  const goalPct = earningsGoal ? Math.min(100, (income30 / earningsGoal) * 100) : 0
+  const goalReached = earningsGoal && income30 >= earningsGoal
+
   return (
-    <div className="min-h-screen" style={{ background: '#f1f5f9' }}>
+    <div style={{ minHeight: '100vh', background: '#fbf7f3', fontFamily: 'Inter, sans-serif', color: '#1a1410' }}>
       <style>{`
         @keyframes dash-shimmer {
           0%   { background-position: -600px 0 }
@@ -319,7 +323,7 @@ export default function DashboardPage() {
           to { transform: rotate(360deg) }
         }
         .dash-skel {
-          background: linear-gradient(90deg, #e2e8f0 25%, #f8fafc 50%, #e2e8f0 75%);
+          background: linear-gradient(90deg, #f5ede5 25%, #faf5ef 50%, #f5ede5 75%);
           background-size: 600px 100%;
           animation: dash-shimmer 1.4s infinite linear;
           border-radius: 6px;
@@ -328,233 +332,203 @@ export default function DashboardPage() {
       <AppHeader page="dashboard" storeName={storeName} onSignOut={handleSignOut} />
 
       {(loadingEarnings || loadingCatalog || loadingAd) && (
-        <div style={{ background: '#fff7ed', borderBottom: '1.5px solid #fed7aa', padding: '7px 28px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ background: '#fdf2f8', borderBottom: '1px solid #fbcfe8', padding: '8px 28px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{
-            display: 'inline-block', width: '10px', height: '10px', borderRadius: '50%',
-            border: '2px solid #f97316', borderTopColor: 'transparent',
+            display: 'inline-block', width: 10, height: 10, borderRadius: '50%',
+            border: '2px solid #ec4899', borderTopColor: 'transparent',
             animation: 'dash-spin 0.7s linear infinite',
-            verticalAlign: 'middle'
           }} />
-          <span style={{ fontSize: '0.72rem', color: '#ea580c', fontWeight: 600 }}>Loading dashboard data…</span>
+          <span style={{ fontSize: '0.7rem', color: '#9d174d', fontWeight: 600, letterSpacing: '0.04em' }}>Loading dashboard…</span>
         </div>
       )}
 
       {endingSoonCampaigns.length > 0 && (
-        <div style={{ background: '#fffbeb', borderBottom: '1.5px solid #fde68a', padding: '8px 28px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.7rem', fontWeight: 700, color: '#b45309', whiteSpace: 'nowrap' }}>⏳ ENDING SOON</span>
+        <div style={{ background: '#1a1410', padding: '10px 28px', display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#fbcfe8', letterSpacing: '0.2em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>Ending soon</span>
           {endingSoonCampaigns.map(c => {
             const daysLeft = Math.ceil((new Date(c.end_date + 'T23:59:59') - Date.now()) / 86400000)
             return (
-              <span key={c.campaign_id} style={{ fontSize: '0.7rem', color: '#92400e', background: '#fef3c7', border: '1px solid #fde68a', borderRadius: '20px', padding: '2px 10px', whiteSpace: 'nowrap' }}>
-                {c.campaign_name} · {daysLeft}d left
+              <span key={c.campaign_id} style={{ fontSize: '0.7rem', color: '#fbf7f3', whiteSpace: 'nowrap' }}>
+                {c.campaign_name} <span style={{ color: '#a89485' }}>· {daysLeft}d</span>
               </span>
             )
           })}
         </div>
       )}
 
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <div style={{ maxWidth: 1180, margin: '0 auto', padding: '48px 28px 80px', display: 'flex', flexDirection: 'column', gap: 48 }}>
+
+        {/* Editorial hero */}
+        <div>
+          <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>
+            Dashboard · {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+          </p>
+          <h1 style={{
+            fontFamily: 'Georgia, serif', fontWeight: 400,
+            fontSize: 'clamp(2.2rem, 4.5vw, 3.4rem)', color: '#1a1410',
+            letterSpacing: '-0.03em', lineHeight: 1.05, margin: 0,
+          }}>
+            {storeName ? <>Welcome back, <em style={{ color: '#ec4899', fontStyle: 'italic' }}>{storeName.split(' ')[0]}</em>.</> : <>Your day, <em style={{ color: '#ec4899', fontStyle: 'italic' }}>at a glance</em>.</>}
+          </h1>
+          <p style={{ fontSize: '1.02rem', color: '#7a6b5d', lineHeight: 1.55, maxWidth: 560, marginTop: 18, margin: '18px 0 0' }}>
+            Earnings, ad spend, and the campaigns worth your attention — quietly considered.
+          </p>
+        </div>
 
         {/* Row 1: Key stats */}
         <div>
-          <h2 style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94a3b8', marginBottom: '12px' }}>Performance</h2>
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-            {statCard('Earnings (30d)', fmt$(income30, 0), `${(earning30 || []).length} campaigns`, '#16a34a', loadingEarnings, 'stat-earnings-30')}
-            {statCard('Earnings (All Time)', fmt$(incomeAll, 0), `${(earningAll || []).length} campaigns tracked`, '#0f172a', loadingEarnings)}
-            {statCard('Ad Spend', adToday ? fmt$(adToday.spend) : '—', adToday ? `${adToday.label} · ${adToday.adsets} ad sets` : null, '#7c3aed', loadingAd, 'stat-ad-spend')}
-            {statCard('Active Campaigns', catalogSnap ? catalogSnap.active.toLocaleString() : '—', catalogSnap ? `${catalogSnap.delivering} delivering · ${catalogSnap.scheduled} scheduled` : null, '#0f172a', loadingCatalog, 'stat-active-campaigns')}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 16 }}>
+            {statCard('Earnings · 30d', fmt$(income30, 0), `${(earning30 || []).length} campaigns`, '#ec4899', loadingEarnings, 'stat-earnings-30')}
+            {statCard('Lifetime', fmt$(incomeAll, 0), `${(earningAll || []).length} tracked`, '#1a1410', loadingEarnings)}
+            {statCard('Ad spend', adToday ? fmt$(adToday.spend) : '—', adToday ? `${adToday.label} · ${adToday.adsets} ad sets` : 'No spend today', '#1a1410', loadingAd, 'stat-ad-spend')}
+            {statCard('Live campaigns', catalogSnap ? catalogSnap.active.toLocaleString() : '—', catalogSnap ? `${catalogSnap.delivering} delivering · ${catalogSnap.scheduled} scheduled` : null, '#1a1410', loadingCatalog, 'stat-active-campaigns')}
           </div>
         </div>
 
-        {/* Earnings Goal */}
+        {/* Earnings Goal — espresso card for premium feel */}
         {!loadingEarnings && earningsGoal && (
-          <div id="earnings-goal" style={{ background: '#fff', borderRadius: '14px', border: '1.5px solid #e2e8f0', padding: '20px 24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8' }}>🎯 Monthly Goal</div>
-              <Link to="/settings" style={{ fontSize: '0.7rem', color: '#94a3b8', textDecoration: 'none' }}>Edit →</Link>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '10px' }}>
-              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: income30 >= earningsGoal ? '#16a34a' : '#0f172a' }}>{fmt$(income30, 0)}</span>
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>of {fmt$(earningsGoal, 0)} goal</span>
-            </div>
-            <div style={{ background: '#f1f5f9', borderRadius: '99px', height: '8px', overflow: 'hidden' }}>
-              <div style={{
-                height: '100%',
-                width: `${Math.min(100, (income30 / earningsGoal) * 100).toFixed(1)}%`,
-                background: income30 >= earningsGoal ? '#16a34a' : '#f97316',
-                borderRadius: '99px',
-                transition: 'width 0.8s ease',
-              }} />
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '6px' }}>
-              <span style={{ fontSize: '0.68rem', color: '#94a3b8' }}>
-                {income30 >= earningsGoal ? '🎉 Goal reached this month!' : `${fmt$(earningsGoal - income30, 0)} to go`}
-              </span>
-              <span style={{ fontSize: '0.68rem', color: '#94a3b8', fontWeight: 600 }}>
-                {Math.min(100, Math.round((income30 / earningsGoal) * 100))}%
-              </span>
+          <div id="earnings-goal" style={{
+            background: '#1a1410', borderRadius: 28, padding: '32px 36px', color: '#fbf7f3',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            <div style={{ position: 'absolute', top: -100, right: -80, width: 320, height: 320, borderRadius: '50%', background: 'radial-gradient(circle, rgba(236,72,153,0.22), transparent 70%)', pointerEvents: 'none' }} />
+            <div style={{ position: 'relative', zIndex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <span style={{ fontSize: '0.66rem', fontWeight: 700, color: '#fbcfe8', letterSpacing: '0.2em', textTransform: 'uppercase' }}>Monthly goal</span>
+                <Link to="/settings" style={{ fontSize: '0.74rem', color: '#a89485', textDecoration: 'none', letterSpacing: '0.04em' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#fbcfe8'}
+                  onMouseLeave={e => e.currentTarget.style.color = '#a89485'}
+                >Adjust →</Link>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 18, flexWrap: 'wrap' }}>
+                <span style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '3rem', color: goalReached ? '#fbcfe8' : '#fbf7f3', letterSpacing: '-0.03em', lineHeight: 1 }}>{fmt$(income30, 0)}</span>
+                <span style={{ fontSize: '0.95rem', color: '#a89485' }}>of {fmt$(earningsGoal, 0)}</span>
+              </div>
+              <div style={{ background: 'rgba(251,247,243,0.12)', borderRadius: 999, height: 6, overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%',
+                  width: `${goalPct.toFixed(1)}%`,
+                  background: goalReached ? '#fbcfe8' : '#ec4899',
+                  borderRadius: 999,
+                  transition: 'width 0.8s ease',
+                }} />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 10 }}>
+                <span style={{ fontSize: '0.78rem', color: '#a89485' }}>
+                  {goalReached ? 'Goal reached this month.' : `${fmt$(earningsGoal - income30, 0)} to go`}
+                </span>
+                <span style={{ fontSize: '0.78rem', color: '#fbcfe8', fontWeight: 600 }}>
+                  {Math.min(100, Math.round(goalPct))}%
+                </span>
+              </div>
             </div>
           </div>
         )}
 
         {/* Row 2: Top earner + quick links */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
 
           {/* Top earning campaign */}
-          <div style={{ background: '#fff', borderRadius: '14px', border: '1.5px solid #e2e8f0', padding: '20px 24px' }}>
-            <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', marginBottom: '12px' }}>
-              Top Campaign (30d)
+          <div style={{ background: '#fff', borderRadius: 22, border: '1px solid #f1ebe5', padding: '28px 30px' }}>
+            <div style={{ fontSize: '0.66rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>
+              Top campaign · 30d
             </div>
             {loadingEarnings ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <div className="dash-skel" style={{ height: '18px', width: '80%' }} />
-                <div className="dash-skel" style={{ height: '14px', width: '50%' }} />
-                <div className="dash-skel" style={{ height: '12px', width: '35%' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <div className="dash-skel" style={{ height: 22, width: '80%' }} />
+                <div className="dash-skel" style={{ height: 28, width: '40%' }} />
+                <div className="dash-skel" style={{ height: 12, width: '50%' }} />
               </div>
             ) : topCampaign ? (
               <div>
-                <div style={{ fontWeight: 700, fontSize: '0.88rem', color: '#0f172a', marginBottom: '6px', lineHeight: 1.3 }}>
+                <div style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.25rem', color: '#1a1410', letterSpacing: '-0.01em', marginBottom: 14, lineHeight: 1.25 }}>
                   {topCampaign.campaign_title}
                 </div>
-                <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#16a34a' }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '2rem', color: '#ec4899', letterSpacing: '-0.02em', lineHeight: 1 }}>
                     {fmt$(topCampaign.total_income)}
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                  <span style={{ fontSize: '0.78rem', color: '#7a6b5d' }}>
                     {Number(topCampaign.total_units).toLocaleString()} units · {fmt$(topCampaign.total_revenue)} rev
                   </span>
                 </div>
                 {topCampaign.max_rate && (
                   <span style={{
-                    display: 'inline-block', marginTop: '8px',
-                    fontSize: '0.68rem', fontWeight: 700, padding: '2px 8px',
-                    borderRadius: '20px', background: '#fff7ed', color: '#ea580c'
+                    display: 'inline-block', marginTop: 14,
+                    fontSize: '0.66rem', fontWeight: 700, padding: '4px 12px',
+                    borderRadius: 999, background: '#fdf2f8', color: '#9d174d',
+                    letterSpacing: '0.06em', textTransform: 'uppercase',
                   }}>{Number(topCampaign.max_rate).toFixed(0)}% commission</span>
                 )}
               </div>
             ) : (
-              <p style={{ fontSize: '0.82rem', color: '#94a3b8' }}>No earnings data yet.</p>
+              <p style={{ fontSize: '0.92rem', color: '#a89485', margin: 0 }}>No earnings data yet.</p>
             )}
           </div>
 
           {/* Quick links */}
-          <div style={{ background: '#fff', borderRadius: '14px', border: '1.5px solid #e2e8f0', padding: '20px 24px' }}>
-            <div style={{ fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#94a3b8', marginBottom: '12px' }}>
-              Quick Navigation
+          <div style={{ background: '#fff', borderRadius: 22, border: '1px solid #f1ebe5', padding: '28px 30px' }}>
+            <div style={{ fontSize: '0.66rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 16 }}>
+              Where to go
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
               {[
-                { to: '/', label: '📋 Campaign Catalog', desc: 'Browse & accept Amazon CC campaigns' },
-                { to: '/earnings', label: '💰 Earnings', desc: 'View income by product & ASIN' },
-                { to: '/ad-health', label: '📊 Ad Health', desc: 'Meta Ads placement analysis' },
-                { to: '/settings', label: '⚙ Settings', desc: 'Account & preferences' },
+                { to: '/', label: 'Campaigns', desc: 'Browse & accept' },
+                { to: '/earnings', label: 'Earnings', desc: 'Income by product' },
+                { to: '/ad-health', label: 'Ad Health', desc: 'Placement analysis' },
+                { to: '/settings', label: 'Settings', desc: 'Connections & goals' },
               ].map(({ to, label, desc }) => (
                 <Link
                   key={to}
                   to={to}
                   style={{
-                    display: 'flex', flexDirection: 'column', gap: '2px',
-                    padding: '8px 12px', borderRadius: '8px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '12px 14px', borderRadius: 14,
                     textDecoration: 'none', transition: 'background .15s',
-                    border: '1px solid transparent'
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = '#fff7ed'; e.currentTarget.style.borderColor = '#fed7aa' }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = '#faf5ef' }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'transparent' }}
                 >
-                  <span style={{ fontSize: '0.8rem', fontWeight: 600, color: '#0f172a' }}>{label}</span>
-                  <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>{desc}</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <span style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.02rem', color: '#1a1410', letterSpacing: '-0.01em' }}>{label}</span>
+                    <span style={{ fontSize: '0.74rem', color: '#a89485' }}>{desc}</span>
+                  </div>
+                  <span style={{ fontSize: '0.85rem', color: '#ec4899' }}>→</span>
                 </Link>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Row 3: What to Promote Next */}
-        <div id="what-to-promote">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-              <h2 style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94a3b8' }}>
-                What to Promote Next
-              </h2>
-              <Link to="/" style={{ fontSize: '0.72rem', fontWeight: 600, color: '#f97316', textDecoration: 'none' }}>
-                See all →
-              </Link>
-            </div>
-            <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '16px', marginTop: '-8px' }}>
-              High-commission campaigns available now that you haven't promoted yet.
-            </p>
-            {(loadingEarnings || loadingCatalog) ? (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <div key={i} className="dash-skel" style={{ borderRadius: '12px', height: '120px' }} />
-                ))}
-              </div>
-            ) : whatToPromote.length === 0 ? (
-              <div style={{ background: '#fff', borderRadius: '14px', border: '1.5px solid #e2e8f0', padding: '24px' }}>
-                {promoteDebug?.deliveringHighRate === 0 ? (
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>No DELIVERING campaigns with 20%+ commission found in the catalog right now.</p>
-                ) : promoteDebug?.alreadyPromoted === promoteDebug?.deliveringHighRate ? (
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>🎉 You're already promoting all {promoteDebug.deliveringHighRate} available campaigns with 20%+ commission.</p>
-                ) : (
-                  <p style={{ fontSize: '0.85rem', color: '#64748b', margin: 0 }}>No suggestions available. ({promoteDebug?.deliveringHighRate ?? 0} delivering at 20%+, {promoteDebug?.alreadyPromoted ?? 0} already promoted)</p>
-                )}
-              </div>
-            ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '12px' }}>
-                {whatToPromote.map(c => {
-                  const imgSrc = c.primary_asin ? `https://m.media-amazon.com/images/P/${c.primary_asin}.jpg` : null
-                  return (
-                    <div
-                      key={c.campaign_id}
-                      style={{
-                        background: '#fff', borderRadius: '12px', border: '1.5px solid #e2e8f0',
-                        padding: '14px', display: 'flex', flexDirection: 'column', gap: '6px',
-                        transition: 'box-shadow .15s, border-color .15s'
-                      }}
-                      onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.08)'; e.currentTarget.style.borderColor = '#f97316' }}
-                      onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#e2e8f0' }}
-                    >
-                      {imgSrc && (
-                        <img src={imgSrc} alt={c.campaign_name} loading="lazy"
-                          style={{ width: '100%', aspectRatio: '1', objectFit: 'contain', borderRadius: '8px', background: '#f8fafc' }}
-                          onError={e => { e.target.style.display = 'none' }}
-                        />
-                      )}
-                      <span style={{ fontSize: '0.68rem', fontWeight: 700, padding: '2px 7px', borderRadius: '20px', background: '#fff7ed', color: '#ea580c', alignSelf: 'flex-start' }}>
-                        {Number(c.commission_rate).toFixed(0)}%
-                      </span>
-                      <div style={{ fontSize: '0.74rem', fontWeight: 600, color: '#0f172a', lineHeight: 1.3, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                        {c.campaign_name}
-                      </div>
-                      <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>{c.brand_name}</div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-        </div>
-
         {/* New This Week */}
         <div id="new-this-week">
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-            <h2 style={{ fontSize: '0.72rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', color: '#94a3b8' }}>🆕 New This Week</h2>
-            <Link to="/" style={{ fontSize: '0.72rem', fontWeight: 600, color: '#f97316', textDecoration: 'none' }}>See all →</Link>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 18, gap: 24, flexWrap: 'wrap' }}>
+            <div>
+              <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 10 }}>Just landed</p>
+              <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '2rem', color: '#1a1410', letterSpacing: '-0.02em', lineHeight: 1.1, margin: 0 }}>
+                New <em style={{ color: '#ec4899', fontStyle: 'italic' }}>this week</em>
+              </h2>
+              <p style={{ fontSize: '0.92rem', color: '#7a6b5d', marginTop: 10, marginBottom: 0, maxWidth: 560 }}>
+                Campaigns added to Creator Connections in the last 7 days.
+              </p>
+            </div>
+            <Link to="/" style={{ fontSize: '0.78rem', fontWeight: 600, color: '#ec4899', textDecoration: 'none', letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>
+              See all →
+            </Link>
           </div>
-          <p style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '16px', marginTop: '-8px' }}>
-            Campaigns added to Amazon Creator Connections in the last 7 days.
-          </p>
           {loadingNewCampaigns ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 18 }}>
               {Array.from({ length: 6 }).map((_, i) => <CampaignCardSkeleton key={i} />)}
             </div>
           ) : !newThisWeek || newThisWeek.length === 0 ? (
-            <div style={{ background: '#fff', borderRadius: '14px', border: '1.5px solid #e2e8f0', padding: '20px 24px', textAlign: 'center' }}>
-              <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0 }}>No new campaigns added this week. Check back soon.</p>
+            <div style={{ background: '#fff', borderRadius: 22, border: '1px solid #f1ebe5', padding: '36px 32px', textAlign: 'center' }}>
+              <p style={{ fontSize: '0.95rem', color: '#7a6b5d', margin: 0, fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>No new campaigns this week. Check back soon.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 18 }}>
               {newThisWeek.map(c => (
                 <div key={c.campaign_id} style={{ position: 'relative' }}>
-                  <div style={{ position: 'absolute', top: '8px', left: '8px', zIndex: 1, fontSize: '0.65rem', fontWeight: 700, padding: '2px 6px', borderRadius: '20px', background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>🆕 NEW</div>
+                  <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 1, fontSize: '0.58rem', fontWeight: 700, padding: '4px 10px', borderRadius: 999, background: '#ec4899', color: '#fbf7f3', letterSpacing: '0.14em', textTransform: 'uppercase' }}>New</div>
                   <CampaignCard campaign={c} creatorId={creatorId} />
                 </div>
               ))}
@@ -569,17 +543,18 @@ export default function DashboardPage() {
         onClick={startTour}
         title="Take the tour"
         style={{
-          position: 'fixed', bottom: '28px', right: '28px', zIndex: 1000,
-          background: '#0f172a', color: '#fff', border: 'none', borderRadius: '99px',
-          padding: '10px 18px', fontSize: '0.75rem', fontWeight: 700, cursor: 'pointer',
-          boxShadow: '0 4px 16px rgba(0,0,0,0.22)',
-          display: 'flex', alignItems: 'center', gap: '6px',
-          transition: 'background .15s, transform .1s',
+          position: 'fixed', bottom: 28, right: 28, zIndex: 1000,
+          background: '#1a1410', color: '#fbf7f3', border: 'none', borderRadius: 999,
+          padding: '12px 22px', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer',
+          boxShadow: '0 14px 32px -12px rgba(26,20,16,0.4)',
+          fontFamily: 'inherit', letterSpacing: '0.02em',
+          display: 'flex', alignItems: 'center', gap: 8,
+          transition: 'background .15s, transform .12s',
         }}
-        onMouseEnter={e => { e.currentTarget.style.background = '#1e293b'; e.currentTarget.style.transform = 'scale(1.05)' }}
-        onMouseLeave={e => { e.currentTarget.style.background = '#0f172a'; e.currentTarget.style.transform = 'scale(1)' }}
+        onMouseEnter={e => { e.currentTarget.style.background = '#2a1f18'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+        onMouseLeave={e => { e.currentTarget.style.background = '#1a1410'; e.currentTarget.style.transform = 'none' }}
       >
-        🎯 Tour
+        Take the tour
       </button>
     </div>
   )

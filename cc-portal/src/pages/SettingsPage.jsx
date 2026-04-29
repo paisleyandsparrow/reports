@@ -160,32 +160,65 @@ export default function SettingsPage() {
     }
   }
 
+  const labelStyle = { display: 'block', fontSize: '0.66rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 8 }
+  const inputStyle = {
+    width: '100%', border: '1px solid #f1ebe5', borderRadius: 14,
+    padding: '12px 16px', fontSize: '0.92rem',
+    background: '#faf5ef', color: '#1a1410', outline: 'none',
+    fontFamily: 'inherit', transition: 'border-color .15s, background .15s',
+  }
+  const focusInput = e => { e.target.style.borderColor = '#ec4899'; e.target.style.background = '#fff' }
+  const blurInput = e => { e.target.style.borderColor = '#f1ebe5'; e.target.style.background = '#faf5ef' }
+  const primaryBtn = (disabled = false) => ({
+    width: '100%', background: disabled ? '#d4c5b3' : '#1a1410', color: '#fbf7f3',
+    border: 'none', borderRadius: 999, padding: '14px 22px',
+    fontSize: '0.9rem', fontWeight: 600, cursor: disabled ? 'not-allowed' : 'pointer',
+    fontFamily: 'inherit', letterSpacing: '0.01em', transition: 'background .15s',
+  })
+  const sectionDivider = { height: 1, background: '#f1ebe5', margin: '40px 0' }
+  const successText = { fontSize: '0.78rem', color: '#9d174d', textAlign: 'center', marginTop: 12, fontWeight: 500 }
+  const errorText = { fontSize: '0.78rem', color: '#1a1410', textAlign: 'center', marginTop: 12 }
+
   return (
-    <div style={{ minHeight: '100vh', background: '#f1f5f9' }}>
+    <div style={{ minHeight: '100vh', background: '#fbf7f3', fontFamily: 'Inter, sans-serif', color: '#1a1410' }}>
       <AppHeader page="settings" storeName={storeName}
         onSignOut={async () => { await supabase.auth.signOut(); navigate('/login') }} />
 
-      <div className="px-4 py-10">
-      <div className="max-w-lg mx-auto">
+      <div style={{ maxWidth: 720, margin: '0 auto', padding: '48px 28px 80px' }}>
+
+        {/* Editorial hero */}
+        <div style={{ marginBottom: 36 }}>
+          <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.2em', textTransform: 'uppercase', marginBottom: 14 }}>
+            Settings
+          </p>
+          <h1 style={{
+            fontFamily: 'Georgia, serif', fontWeight: 400,
+            fontSize: 'clamp(2rem, 4vw, 2.8rem)', color: '#1a1410',
+            letterSpacing: '-0.03em', lineHeight: 1.1, margin: 0,
+          }}>
+            Your <em style={{ color: '#ec4899', fontStyle: 'italic' }}>connections</em>, configured.
+          </h1>
+        </div>
 
         {fromAdHealth && (
-          <div className="mb-4 px-4 py-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm flex items-start gap-2">
-            <span>📊</span>
-            <span>To use Ad Health, add your <strong>Meta access token</strong> and <strong>ad account ID</strong> below and save.</span>
+          <div style={{
+            marginBottom: 24, padding: '16px 20px', borderRadius: 16,
+            background: '#1a1410', color: '#fbf7f3',
+            fontSize: '0.85rem', lineHeight: 1.55,
+          }}>
+            To use Ad Health, add your <strong style={{ color: '#fbcfe8' }}>Meta access token</strong> and <strong style={{ color: '#fbcfe8' }}>ad account ID</strong> below and save.
           </div>
         )}
 
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-xl font-bold text-gray-900 mb-1">Settings</h1>
-          <p className="text-sm text-gray-500 mb-8">Manage your earnings data and preferences.</p>
+        <div style={{ background: '#fff', borderRadius: 28, border: '1px solid #f1ebe5', padding: '40px 36px' }}>
 
           {/* Earnings Upload Section */}
           <section>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-1">Earnings History</h2>
+            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 6px' }}>Creator Connections earnings history</h2>
             {existingCount !== null && (
-              <p className="text-xs text-gray-400 mb-4">
+              <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px' }}>
                 {existingCount > 0
-                  ? `${existingCount.toLocaleString()} rows currently uploaded`
+                  ? `${existingCount.toLocaleString()} rows uploaded`
                   : 'No earnings data uploaded yet'}
               </p>
             )}
@@ -194,78 +227,85 @@ export default function SettingsPage() {
               onClick={() => fileInputRef.current?.click()}
               onDragOver={e => e.preventDefault()}
               onDrop={e => { e.preventDefault(); handleCsvFile(e.dataTransfer.files[0]) }}
-              className="border-2 border-dashed border-gray-200 rounded-xl p-8 text-center cursor-pointer hover:border-brand-400 hover:bg-brand-50 transition-all"
+              style={{
+                border: '1.5px dashed #e8dfd6', borderRadius: 18, padding: '36px 24px',
+                textAlign: 'center', cursor: 'pointer',
+                background: '#faf5ef', transition: 'all .15s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = '#ec4899'; e.currentTarget.style.background = '#fdf2f8' }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = '#e8dfd6'; e.currentTarget.style.background = '#faf5ef' }}
             >
-              <div className="text-3xl mb-2">📄</div>
               {csvState.status === 'idle' && (
                 <>
-                  <p className="text-sm font-medium text-gray-700">Drop your CSV here or click to browse</p>
-                  <p className="text-xs text-gray-400 mt-1">Amazon Creator Connections earnings CSV</p>
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '1.05rem', color: '#1a1410', margin: '0 0 6px', letterSpacing: '-0.01em' }}>Drop a CSV, or click to browse</p>
+                  <p style={{ fontSize: '0.78rem', color: '#a89485', margin: 0 }}>Creator Connections earnings export</p>
                 </>
               )}
               {csvState.status === 'parsing' && (
-                <p className="text-sm text-gray-500">Parsing {csvState.fileName}…</p>
+                <p style={{ fontSize: '0.9rem', color: '#7a6b5d', margin: 0, fontFamily: 'Georgia, serif', fontStyle: 'italic' }}>Parsing {csvState.fileName}…</p>
               )}
               {csvState.status === 'ready' && (
                 <>
-                  <p className="text-sm font-semibold text-green-700">✓ {csvState.fileName}</p>
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '1.05rem', color: '#9d174d', margin: '0 0 6px', letterSpacing: '-0.01em' }}>{csvState.fileName}</p>
+                  <p style={{ fontSize: '0.78rem', color: '#7a6b5d', margin: 0 }}>
                     {csvState.rows.length.toLocaleString()} rows · ${csvState.totalIncome.toFixed(2)} earned · ${csvState.totalRevenue.toFixed(2)} revenue
                   </p>
                 </>
               )}
               {csvState.status === 'error' && (
                 <>
-                  <p className="text-sm font-semibold text-red-600">⚠ Could not parse file</p>
-                  <p className="text-xs text-red-400 mt-1">{csvState.errors[0]}</p>
+                  <p style={{ fontFamily: 'Georgia, serif', fontSize: '1.05rem', color: '#1a1410', margin: '0 0 6px', letterSpacing: '-0.01em' }}>Could not parse file</p>
+                  <p style={{ fontSize: '0.78rem', color: '#a89485', margin: 0 }}>{csvState.errors[0]}</p>
                 </>
               )}
               <input
                 ref={fileInputRef}
                 type="file"
                 accept=".csv,text/csv"
-                className="hidden"
+                style={{ display: 'none' }}
                 onChange={e => handleCsvFile(e.target.files[0])}
               />
             </div>
 
             {csvState.status === 'ready' && csvState.errors.length > 0 && (
-              <p className="text-xs text-amber-600 mt-2">⚠ {csvState.errors.length} rows skipped due to parse errors.</p>
+              <p style={{ fontSize: '0.78rem', color: '#a89485', marginTop: 10 }}>{csvState.errors.length} rows skipped due to parse errors.</p>
             )}
 
             {csvState.status === 'ready' && (
               <button
                 onClick={handleUpload}
                 disabled={uploading}
-                className="mt-4 w-full bg-brand-700 hover:bg-brand-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors"
+                style={{ ...primaryBtn(uploading), marginTop: 18 }}
+                onMouseEnter={e => { if (!uploading) e.currentTarget.style.background = '#2a1f18' }}
+                onMouseLeave={e => { if (!uploading) e.currentTarget.style.background = '#1a1410' }}
               >
-                {uploading ? 'Uploading…' : 'Upload Earnings'}
+                {uploading ? 'Uploading…' : 'Upload earnings'}
               </button>
             )}
 
             {uploadResult?.success && (
-              <p className="text-xs text-green-700 mt-3 text-center">✓ {uploadResult.count.toLocaleString()} rows uploaded successfully.</p>
+              <p style={successText}>{uploadResult.count.toLocaleString()} rows uploaded.</p>
             )}
             {uploadResult?.success === false && (
-              <p className="text-xs text-red-600 mt-3 text-center">⚠ Upload failed: {uploadResult.message}</p>
+              <p style={errorText}>Upload failed — {uploadResult.message}</p>
             )}
 
-            <p className="text-xs text-gray-400 text-center mt-4">
+            <p style={{ fontSize: '0.78rem', color: '#a89485', textAlign: 'center', marginTop: 18, lineHeight: 1.55 }}>
               Amazon Associates → Creator Connections → Earnings → Download CSV.
-              Uploading again merges with existing data — no duplicates.
+              Re-uploading merges — no duplicates.
             </p>
           </section>
 
-          <div className="border-t border-gray-100 my-8" />
+          <div style={sectionDivider} />
 
           {/* Monthly Earnings Goal */}
           <section>
-            <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-1">Monthly Earnings Goal</h2>
-            <p className="text-xs text-gray-400 mb-5">
-              Set a target to track your monthly progress on the dashboard.
+            <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: '0 0 6px' }}>Monthly goal</h2>
+            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px' }}>
+              Set a target to track monthly progress on the dashboard.
             </p>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Goal Amount ($)</label>
+              <label style={labelStyle}>Goal · USD</label>
               <input
                 type="number"
                 min="0"
@@ -273,96 +313,110 @@ export default function SettingsPage() {
                 value={monthlyGoal}
                 onChange={e => { setMonthlyGoal(e.target.value); setGoalSaveResult(null) }}
                 placeholder="e.g. 2000"
-                className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300"
+                style={inputStyle}
+                onFocus={focusInput}
+                onBlur={blurInput}
               />
             </div>
             <button
               onClick={handleSaveGoal}
               disabled={goalSaving || monthlyGoal === ''}
-              className="mt-4 w-full bg-brand-700 hover:bg-brand-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors"
+              style={{ ...primaryBtn(goalSaving || monthlyGoal === ''), marginTop: 20 }}
+              onMouseEnter={e => { if (!(goalSaving || monthlyGoal === '')) e.currentTarget.style.background = '#2a1f18' }}
+              onMouseLeave={e => { if (!(goalSaving || monthlyGoal === '')) e.currentTarget.style.background = '#1a1410' }}
             >
-              {goalSaving ? 'Saving…' : 'Save Goal'}
+              {goalSaving ? 'Saving…' : 'Save goal'}
             </button>
             {goalSaveResult === 'saved' && (
-              <p className="text-xs text-green-700 text-center mt-2">✓ Goal saved. Visit the dashboard to see your progress.</p>
+              <p style={successText}>Goal saved. <Link to="/dashboard" style={{ color: '#ec4899', textDecoration: 'underline' }}>See your progress →</Link></p>
             )}
             {goalSaveResult === 'error' && (
-              <p className="text-xs text-red-600 text-center mt-2">⚠ Could not save. Add a <code className="bg-gray-100 px-1 rounded">monthly_earnings_goal</code> column (numeric) to the <code className="bg-gray-100 px-1 rounded">user_preferences</code> table in Supabase.</p>
+              <p style={errorText}>Could not save. Check that <code style={{ background: '#faf5ef', padding: '2px 6px', borderRadius: 4 }}>monthly_earnings_goal</code> exists on <code style={{ background: '#faf5ef', padding: '2px 6px', borderRadius: 4 }}>user_preferences</code>.</p>
             )}
           </section>
 
-          <div className="border-t border-gray-100 my-8" />
+          <div style={sectionDivider} />
 
           {/* Meta Ads Integration */}
           <section>
-            <div className="flex items-center gap-2 mb-1">
-              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Meta Ads Integration</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
+              <h2 style={{ fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '1.5rem', color: '#1a1410', letterSpacing: '-0.02em', margin: 0 }}>Meta Ads</h2>
               {metaConnected
-                ? <span className="text-xs font-semibold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full">● Connected</span>
-                : <span className="text-xs font-semibold text-gray-400 bg-gray-50 border border-gray-200 px-2 py-0.5 rounded-full">○ Not connected</span>
+                ? <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#9d174d', background: '#fdf2f8', padding: '4px 12px', borderRadius: 999, letterSpacing: '0.16em', textTransform: 'uppercase' }}>Connected</span>
+                : <span style={{ fontSize: '0.6rem', fontWeight: 700, color: '#a89485', background: '#faf5ef', padding: '4px 12px', borderRadius: 999, letterSpacing: '0.16em', textTransform: 'uppercase' }}>Not connected</span>
               }
             </div>
-            <p className="text-xs text-gray-400 mb-5">
-              Powers the <Link to="/ad-health" className="text-brand-600 hover:underline">Ad Health</Link> dashboard.
-              Your token is stored securely and never shared.
+            <p style={{ fontSize: '0.85rem', color: '#a89485', margin: '0 0 22px', lineHeight: 1.55 }}>
+              Powers the <Link to="/ad-health" style={{ color: '#ec4899', textDecoration: 'underline' }}>Ad Health</Link> dashboard.
+              Your token stays private.
             </p>
 
-            <div className="space-y-4">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Meta Access Token</label>
-                <div className="relative">
+                <label style={labelStyle}>Access token</label>
+                <div style={{ position: 'relative' }}>
                   <input
                     type={metaShowToken ? 'text' : 'password'}
                     value={metaToken}
                     onChange={e => { setMetaToken(e.target.value); setMetaSaveResult(null) }}
                     placeholder="EAAxxxxxxxxxxxxxxx..."
-                    className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm pr-16 focus:outline-none focus:ring-2 focus:ring-brand-300 font-mono"
+                    style={{ ...inputStyle, paddingRight: 64, fontFamily: '"SF Mono", monospace', fontSize: '0.82rem' }}
+                    onFocus={focusInput}
+                    onBlur={blurInput}
                   />
                   <button
                     type="button"
                     onClick={() => setMetaShowToken(v => !v)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
+                    style={{
+                      position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)',
+                      fontSize: '0.7rem', color: '#7a6b5d', background: 'none', border: 'none',
+                      cursor: 'pointer', fontFamily: 'inherit', fontWeight: 600,
+                      letterSpacing: '0.06em', textTransform: 'uppercase',
+                    }}
                   >
                     {metaShowToken ? 'Hide' : 'Show'}
                   </button>
                 </div>
-                <p className="text-xs text-gray-400 mt-1">
-                  Meta Business Suite → Settings → System Users → Generate Token, or use a long-lived page token.
+                <p style={{ fontSize: '0.74rem', color: '#a89485', marginTop: 6, lineHeight: 1.5 }}>
+                  Meta Business Suite → Settings → System Users → Generate Token.
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-gray-600 mb-1">Ad Account ID</label>
+                <label style={labelStyle}>Ad account ID</label>
                 <input
                   type="text"
                   value={metaAccountId}
                   onChange={e => { setMetaAccountId(e.target.value); setMetaSaveResult(null) }}
                   placeholder="act_123456789"
-                  className="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-300 font-mono"
+                  style={{ ...inputStyle, fontFamily: '"SF Mono", monospace', fontSize: '0.82rem' }}
+                  onFocus={focusInput}
+                  onBlur={blurInput}
                 />
-                <p className="text-xs text-gray-400 mt-1">
-                  Found in Meta Ads Manager URL or Business Settings → Ad Accounts. <code className="bg-gray-100 px-1 rounded">act_</code> prefix is optional.
+                <p style={{ fontSize: '0.74rem', color: '#a89485', marginTop: 6, lineHeight: 1.5 }}>
+                  Found in Meta Ads Manager URL. The <code style={{ background: '#faf5ef', padding: '1px 5px', borderRadius: 4 }}>act_</code> prefix is optional.
                 </p>
               </div>
 
               <button
                 onClick={handleSaveMeta}
                 disabled={metaSaving || !metaToken.trim() || !metaAccountId.trim()}
-                className="w-full bg-brand-700 hover:bg-brand-800 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium px-6 py-2.5 rounded-xl text-sm transition-colors"
+                style={primaryBtn(metaSaving || !metaToken.trim() || !metaAccountId.trim())}
+                onMouseEnter={e => { if (!(metaSaving || !metaToken.trim() || !metaAccountId.trim())) e.currentTarget.style.background = '#2a1f18' }}
+                onMouseLeave={e => { if (!(metaSaving || !metaToken.trim() || !metaAccountId.trim())) e.currentTarget.style.background = '#1a1410' }}
               >
-                {metaSaving ? 'Saving…' : 'Save Meta Integration'}
+                {metaSaving ? 'Saving…' : 'Save integration'}
               </button>
 
               {metaSaveResult === 'saved' && (
-                <p className="text-xs text-green-700 text-center">✓ Integration saved. <Link to="/ad-health" className="underline">View Ad Health →</Link></p>
+                <p style={successText}>Integration saved. <Link to="/ad-health" style={{ color: '#ec4899', textDecoration: 'underline' }}>View Ad Health →</Link></p>
               )}
               {metaSaveResult === 'error' && (
-                <p className="text-xs text-red-600 text-center">⚠ Could not save. Try again.</p>
+                <p style={errorText}>Could not save. Try again.</p>
               )}
             </div>
           </section>
         </div>
-      </div>
       </div>
     </div>
   )
