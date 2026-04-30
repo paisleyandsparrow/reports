@@ -176,6 +176,32 @@ export default function OnboardingWizard() {
       }
     }
 
+    // Klaviyo: identify + track Trial Started
+    try {
+      if (window.klaviyo) {
+        await window.klaviyo.identify({
+          email: session.user.email,
+          store_name: form.store_name.trim(),
+          trial_ends_at: trialEndsAt,
+          marketing_consent: form.marketing_consent,
+        })
+        await window.klaviyo.track('Trial Started', {
+          trial_starts_at: now,
+          trial_ends_at: trialEndsAt,
+          store_name: form.store_name.trim(),
+          marketing_consent: form.marketing_consent,
+        })
+        if (form.marketing_consent) {
+          await window.klaviyo.push(['subscribe', {
+            email: session.user.email,
+            list_id: 'WfDLPu',
+          }])
+        }
+      }
+    } catch (_) {
+      // non-blocking — don't let Klaviyo errors stop navigation
+    }
+
     navigate('/')
   }
 
