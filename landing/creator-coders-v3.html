@@ -1,0 +1,594 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Creator Coders — Earnings intelligence for Amazon creators</title>
+<meta name="description" content="Creator Coders surfaces the campaigns, products, and ad placements actually worth your time. Built by creators who code, for creators who'd rather not." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fbf7f3;
+    --cream-soft: #f3ece2;
+    --cream-line: #f1ebe5;
+    --espresso: #1a1410;
+    --espresso-soft: #2a221c;
+    --espresso-deep: #0d0907;
+    --pink: #ec4899;
+    --pink-deep: #9d174d;
+    --pink-soft: #fdf2f8;
+    --peach: #f4a07a;
+    --peach-deep: #d97757;
+    --gold: #e9b87b;
+    --plum: #6b3a52;
+    --muted: #6b5d54;
+    --warm-on-dark: rgba(251, 247, 243, 0.78);
+    --muted-on-dark: rgba(251, 247, 243, 0.55);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--cream);
+    color: var(--espresso);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body { min-height: 100vh; overflow-x: hidden; }
+  ::selection { background: var(--pink); color: var(--cream); }
+
+  /* Logo */
+  .wordmark {
+    display: inline-block;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    color: var(--espresso);
+    text-decoration: none;
+    line-height: 1;
+    position: relative;
+  }
+  .wordmark .stem { position: relative; display: inline-block; }
+  .wordmark .stem::before {
+    content: '';
+    position: absolute;
+    top: -0.34em;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0.28em;
+    height: 0.28em;
+    border-radius: 50%;
+    background: var(--pink);
+  }
+  .wordmark .amp {
+    color: var(--pink);
+    font-weight: 400;
+    margin: 0 0.08em;
+  }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    background: rgba(251, 247, 243, 0.78);
+    border-bottom: 1px solid rgba(26, 20, 16, 0.06);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-links { display: flex; gap: 32px; align-items: center; font-size: 14px; color: var(--muted); }
+  .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.18s ease; }
+  .nav-links a:hover { color: var(--espresso); }
+  .nav-cta {
+    background: var(--espresso); color: var(--cream);
+    border-radius: 999px; padding: 10px 20px;
+    font-weight: 500; font-size: 14px; letter-spacing: 0.01em;
+    text-decoration: none; display: inline-block;
+    transition: transform 0.18s ease, background 0.18s ease;
+  }
+  .nav-cta:hover { background: var(--pink); color: var(--cream); transform: translateY(-1px); }
+
+  /* Hero */
+  .hero {
+    max-width: 1200px; margin: 0 auto;
+    padding: 80px 32px 120px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 64px;
+    align-items: center;
+    position: relative;
+  }
+  .hero::before {
+    content: 'ISSUE 01';
+    position: absolute; top: 36px; right: 32px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; letter-spacing: 0.4em;
+    color: var(--muted);
+  }
+  .hero-eyebrow {
+    font-size: 11px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--pink);
+    margin-bottom: 28px;
+  }
+  .hero h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: clamp(54px, 7vw, 96px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    color: var(--espresso);
+    margin-bottom: 28px;
+  }
+  .hero h1 em { font-style: italic; color: var(--pink); }
+  .hero-sub {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 17px; line-height: 1.6;
+    color: var(--muted);
+    margin-bottom: 40px; max-width: 480px;
+  }
+  .hero-cta-row {
+    display: flex; gap: 16px; align-items: center;
+    flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .btn-primary {
+    background: var(--pink); color: var(--cream);
+    border: none; border-radius: 999px;
+    padding: 16px 32px;
+    font-weight: 500; font-size: 15px; letter-spacing: 0.01em;
+    cursor: pointer; text-decoration: none; display: inline-block;
+    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+  }
+  .btn-primary:hover {
+    background: var(--pink-deep);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(236, 72, 153, 0.35);
+  }
+  .btn-ghost {
+    color: var(--espresso);
+    border: 1px solid rgba(26, 20, 16, 0.18);
+    background: transparent;
+    border-radius: 999px;
+    padding: 16px 28px;
+    font-weight: 500; font-size: 15px;
+    text-decoration: none; cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+  }
+  .btn-ghost:hover { border-color: var(--pink); background: var(--pink-soft); color: var(--pink-deep); }
+  .hero-meta { font-size: 13px; color: var(--muted); letter-spacing: 0.02em; }
+
+  /* Hero card preview */
+  .preview-stack { position: relative; height: 520px; }
+  .card {
+    position: absolute;
+    background: #fff; color: var(--espresso);
+    border-radius: 20px; padding: 24px;
+    box-shadow: 0 30px 80px rgba(26, 20, 16, 0.12), 0 4px 16px rgba(26, 20, 16, 0.05);
+    border: 1px solid var(--cream-line);
+    width: 320px;
+  }
+  .card-1 { top: 0; right: 60px; transform: rotate(-3deg); z-index: 2; }
+  .card-2 {
+    top: 90px; right: -10px; transform: rotate(4deg); z-index: 3;
+    background: var(--espresso); color: var(--cream);
+    border-color: var(--espresso);
+  }
+  .card-2 .card-title { color: var(--cream); }
+  .card-2 .card-meta { color: rgba(251, 247, 243, 0.6); }
+  .card-2 .card-stat-label { color: rgba(251, 247, 243, 0.5); }
+  .card-3 { top: 280px; right: 90px; transform: rotate(-1deg); z-index: 4; }
+  .card-tag {
+    display: inline-block;
+    background: var(--pink); color: var(--cream);
+    border-radius: 999px; padding: 4px 10px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .card-tag.green { background: #b7d8b1; color: var(--espresso); }
+  .card-tag.peach { background: var(--peach); color: var(--espresso); }
+  .card-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400; font-size: 20px;
+    line-height: 1.25; margin-bottom: 8px;
+    color: var(--espresso);
+  }
+  .card-meta { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .card-stat {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic; font-size: 36px; font-weight: 500;
+    color: var(--pink-deep); line-height: 1;
+  }
+  .card-2 .card-stat { color: var(--pink); }
+  .card-stat-label {
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--muted); margin-top: 4px;
+  }
+
+  /* Marquee */
+  .marquee {
+    border-top: 1px solid var(--cream-line);
+    border-bottom: 1px solid var(--cream-line);
+    padding: 24px 0; overflow: hidden;
+    background: var(--cream-soft);
+  }
+  .marquee-track {
+    display: flex; gap: 64px; align-items: center;
+    white-space: nowrap;
+    animation: scroll 40s linear infinite;
+  }
+  .marquee-item {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: 28px; color: var(--espresso);
+    letter-spacing: -0.01em;
+  }
+  .marquee-item em { color: var(--pink); font-style: italic; font-weight: 400; }
+  .marquee-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* Sections */
+  section.block { max-width: 1200px; margin: 0 auto; padding: 120px 32px; }
+  .section-eyebrow {
+    font-size: 11px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--pink);
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1.05; letter-spacing: -0.02em;
+    color: var(--espresso); margin-bottom: 24px;
+    max-width: 800px;
+  }
+  .section-title em { font-style: italic; color: var(--pink); }
+  .section-lede {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400;
+    font-size: 17px;
+    line-height: 1.65; color: var(--muted);
+    max-width: 640px; margin-bottom: 64px;
+  }
+
+  /* How it works */
+  .how-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--cream-line);
+    border-top: 1px solid var(--cream-line);
+    border-bottom: 1px solid var(--cream-line);
+  }
+  .how-item { background: var(--cream); padding: 56px 32px; transition: background 0.3s ease; }
+  .how-item:hover { background: var(--cream-soft); }
+  .how-num {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic; font-weight: 400;
+    font-size: 64px; color: var(--pink);
+    line-height: 1; margin-bottom: 28px;
+  }
+  .how-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: 24px; line-height: 1.25;
+    color: var(--espresso); margin-bottom: 14px;
+    letter-spacing: -0.01em;
+  }
+  .how-desc {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px; line-height: 1.65; color: var(--muted);
+  }
+
+  /* Editorial split (DARK section for contrast) */
+  section.dark-block {
+    background: var(--espresso);
+    color: var(--cream);
+  }
+  section.dark-block .section-eyebrow { color: var(--peach); }
+  .split {
+    max-width: 1200px; margin: 0 auto;
+    padding: 120px 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+  }
+  .split-art {
+    background: linear-gradient(155deg, var(--pink) 0%, var(--peach) 55%, var(--gold) 100%);
+    aspect-ratio: 4/5;
+    border-radius: 8px;
+    position: relative; overflow: hidden;
+  }
+  .split-art::before {
+    content: '< / >';
+    position: absolute; bottom: 32px; left: 32px;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic; font-weight: 400;
+    font-size: 72px; color: rgba(26, 20, 16, 0.85);
+    letter-spacing: -0.02em; line-height: 1;
+  }
+  .split-art::after {
+    content: '';
+    position: absolute; top: 32px; right: 32px;
+    width: 12px; height: 12px;
+    border-radius: 50%; background: var(--espresso);
+  }
+  .split h3 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: clamp(36px, 4vw, 52px);
+    line-height: 1.05; letter-spacing: -0.02em;
+    color: var(--cream); margin-bottom: 24px;
+  }
+  .split h3 em { font-style: italic; color: var(--peach); }
+  .split p {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 16px; line-height: 1.7;
+    color: var(--warm-on-dark);
+    margin-bottom: 16px;
+  }
+  .split p.cite {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic; font-size: 14px;
+    color: var(--muted-on-dark);
+    margin-top: 32px; padding-top: 20px;
+    border-top: 1px solid rgba(251, 247, 243, 0.12);
+  }
+
+  /* Pricing */
+  .price-block {
+    border: 1px solid var(--cream-line);
+    border-radius: 24px; padding: 64px;
+    text-align: center;
+    background: #fff;
+    max-width: 720px; margin: 0 auto;
+    position: relative; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(26, 20, 16, 0.06);
+  }
+  .price-block::before {
+    content: '';
+    position: absolute; top: -120px; left: 50%;
+    transform: translateX(-50%);
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(236,72,153,0.14) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .price-eyebrow {
+    font-size: 11px; letter-spacing: 0.4em;
+    text-transform: uppercase; color: var(--pink);
+    margin-bottom: 24px; position: relative;
+  }
+  .price-headline {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: 56px; line-height: 1;
+    color: var(--espresso); margin-bottom: 16px;
+    letter-spacing: -0.02em; position: relative;
+  }
+  .price-headline em { font-style: italic; color: var(--pink); }
+  .price-sub {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-weight: 400; font-size: 16px;
+    line-height: 1.6;
+    color: var(--muted); margin-bottom: 36px;
+    position: relative;
+  }
+  .price-form {
+    display: flex; gap: 8px;
+    max-width: 440px; margin: 0 auto 16px;
+    position: relative;
+  }
+  .price-form input {
+    flex: 1;
+    padding: 16px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--cream-line);
+    background: var(--cream);
+    color: var(--espresso);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px; outline: none;
+    transition: border-color 0.18s ease, background 0.18s ease;
+  }
+  .price-form input::placeholder { color: var(--muted); }
+  .price-form input:focus { border-color: var(--pink); background: #fff; }
+  .price-fineprint {
+    font-size: 12px; color: var(--muted);
+    letter-spacing: 0.04em; position: relative;
+  }
+
+  /* Footer */
+  footer {
+    border-top: 1px solid var(--cream-line);
+    padding: 48px 32px;
+    background: var(--cream);
+  }
+  .foot-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .foot-meta { font-size: 13px; color: var(--muted); letter-spacing: 0.02em; }
+  .foot-links { display: flex; gap: 28px; font-size: 13px; }
+  .foot-links a { color: var(--muted); text-decoration: none; transition: color 0.18s ease; }
+  .foot-links a:hover { color: var(--pink); }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 56px 24px 80px; gap: 48px; }
+    .hero::before { display: none; }
+    .preview-stack { height: 460px; max-width: 360px; margin: 0 auto; }
+    .card-1 { right: 30px; }
+    .card-2 { right: 0; }
+    .card-3 { right: 50px; }
+    section.block { padding: 80px 24px; }
+    .split { padding: 80px 24px; grid-template-columns: 1fr; gap: 48px; }
+    .split-art { max-width: 360px; }
+    .how-grid { grid-template-columns: 1fr; }
+    .price-block { padding: 48px 28px; }
+    .price-form { flex-direction: column; }
+    .price-form .btn-primary { width: 100%; text-align: center; }
+    .nav-links a:not(.nav-cta) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="wordmark" aria-label="Creator Coders">creator coders<span class="stem">&nbsp;</span></a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#story">Story</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#pricing" class="nav-cta">Start free</a>
+    </div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="hero-eyebrow">Software · for serious creators</div>
+    <h1>Find what's <em>actually</em><br/>worth your time.</h1>
+    <p class="hero-sub">
+      Creator Coders surfaces the campaigns, products, and ad placements quietly making money — and ignores the noise that isn't.
+    </p>
+    <div class="hero-cta-row">
+      <a href="#pricing" class="btn-primary">Start 7 days free</a>
+      <a href="#how" class="btn-ghost">See how it works</a>
+    </div>
+    <div class="hero-meta">No card required · Cancel anytime</div>
+  </div>
+
+  <div class="preview-stack" aria-hidden="true">
+    <div class="card card-1">
+      <span class="card-tag">Campaign · 28%</span>
+      <div class="card-title">Linen Throw Pillow Set</div>
+      <div class="card-meta">5 ASINs · added today</div>
+      <div class="card-stat">$0.42</div>
+      <div class="card-stat-label">Est. per click</div>
+    </div>
+    <div class="card card-2">
+      <span class="card-tag green">Already earning</span>
+      <div class="card-title">Linen Throw Pillow Set</div>
+      <div class="card-meta">12 units shipped · last 30d</div>
+      <div class="card-stat">$248</div>
+      <div class="card-stat-label">Net new income</div>
+    </div>
+    <div class="card card-3">
+      <span class="card-tag peach">Ad health</span>
+      <div class="card-title">ROI on autopilot</div>
+      <div class="card-meta">Spend · earnings · matched daily</div>
+      <div class="card-stat">3.4×</div>
+      <div class="card-stat-label">Trailing 7d ROI</div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    <span class="marquee-item">Built by creators <em>who code</em></span>
+    <span class="marquee-dot"></span>
+    <span class="marquee-item">Less guessing. <em>More earning.</em></span>
+    <span class="marquee-dot"></span>
+    <span class="marquee-item">For creators who'd <em>rather create</em></span>
+    <span class="marquee-dot"></span>
+    <span class="marquee-item">Quiet income, <em>made obvious</em></span>
+    <span class="marquee-dot"></span>
+    <span class="marquee-item">Built by creators <em>who code</em></span>
+    <span class="marquee-dot"></span>
+    <span class="marquee-item">Less guessing. <em>More earning.</em></span>
+    <span class="marquee-dot"></span>
+    <span class="marquee-item">For creators who'd <em>rather create</em></span>
+    <span class="marquee-dot"></span>
+    <span class="marquee-item">Quiet income, <em>made obvious</em></span>
+    <span class="marquee-dot"></span>
+  </div>
+</div>
+
+<section class="block" id="how">
+  <div class="section-eyebrow">001 · How it works</div>
+  <h2 class="section-title">Three steps. <em>One quiet pipeline.</em></h2>
+  <p class="section-lede">
+    Connect your accounts once. Creator Coders handles the rest in the background while you focus on the part you actually like — making things.
+  </p>
+
+  <div class="how-grid">
+    <div class="how-item">
+      <div class="how-num">01</div>
+      <div class="how-title">Connect &amp; sit back</div>
+      <div class="how-desc">Plug in Creator Connections, Associates, and Meta. We pull fresh data nightly — no spreadsheets, no copy-paste.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-num">02</div>
+      <div class="how-title">See what's worth it</div>
+      <div class="how-desc">A daily queue of high-rate campaigns matched against products you're already moving — with the noise filtered out.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-num">03</div>
+      <div class="how-title">Earn, on autopilot</div>
+      <div class="how-desc">Auto-accept rules, ad ROI tracking, and weekly reports — so the income keeps building while you keep creating.</div>
+    </div>
+  </div>
+</section>
+
+<section class="dark-block" id="story">
+  <div class="split">
+    <div class="split-art" aria-hidden="true"></div>
+    <div>
+      <div class="section-eyebrow">002 · The story</div>
+      <h3>Built by creators who'd <em>done it the hard way.</em></h3>
+      <p>
+        Most creator income is hiding in plain sight — buried under thousands of campaigns, dozens of dashboards, and reports that arrive two days late.
+      </p>
+      <p>
+        We built Creator Coders for ourselves first, after years of doing the work by hand. Now it runs in the background, and we'd rather not go back.
+      </p>
+      <p class="cite">— Made by creator-coders, for creators.</p>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="pricing">
+  <div class="price-block">
+    <div class="price-eyebrow">Try Creator Coders</div>
+    <h3 class="price-headline">7 days free.<br/><em>Then $29/month.</em></h3>
+    <p class="price-sub">No card required to start. Cancel anytime — keep the reports we've already pulled.</p>
+    <form class="price-form" onsubmit="event.preventDefault(); alert('Thanks — we\u2019ll be in touch!');">
+      <input type="email" placeholder="you@yourstudio.com" required />
+      <button class="btn-primary" type="submit">Start trial</button>
+    </form>
+    <div class="price-fineprint">Built for serious creators. Not a hobby tool.</div>
+  </div>
+</section>
+
+<footer>
+  <div class="foot-inner">
+    <div style="display:flex; align-items:center; gap:16px;">
+      <a href="#" class="wordmark" style="font-size:20px;" aria-label="Creator Coders">creator coders</a>
+      <span class="foot-meta">© 2026 Creator Coders. Software for serious creators.</span>
+    </div>
+    <div class="foot-links">
+      <a href="mailto:hi@creatorcoders.com">Contact</a>
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
