@@ -40,6 +40,29 @@ export default function SettingsPage() {
   const [autoSaving, setAutoSaving] = useState(false)
   const [autoSaveResult, setAutoSaveResult] = useState(null)
 
+  // Billing state
+  const [billing, setBilling] = useState(null) // { is_paid, subscription_status, trial_ends_at }
+  const [portalLoading, setPortalLoading] = useState(false)
+
+  async function openBillingPortal() {
+    setPortalLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await supabase.functions.invoke('create-portal-session', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.data?.url) {
+        window.location.href = res.data.url
+      } else {
+        alert(res.data?.error || 'Could not open billing portal')
+      }
+    } catch (e) {
+      alert('Could not open billing portal')
+    } finally {
+      setPortalLoading(false)
+    }
+  }
+
   // Amazon session state
   const [amazonSession, setAmazonSession] = useState(null)
 
@@ -95,10 +118,16 @@ export default function SettingsPage() {
       setUserEmail(session.user.email || '')
       const { data: profile } = await supabase
         .from('user_preferences')
-        .select('store_name')
+        .select('store_name, is_paid, subscription_status, trial_ends_at, stripe_customer_id')
         .eq('id', session.user.id)
         .maybeSingle()
       setStoreName(profile?.store_name || '')
+      setBilling(profile ? {
+        is_paid: profile.is_paid,
+        subscription_status: profile.subscription_status,
+        trial_ends_at: profile.trial_ends_at,
+        stripe_customer_id: profile.stripe_customer_id,
+      } : null)
       const { count } = await supabase
         .from('creator_connections_revenue')
         .select('*', { count: 'exact', head: true })
@@ -434,6 +463,56 @@ export default function SettingsPage() {
             Your <em style={{ color: '#ec4899', fontStyle: 'italic' }}>connections</em>, configured.
           </h1>
         </div>
+
+        {/* Subscription status section */}
+        {billing && (
+          <div style={{ marginBottom: 32, padding: '20px 24px', borderRadius: 16, background: '#fff', border: '1px solid #f3e8ff' }}>
+            <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.18em', textTransform: 'uppercase', margin: '0 0 12px' }}>Subscription</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '4px 12px', borderRadius: 99, fontSize: '0.8rem', fontWeight: 600,
+                background: billing.subscription_status === 'trialing' ? '#fef9c3' : billing.is_paid ? '#dcfce7' : '#fee2e2',
+                color: billing.subscription_status === 'trialing' ? '#854d0e' : billing.is_paid ? '#15803d' : '#b91c1c',
+              }}>
+                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'currentColor', display: 'inline-block' }} />
+                {billing.subscription_status === 'trialing' ? 'Free Trial'
+                  : billing.subscription_status === 'active' ? 'Active'
+                  : billing.subscription_status === 'past_due' ? 'Past Due'
+                  : billing.subscription_status === 'cancelled' ? 'Cancelled'
+                  : 'Inactive'}
+              </span>
+              {billing.subscription_status === 'trialing' && billing.trial_ends_at && (() => {
+                const days = Math.ceil((new Date(billing.trial_ends_at) - new Date()) / 86400000)
+                return (
+                  <span style={{ fontSize: '0.82rem', color: '#6b7280' }}>
+                    {days > 0 ? `Trial ends in ${days} day${days !== 1 ? 's' : ''}` : 'Trial ending today'}
+                  </span>
+                )
+              })()}
+              {billing.subscription_status === 'active' && (
+                <span style={{ fontSize: '0.82rem', color: '#6b7280' }}>Pro · $100/mo</span>
+              )}
+              {!billing.is_paid && billing.subscription_status !== 'trialing' && (
+                <a href="/pricing" style={{ fontSize: '0.82rem', color: '#ec4899', fontWeight: 600, textDecoration: 'none' }}>Upgrade →</a>
+              )}
+              {billing.stripe_customer_id && (
+                <button
+                  onClick={openBillingPortal}
+                  disabled={portalLoading}
+                  style={{
+                    marginLeft: 'auto', padding: '5px 14px', borderRadius: 99,
+                    fontSize: '0.8rem', fontWeight: 600, cursor: 'pointer',
+                    background: 'transparent', border: '1.5px solid #d1d5db',
+                    color: '#374151', opacity: portalLoading ? 0.6 : 1,
+                  }}
+                >
+                  {portalLoading ? 'Loading…' : 'Manage subscription →'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Connection status strip */}
         <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>

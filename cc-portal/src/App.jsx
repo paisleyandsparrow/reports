@@ -8,10 +8,11 @@ import EarningsPage from './pages/EarningsPage'
 import AdHealthPage from './pages/AdHealthPage'
 import DashboardPage from './pages/DashboardPage'
 import QueuePage from './pages/QueuePage'
+import PricingPage from './pages/PricingPage'
 import AuthGuard from './components/AuthGuard'
 
 const IS_MOCK = import.meta.env.VITE_MOCK === 'true'
-const Guard = ({ children }) => IS_MOCK ? children : <AuthGuard requireOnboarding={true}>{children}</AuthGuard>
+const Guard = ({ children }) => IS_MOCK ? children : <AuthGuard requireOnboarding={true} requirePayment={true}>{children}</AuthGuard>
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/earnings" element={<Guard><EarningsPage /></Guard>} />
         <Route path="/ad-health" element={<Guard><AdHealthPage /></Guard>} />
         <Route path="/queue" element={<Guard><QueuePage /></Guard>} />
+        <Route path="/pricing" element={IS_MOCK ? <PricingPage /> : <AuthGuard requireOnboarding={false}><PricingPage /></AuthGuard>} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
