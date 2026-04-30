@@ -1,26 +1,31 @@
 ---
 ---
-<section class="dark-block" id="story">
+<section class="warm-block" id="story">
   <div class="split">
     <div class="split-art" aria-hidden="true"></div>
     <div>
       <div class="section-eyebrow">002 · The story</div>
       <h3>Built by creators who'd <em>done it the hard way.</em></h3>
       <p>
-        Most creator income is hiding in plain sight — buried under thousands of campaigns,
+        Most creator income is hiding in plain sight. It's buried under thousands of campaigns,
         dozens of dashboards, and reports that arrive two days late.
       </p>
       <p>
         We built Creator Coders for ourselves first, after years of doing the work by hand.
         Now it runs in the background, and we'd rather not go back.
       </p>
-      <p class="cite">— Made by creator-coders, for creators.</p>
+      <p class="cite">Made by creator-coders, for creators.</p>
     </div>
   </div>
 </section>
 
 <style>
-  .dark-block { background: var(--espresso); color: var(--cream); }
+  .warm-block {
+    background: #ecddc6;
+    color: var(--espresso);
+    border-top: 1px solid rgba(26, 20, 16, 0.06);
+    border-bottom: 1px solid rgba(26, 20, 16, 0.06);
+  }
   .split {
     max-width: 1200px; margin: 0 auto;
     padding: 120px 32px;
@@ -31,6 +36,7 @@
     background: linear-gradient(155deg, var(--pink) 0%, var(--peach) 55%, var(--gold) 100%);
     aspect-ratio: 4/5; border-radius: 8px;
     position: relative; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(26, 20, 16, 0.12);
   }
   .split-art::before {
     content: '< / >';
@@ -48,26 +54,26 @@
   }
   .section-eyebrow {
     font-size: 11px; letter-spacing: 0.32em;
-    text-transform: uppercase; color: var(--peach); margin-bottom: 20px;
+    text-transform: uppercase; color: var(--pink-deep); margin-bottom: 20px;
   }
   h3 {
     font-family: Georgia, 'Times New Roman', serif;
     font-weight: 400;
     font-size: clamp(36px, 4vw, 52px);
     line-height: 1.05; letter-spacing: -0.02em;
-    color: var(--cream); margin-bottom: 24px;
+    color: var(--espresso); margin-bottom: 24px;
   }
-  h3 em { font-style: italic; color: var(--peach); }
+  h3 em { font-style: italic; color: var(--pink-deep); }
   p {
     font-size: 16px; line-height: 1.7;
-    color: var(--warm-on-dark); margin-bottom: 16px;
+    color: rgba(26, 20, 16, 0.78); margin-bottom: 16px;
   }
   p.cite {
     font-family: Georgia, 'Times New Roman', serif;
     font-style: italic; font-size: 14px;
-    color: var(--muted-on-dark);
+    color: var(--muted);
     margin-top: 32px; padding-top: 20px;
-    border-top: 1px solid rgba(251,247,243,0.12);
+    border-top: 1px solid rgba(26, 20, 16, 0.12);
   }
   @media (max-width: 900px) {
     .split { padding: 80px 24px; grid-template-columns: 1fr; gap: 48px; }

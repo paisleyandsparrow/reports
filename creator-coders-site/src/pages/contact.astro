@@ -1,0 +1,176 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+<BaseLayout title="Contact · Creator Coders" description="Get in touch with the Creator Coders team.">
+  <Nav />
+
+  <section class="contact-block">
+    <div class="contact-inner">
+      <div class="contact-eyebrow">Get in touch</div>
+      <h1>Tell us what <em>you're working on.</em></h1>
+      <p class="contact-lede">
+        Questions, partnerships, or product feedback. Drop us a note and we'll write back within a day or two.
+      </p>
+
+      <form class="contact-form" id="contact-form">
+        <div class="row">
+          <label>
+            <span class="label">Name</span>
+            <input type="text" name="name" required placeholder="Your name" />
+          </label>
+          <label>
+            <span class="label">Email</span>
+            <input type="email" name="email" required placeholder="you@yourstudio.com" />
+          </label>
+        </div>
+        <label>
+          <span class="label">Studio or brand <span class="optional">(optional)</span></span>
+          <input type="text" name="studio" placeholder="Where do you create?" />
+        </label>
+        <label>
+          <span class="label">What can we help with?</span>
+          <select name="topic" required>
+            <option value="">Choose a topic</option>
+            <option value="trial">Starting a trial</option>
+            <option value="partnership">Partnership or press</option>
+            <option value="feedback">Product feedback</option>
+            <option value="support">Support question</option>
+            <option value="other">Something else</option>
+          </select>
+        </label>
+        <label>
+          <span class="label">Your message</span>
+          <textarea name="message" rows="5" required placeholder="Tell us a bit about what you're hoping to figure out."></textarea>
+        </label>
+        <button class="btn-primary" type="submit">Send message</button>
+        <p class="form-meta">We read every note. No bots, no auto-responders.</p>
+      </form>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>
+
+<script>
+  document.getElementById('contact-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const form = e.target as HTMLFormElement;
+    const data = new FormData(form);
+    console.log('Contact submission:', Object.fromEntries(data));
+    alert("Thanks! We'll be in touch soon.");
+    form.reset();
+  });
+</script>
+
+<style>
+  .contact-block {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 100px 32px 120px;
+  }
+  .contact-eyebrow {
+    font-size: 11px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--pink);
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--espresso);
+    margin-bottom: 20px;
+  }
+  h1 em { font-style: italic; color: var(--pink); }
+  .contact-lede {
+    font-size: 17px;
+    line-height: 1.65;
+    color: var(--muted);
+    max-width: 540px;
+    margin-bottom: 56px;
+  }
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #fff;
+    padding: 40px;
+    border-radius: 24px;
+    border: 1px solid var(--cream-line);
+    box-shadow: 0 30px 80px rgba(26, 20, 16, 0.06);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .label {
+    font-size: 12px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 500;
+  }
+  .optional {
+    text-transform: none;
+    letter-spacing: 0;
+    color: rgba(107, 93, 84, 0.6);
+    font-weight: 400;
+  }
+  input, textarea, select {
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    color: var(--espresso);
+    background: var(--cream);
+    border: 1px solid var(--cream-line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color 0.18s ease, background 0.18s ease;
+    width: 100%;
+  }
+  textarea {
+    resize: vertical;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.55;
+  }
+  select {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'><path d='M1 1.5L6 6.5L11 1.5' stroke='%23a89485' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 12px 8px;
+  }
+  input::placeholder, textarea::placeholder { color: rgba(107, 93, 84, 0.5); }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--pink);
+    background: #fff;
+  }
+  .contact-form .btn-primary {
+    align-self: flex-start;
+    margin-top: 8px;
+  }
+  .form-meta {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.04em;
+    margin-top: 0;
+  }
+  @media (max-width: 700px) {
+    .contact-block { padding: 64px 24px 80px; }
+    .contact-form { padding: 28px 20px; }
+    .row { grid-template-columns: 1fr; }
+    .contact-form .btn-primary { width: 100%; text-align: center; }
+  }
+</style>
