@@ -5,6 +5,7 @@ const NAV_PAGES = [
   { key: 'catalog',    label: 'Campaigns',   to: '/' },
   { key: 'earnings',   label: 'CC Earnings', to: '/earnings' },
   { key: 'ad-health',  label: 'Ad Health',   to: '/ad-health' },
+  { key: 'queue',      label: 'Queue',       to: '/queue' },
   { key: 'settings',   label: 'Settings',    to: '/settings' },
 ]
 

@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Paisley & Sparrow — Campaign Automation",
+  "version": "1.0.0",
+  "description": "Automatically accept Amazon Creator Connections campaigns based on your saved rules.",
+
+  "permissions": [
+    "alarms",
+    "identity",
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://*.amazon.com/*"
+  ],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+
+  "oauth2": {
+    "client_id": "947857596841-f8juc9da0eks3hr6uftbeededudbmrac.apps.googleusercontent.com",
+    "scopes": ["openid", "email", "profile"]
+  }
+}
