@@ -9,6 +9,7 @@ import AdHealthPage from './pages/AdHealthPage'
 import DashboardPage from './pages/DashboardPage'
 import QueuePage from './pages/QueuePage'
 import PricingPage from './pages/PricingPage'
+import TrialExpiredPage from './pages/TrialExpiredPage'
 import AuthGuard from './components/AuthGuard'
 
 const IS_MOCK = import.meta.env.VITE_MOCK === 'true'
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="/ad-health" element={<Guard><AdHealthPage /></Guard>} />
         <Route path="/queue" element={<Guard><QueuePage /></Guard>} />
         <Route path="/pricing" element={IS_MOCK ? <PricingPage /> : <AuthGuard requireOnboarding={false}><PricingPage /></AuthGuard>} />
+        <Route path="/trial-expired" element={<TrialExpiredPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

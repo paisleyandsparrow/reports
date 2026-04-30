@@ -11,7 +11,7 @@ import { supabase } from '../lib/supabase'
  * - All good → renders children
  */
 export default function AuthGuard({ children, requireOnboarding = true, requirePayment = false }) {
-  const [status, setStatus] = useState('loading') // loading | allowed | unauthorized | unauthenticated | needs-onboarding | needs-payment
+  const [status, setStatus] = useState('loading') // loading | allowed | unauthorized | unauthenticated | needs-onboarding | trial-expired | needs-payment
 
   useEffect(() => {
     let mounted = true
@@ -46,13 +46,22 @@ export default function AuthGuard({ children, requireOnboarding = true, requireP
       // Check onboarding
       const { data: prefs } = await supabase
         .from('user_preferences')
-        .select('onboarding_complete, is_paid')
+        .select('onboarding_complete, is_paid, trial_ends_at')
         .eq('id', session.user.id)
         .maybeSingle()
 
       if (!prefs?.onboarding_complete) {
         if (mounted) setStatus('needs-onboarding')
         return
+      }
+
+      // Check trial expiry (only block if trial_ends_at is set and expired and not paid)
+      if (prefs?.trial_ends_at && !prefs?.is_paid) {
+        const trialExpired = new Date(prefs.trial_ends_at) < new Date()
+        if (trialExpired) {
+          if (mounted) setStatus('trial-expired')
+          return
+        }
       }
 
       if (requirePayment && !prefs?.is_paid) {
@@ -86,6 +95,7 @@ export default function AuthGuard({ children, requireOnboarding = true, requireP
   if (status === 'unauthenticated') return <Navigate to="/login" replace />
   if (status === 'unauthorized') return <Navigate to="/unauthorized" replace />
   if (status === 'needs-onboarding') return <Navigate to="/onboarding" replace />
+  if (status === 'trial-expired') return <Navigate to="/trial-expired" replace />
   if (status === 'needs-payment') return <Navigate to="/pricing" replace />
 
   return children

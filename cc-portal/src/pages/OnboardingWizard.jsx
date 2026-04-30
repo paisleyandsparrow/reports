@@ -90,6 +90,7 @@ export default function OnboardingWizard() {
     goals: [],
     meta_token: '',
     meta_account_id: '',
+    marketing_consent: false,
   })
   const [csvState, setCsvState] = useState({ status: 'idle', fileName: '', rows: [], totalIncome: 0, totalRevenue: 0, errors: [] })
   const fileInputRef = useRef(null)
@@ -133,6 +134,9 @@ export default function OnboardingWizard() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
 
+    const now = new Date().toISOString()
+    const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+
     await supabase.from('user_preferences').upsert({
       id: session.user.id,
       email: session.user.email,
@@ -141,8 +145,12 @@ export default function OnboardingWizard() {
       categories: form.categories,
       social_platforms: form.social_platforms,
       goals: form.goals,
+      marketing_consent: form.marketing_consent,
+      ...(form.marketing_consent && { marketing_consent_at: now }),
+      trial_starts_at: now,
+      trial_ends_at: trialEndsAt,
       onboarding_complete: true,
-      updated_at: new Date().toISOString(),
+      updated_at: now,
     })
 
     // Save Meta Ads integration if provided
@@ -441,6 +449,32 @@ export default function OnboardingWizard() {
               To get this file: Amazon Associates → Creator Connections → Earnings → Download CSV.
               You can also skip this and upload later in Settings.
             </p>
+
+            {/* Marketing consent */}
+            <label style={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: 12,
+              cursor: 'pointer',
+              padding: '14px 16px',
+              background: form.marketing_consent ? '#fdf2f8' : '#ffffff',
+              border: form.marketing_consent ? '1.5px solid #fbcfe8' : '1px solid #f1ebe5',
+              borderRadius: 14,
+              transition: 'all .15s',
+            }}>
+              <input
+                type="checkbox"
+                checked={form.marketing_consent}
+                onChange={e => setForm(prev => ({ ...prev, marketing_consent: e.target.checked }))}
+                style={{ marginTop: 2, accentColor: '#ec4899', width: 16, height: 16, flexShrink: 0, cursor: 'pointer' }}
+              />
+              <span style={{ fontSize: '0.82rem', color: '#7a6b5d', lineHeight: 1.55 }}>
+                Send me product tips, new campaign alerts, and occasional updates from Creator Coders.
+                <span style={{ display: 'block', marginTop: 3, fontSize: '0.75rem', color: '#a89485' }}>
+                  Optional — unsubscribe any time.
+                </span>
+              </span>
+            </label>
           </div>
         )}
 
