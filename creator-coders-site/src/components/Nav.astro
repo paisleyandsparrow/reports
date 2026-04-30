@@ -28,16 +28,17 @@
   .nav-links { display: flex; gap: 32px; align-items: center; font-size: 14px; color: var(--muted); }
   .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.18s ease; }
   .nav-links a:hover { color: var(--espresso); }
-  .nav-cta {
-    background: var(--pink); color: var(--cream);
+  .nav-cta, .nav-links a.nav-cta {
+    background: var(--pink); color: #ffffff;
     border-radius: 999px; padding: 10px 20px;
     font-weight: 500; font-size: 14px; letter-spacing: 0.01em;
     text-decoration: none; display: inline-block;
     transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
     box-shadow: 0 1px 0 rgba(0,0,0,0.06);
   }
-  .nav-cta:hover {
+  .nav-cta:hover, .nav-links a.nav-cta:hover {
     background: var(--pink-deep);
+    color: #ffffff;
     transform: translateY(-1px);
     box-shadow: 0 8px 20px rgba(236, 72, 153, 0.3);
   }
