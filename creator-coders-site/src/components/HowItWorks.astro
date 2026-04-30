@@ -1,0 +1,82 @@
+---
+const steps = [
+  {
+    num: '01',
+    title: 'Connect & sit back',
+    desc: 'Plug in Creator Connections, Associates, and Meta. We pull fresh data nightly — no spreadsheets, no copy-paste.',
+  },
+  {
+    num: '02',
+    title: "See what's worth it",
+    desc: "A daily queue of high-rate campaigns matched against products you're already moving — with the noise filtered out.",
+  },
+  {
+    num: '03',
+    title: 'Earn, on autopilot',
+    desc: 'Auto-accept rules, ad ROI tracking, and weekly reports — so the income keeps building while you keep creating.',
+  },
+];
+---
+<section class="block" id="how">
+  <div class="section-eyebrow">001 · How it works</div>
+  <h2 class="section-title">Three steps. <em>One quiet pipeline.</em></h2>
+  <p class="section-lede">
+    Connect your accounts once. Creator Coders handles the rest in the background
+    while you focus on the part you actually like — making things.
+  </p>
+
+  <div class="how-grid">
+    {steps.map((step) => (
+      <div class="how-item">
+        <div class="how-num">{step.num}</div>
+        <div class="how-title">{step.title}</div>
+        <div class="how-desc">{step.desc}</div>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .block { max-width: 1200px; margin: 0 auto; padding: 120px 32px; }
+  .section-eyebrow {
+    font-size: 11px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--pink); margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: clamp(40px, 5vw, 64px);
+    line-height: 1.05; letter-spacing: -0.02em;
+    color: var(--espresso); margin-bottom: 24px; max-width: 800px;
+  }
+  .section-title em { font-style: italic; color: var(--pink); }
+  .section-lede {
+    font-size: 17px; line-height: 1.65;
+    color: var(--muted); max-width: 640px; margin-bottom: 64px;
+  }
+  .how-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--cream-line);
+    border-top: 1px solid var(--cream-line);
+    border-bottom: 1px solid var(--cream-line);
+  }
+  .how-item { background: var(--cream); padding: 56px 32px; transition: background 0.3s ease; }
+  .how-item:hover { background: var(--cream-soft); }
+  .how-num {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic; font-size: 64px;
+    color: var(--pink); line-height: 1; margin-bottom: 28px;
+  }
+  .how-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 24px; line-height: 1.25;
+    color: var(--espresso); margin-bottom: 14px; letter-spacing: -0.01em;
+  }
+  .how-desc { font-size: 15px; line-height: 1.65; color: var(--muted); }
+
+  @media (max-width: 900px) {
+    .block { padding: 80px 24px; }
+    .how-grid { grid-template-columns: 1fr; }
+  }
+</style>

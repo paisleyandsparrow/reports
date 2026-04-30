@@ -1,0 +1,39 @@
+---
+const items = [
+  { text: 'Built by creators', em: 'who code' },
+  { text: 'Less guessing.', em: 'More earning.' },
+  { text: "For creators who'd", em: 'rather create' },
+  { text: 'Quiet income,', em: 'made obvious' },
+];
+---
+<div class="marquee" aria-hidden="true">
+  <div class="marquee-track">
+    {[...items, ...items].map((item) => (
+      <>
+        <span class="marquee-item">{item.text} <em>{item.em}</em></span>
+        <span class="marquee-dot"></span>
+      </>
+    ))}
+  </div>
+</div>
+
+<style>
+  .marquee {
+    border-top: 1px solid var(--cream-line);
+    border-bottom: 1px solid var(--cream-line);
+    padding: 24px 0; overflow: hidden;
+    background: var(--cream-soft);
+  }
+  .marquee-track {
+    display: flex; gap: 64px; align-items: center;
+    white-space: nowrap;
+    animation: scroll 40s linear infinite;
+  }
+  .marquee-item {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400; font-size: 28px;
+    color: var(--espresso); letter-spacing: -0.01em;
+  }
+  .marquee-item em { color: var(--pink); font-style: italic; }
+  .marquee-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--pink); flex-shrink: 0; }
+</style>

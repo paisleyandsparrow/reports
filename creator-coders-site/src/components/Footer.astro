@@ -1,0 +1,33 @@
+---
+---
+<footer>
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <a href="/" class="wordmark" style="font-size:20px;" aria-label="Creator Coders">creator coders</a>
+      <span class="foot-meta">© 2026 Creator Coders. Software for serious creators.</span>
+    </div>
+    <nav class="foot-links">
+      <a href="mailto:hi@creatorcoders.com">Contact</a>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  footer {
+    border-top: 1px solid var(--cream-line);
+    padding: 48px 32px;
+    background: var(--cream);
+  }
+  .foot-inner {
+    max-width: 1200px; margin: 0 auto;
+    display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .foot-brand { display: flex; align-items: center; gap: 16px; }
+  .foot-meta { font-size: 13px; color: var(--muted); letter-spacing: 0.02em; }
+  .foot-links { display: flex; gap: 28px; font-size: 13px; }
+  .foot-links a { color: var(--muted); text-decoration: none; transition: color 0.18s ease; }
+  .foot-links a:hover { color: var(--pink); }
+</style>

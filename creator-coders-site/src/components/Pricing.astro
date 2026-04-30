@@ -1,0 +1,84 @@
+---
+---
+<section class="block" id="pricing">
+  <div class="price-block">
+    <div class="price-eyebrow">Try Creator Coders</div>
+    <h3 class="price-headline">7 days free.<br/><em>Then $29/month.</em></h3>
+    <p class="price-sub">
+      No card required to start. Cancel anytime — keep the reports we've already pulled.
+    </p>
+    <form class="price-form" id="signup-form">
+      <input type="email" placeholder="you@yourstudio.com" required />
+      <button class="btn-primary" type="submit">Start trial</button>
+    </form>
+    <div class="price-fineprint">Built for serious creators. Not a hobby tool.</div>
+  </div>
+</section>
+
+<script>
+  document.getElementById('signup-form')?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    alert("Thanks — we'll be in touch!");
+  });
+</script>
+
+<style>
+  .block { max-width: 1200px; margin: 0 auto; padding: 120px 32px; }
+  .price-block {
+    border: 1px solid var(--cream-line);
+    border-radius: 24px; padding: 64px;
+    text-align: center;
+    background: #fff;
+    max-width: 720px; margin: 0 auto;
+    position: relative; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(26,20,16,0.06);
+  }
+  .price-block::before {
+    content: '';
+    position: absolute; top: -120px; left: 50%;
+    transform: translateX(-50%);
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(236,72,153,0.14) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .price-eyebrow {
+    font-size: 11px; letter-spacing: 0.4em;
+    text-transform: uppercase; color: var(--pink);
+    margin-bottom: 24px; position: relative;
+  }
+  .price-headline {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400; font-size: 56px; line-height: 1;
+    color: var(--espresso); margin-bottom: 16px;
+    letter-spacing: -0.02em; position: relative;
+  }
+  .price-headline em { font-style: italic; color: var(--pink); }
+  .price-sub {
+    font-size: 16px; line-height: 1.6;
+    color: var(--muted); margin-bottom: 36px; position: relative;
+  }
+  .price-form {
+    display: flex; gap: 8px;
+    max-width: 440px; margin: 0 auto 16px;
+    position: relative;
+  }
+  .price-form input {
+    flex: 1; padding: 16px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--cream-line);
+    background: var(--cream); color: var(--espresso);
+    font-family: 'Inter', sans-serif; font-size: 15px; outline: none;
+    transition: border-color 0.18s ease, background 0.18s ease;
+  }
+  .price-form input::placeholder { color: var(--muted); }
+  .price-form input:focus { border-color: var(--pink); background: #fff; }
+  .price-fineprint {
+    font-size: 12px; color: var(--muted); letter-spacing: 0.04em; position: relative;
+  }
+  @media (max-width: 900px) {
+    .block { padding: 80px 24px; }
+    .price-block { padding: 48px 28px; }
+    .price-form { flex-direction: column; }
+    .price-form .btn-primary { width: 100%; text-align: center; }
+  }
+</style>

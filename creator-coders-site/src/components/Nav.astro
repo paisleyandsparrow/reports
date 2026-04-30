@@ -1,0 +1,42 @@
+---
+---
+<nav>
+  <div class="nav-inner">
+    <a href="/" class="wordmark" aria-label="Creator Coders">creator coders</a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#story">Story</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#pricing" class="nav-cta">Start free</a>
+    </div>
+  </div>
+</nav>
+
+<style>
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    background: rgba(251, 247, 243, 0.78);
+    border-bottom: 1px solid rgba(26, 20, 16, 0.06);
+  }
+  .nav-inner {
+    max-width: 1200px; margin: 0 auto;
+    padding: 18px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-links { display: flex; gap: 32px; align-items: center; font-size: 14px; color: var(--muted); }
+  .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.18s ease; }
+  .nav-links a:hover { color: var(--espresso); }
+  .nav-cta {
+    background: var(--espresso); color: var(--cream);
+    border-radius: 999px; padding: 10px 20px;
+    font-weight: 500; font-size: 14px; letter-spacing: 0.01em;
+    text-decoration: none; display: inline-block;
+    transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
+  }
+  .nav-cta:hover { background: var(--pink); color: var(--cream); transform: translateY(-1px); }
+  @media (max-width: 900px) {
+    .nav-links a:not(.nav-cta) { display: none; }
+  }
+</style>
