@@ -12,7 +12,7 @@ import PricingPage from './pages/PricingPage'
 import AuthGuard from './components/AuthGuard'
 
 const IS_MOCK = import.meta.env.VITE_MOCK === 'true'
-const Guard = ({ children }) => IS_MOCK ? children : <AuthGuard requireOnboarding={true}>{children}</AuthGuard>
+const Guard = ({ children }) => IS_MOCK ? children : <AuthGuard requireOnboarding={true} requirePayment={true}>{children}</AuthGuard>
 
 export default function App() {
   return (
