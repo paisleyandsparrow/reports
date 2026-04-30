@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase'
+import PublicLayout from '../components/PublicLayout'
 
 export default function LoginPage() {
   async function handleGoogleSignIn() {
@@ -9,21 +10,18 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#fbf7f3',
-      fontFamily: 'Inter, sans-serif',
-      color: '#1a1410',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '32px 20px',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* ambient gradient blooms */}
-      <div style={{ position: 'absolute', top: -120, right: -120, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(236,72,153,0.16), transparent 70%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: -160, left: -100, width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,207,232,0.30), transparent 70%)', pointerEvents: 'none' }} />
+    <PublicLayout>
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '80px 20px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}>
+        {/* ambient gradient blooms */}
+        <div style={{ position: 'absolute', top: -120, right: -120, width: 420, height: 420, borderRadius: '50%', background: 'radial-gradient(circle, rgba(236,72,153,0.16), transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: -160, left: -100, width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(251,207,232,0.30), transparent 70%)', pointerEvents: 'none' }} />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 64, maxWidth: 980, width: '100%', position: 'relative', zIndex: 1, alignItems: 'center' }}>
 
@@ -99,7 +97,8 @@ export default function LoginPage() {
           </p>
         </div>
       </div>
-    </div>
+      </div>
+    </PublicLayout>
   )
 }
 

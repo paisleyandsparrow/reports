@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import PublicLayout from '../components/PublicLayout'
 
 export default function PricingPage() {
   const navigate = useNavigate()
@@ -51,26 +52,15 @@ export default function PricingPage() {
     : null
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#fbf7f3',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '40px 20px',
-      fontFamily: 'Inter, sans-serif',
-    }}>
-      {/* Wordmark */}
-      <div style={{ marginBottom: 48, textAlign: 'center' }}>
-        <div style={{ fontFamily: 'Georgia, serif', fontSize: '1.4rem', color: '#1a1410', letterSpacing: '-0.02em' }}>
-          Creator <em style={{ color: '#ec4899', fontStyle: 'italic' }}>Coders</em>
-        </div>
-        <div style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#a89485', marginTop: 4 }}>
-          Campaign Automation
-        </div>
-      </div>
-
+    <PublicLayout>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '80px 20px',
+        fontFamily: 'Inter, sans-serif',
+      }}>
       {/* Card */}
       <div style={{
         background: '#fff',
@@ -99,7 +89,8 @@ export default function PricingPage() {
           />
         )}
       </div>
-    </div>
+      </div>
+    </PublicLayout>
   )
 }
 
