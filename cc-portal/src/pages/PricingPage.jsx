@@ -24,7 +24,12 @@ export default function PricingPage() {
         .single()
       if (data) {
         setIsPaid(data.is_paid)
-        setSubscriptionStatus(data.subscription_status)
+        // Derive status same as Settings — trial users have no subscription_status yet
+        const effective = data.subscription_status
+          || (data.trial_ends_at && !data.is_paid && new Date(data.trial_ends_at) > new Date()
+              ? 'trialing'
+              : data.subscription_status)
+        setSubscriptionStatus(effective)
         setTrialEndsAt(data.trial_ends_at)
       }
       setChecking(false)
@@ -73,7 +78,7 @@ export default function PricingPage() {
       }}>
         {checking ? (
           <p style={{ textAlign: 'center', color: '#a89485', fontSize: '0.9rem' }}>Loading…</p>
-        ) : isPaid ? (
+        ) : isPaid || subscriptionStatus === 'active' ? (
           <ActiveSubscription
             status={subscriptionStatus}
             trialDaysLeft={trialDaysLeft}
@@ -84,6 +89,8 @@ export default function PricingPage() {
             loading={loading}
             error={error}
             cancelled={cancelled}
+            inTrial={subscriptionStatus === 'trialing'}
+            trialDaysLeft={trialDaysLeft}
             onCheckout={handleCheckout}
             onBack={() => navigate(-1)}
           />
@@ -94,7 +101,7 @@ export default function PricingPage() {
   )
 }
 
-function CheckoutView({ loading, error, cancelled, onCheckout, onBack }) {
+function CheckoutView({ loading, error, cancelled, inTrial, trialDaysLeft, onCheckout, onBack }) {
   return (
     <>
       {cancelled && (
@@ -103,6 +110,15 @@ function CheckoutView({ loading, error, cancelled, onCheckout, onBack }) {
           padding: '10px 14px', marginBottom: 20, fontSize: '0.8rem', color: '#92400e',
         }}>
           Checkout was cancelled — no charge was made.
+        </div>
+      )}
+
+      {inTrial && trialDaysLeft !== null && (
+        <div style={{
+          background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 10,
+          padding: '10px 14px', marginBottom: 20, fontSize: '0.8rem', color: '#92400e',
+        }}>
+          You have <strong>{trialDaysLeft} day{trialDaysLeft === 1 ? '' : 's'}</strong> left in your free trial. Subscribe now to keep access after it ends.
         </div>
       )}
 
@@ -120,13 +136,15 @@ function CheckoutView({ loading, error, cancelled, onCheckout, onBack }) {
       }}>
         <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#1a1410' }}>$100</span>
         <span style={{ fontSize: '0.9rem', color: '#a89485' }}>/month</span>
-        <span style={{
-          marginLeft: 'auto', background: '#f0fdf4', color: '#166534',
-          fontSize: '0.72rem', fontWeight: 700, padding: '4px 10px',
-          borderRadius: 999, border: '1px solid #bbf7d0',
-        }}>
-          7-day free trial
-        </span>
+        {!inTrial && (
+          <span style={{
+            marginLeft: 'auto', background: '#f0fdf4', color: '#166534',
+            fontSize: '0.72rem', fontWeight: 700, padding: '4px 10px',
+            borderRadius: 999, border: '1px solid #bbf7d0',
+          }}>
+            7-day free trial
+          </span>
+        )}
       </div>
 
       {/* Feature list */}
@@ -160,11 +178,11 @@ function CheckoutView({ loading, error, cancelled, onCheckout, onBack }) {
           marginBottom: 12, transition: 'background 0.15s',
         }}
       >
-        {loading ? 'Redirecting to checkout…' : 'Start 7-day free trial →'}
+        {loading ? 'Redirecting to checkout…' : inTrial ? 'Subscribe now →' : 'Start 7-day free trial →'}
       </button>
 
       <p style={{ fontSize: '0.72rem', color: '#a89485', textAlign: 'center', lineHeight: 1.5 }}>
-        No charge for 7 days. Cancel anytime. Card required to start trial.
+        {inTrial ? 'Cancel anytime. Billed monthly.' : 'No charge for 7 days. Cancel anytime. Card required to start trial.'}
       </p>
 
       <button

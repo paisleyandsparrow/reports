@@ -90,7 +90,6 @@ export default function OnboardingWizard() {
     goals: [],
     meta_token: '',
     meta_account_id: '',
-    marketing_consent: false,
   })
   const [csvState, setCsvState] = useState({ status: 'idle', fileName: '', rows: [], totalIncome: 0, totalRevenue: 0, errors: [] })
   const fileInputRef = useRef(null)
@@ -137,7 +136,8 @@ export default function OnboardingWizard() {
     const now = new Date().toISOString()
     const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
 
-    await supabase.from('user_preferences').upsert({
+    // Save core profile first — this MUST succeed for onboarding_complete to be set
+    const { error: coreErr } = await supabase.from('user_preferences').upsert({
       id: session.user.id,
       email: session.user.email,
       store_name: form.store_name.trim(),
@@ -145,11 +145,22 @@ export default function OnboardingWizard() {
       categories: form.categories,
       social_platforms: form.social_platforms,
       goals: form.goals,
-      marketing_consent: form.marketing_consent,
-      ...(form.marketing_consent && { marketing_consent_at: now }),
+      onboarding_complete: true,
+      updated_at: now,
+    })
+    if (coreErr) {
+      console.error('Onboarding upsert failed:', coreErr)
+      setSaving(false)
+      return
+    }
+
+    // Save trial + consent fields (requires DB migration — safe to fail silently)
+    await supabase.from('user_preferences').upsert({
+      id: session.user.id,
+      marketing_consent: true,
+      marketing_consent_at: now,
       trial_starts_at: now,
       trial_ends_at: trialEndsAt,
-      onboarding_complete: true,
       updated_at: now,
     })
 
@@ -183,20 +194,18 @@ export default function OnboardingWizard() {
           email: session.user.email,
           store_name: form.store_name.trim(),
           trial_ends_at: trialEndsAt,
-          marketing_consent: form.marketing_consent,
+          marketing_consent: true,
         })
         await window.klaviyo.track('Trial Started', {
           trial_starts_at: now,
           trial_ends_at: trialEndsAt,
           store_name: form.store_name.trim(),
-          marketing_consent: form.marketing_consent,
+          marketing_consent: true,
         })
-        if (form.marketing_consent) {
-          await window.klaviyo.push(['subscribe', {
-            email: session.user.email,
-            list_id: 'WfDLPu',
-          }])
-        }
+        await window.klaviyo.push(['subscribe', {
+          email: session.user.email,
+          list_id: 'WfDLPu',
+        }])
       }
     } catch (_) {
       // non-blocking — don't let Klaviyo errors stop navigation
@@ -476,31 +485,10 @@ export default function OnboardingWizard() {
               You can also skip this and upload later in Settings.
             </p>
 
-            {/* Marketing consent */}
-            <label style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: 12,
-              cursor: 'pointer',
-              padding: '14px 16px',
-              background: form.marketing_consent ? '#fdf2f8' : '#ffffff',
-              border: form.marketing_consent ? '1.5px solid #fbcfe8' : '1px solid #f1ebe5',
-              borderRadius: 14,
-              transition: 'all .15s',
-            }}>
-              <input
-                type="checkbox"
-                checked={form.marketing_consent}
-                onChange={e => setForm(prev => ({ ...prev, marketing_consent: e.target.checked }))}
-                style={{ marginTop: 2, accentColor: '#ec4899', width: 16, height: 16, flexShrink: 0, cursor: 'pointer' }}
-              />
-              <span style={{ fontSize: '0.82rem', color: '#7a6b5d', lineHeight: 1.55 }}>
-                Send me product tips, new campaign alerts, and occasional updates from Creator Coders.
-                <span style={{ display: 'block', marginTop: 3, fontSize: '0.75rem', color: '#a89485' }}>
-                  Optional — unsubscribe any time.
-                </span>
-              </span>
-            </label>
+            {/* Email list notice */}
+            <p style={{ fontSize: '0.75rem', color: '#a89485', lineHeight: 1.55, margin: 0, textAlign: 'center' }}>
+              By creating your account you agree to receive product tips, trial reminders, and occasional updates from Creator Coders. Unsubscribe any time.
+            </p>
           </div>
         )}
 

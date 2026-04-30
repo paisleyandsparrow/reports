@@ -122,9 +122,15 @@ export default function SettingsPage() {
         .eq('id', session.user.id)
         .maybeSingle()
       setStoreName(profile?.store_name || '')
+      // Derive effective subscription status — Stripe sets subscription_status,
+      // but trial users only have trial_ends_at set (no Stripe yet).
+      const effectiveStatus = profile?.subscription_status
+        || (profile?.trial_ends_at && !profile?.is_paid && new Date(profile.trial_ends_at) > new Date()
+            ? 'trialing'
+            : profile?.subscription_status)
       setBilling(profile ? {
         is_paid: profile.is_paid,
-        subscription_status: profile.subscription_status,
+        subscription_status: effectiveStatus,
         trial_ends_at: profile.trial_ends_at,
         stripe_customer_id: profile.stripe_customer_id,
       } : null)

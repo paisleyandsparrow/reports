@@ -5,13 +5,13 @@ import { supabase } from '../lib/supabase'
 /**
  * Wraps protected routes.
  * - No session → /login
- * - Session but email not in allowed_emails → /unauthorized
  * - requireOnboarding=true and not onboarded → /onboarding
+ * - Trial expired and not paid → /trial-expired
  * - requirePayment=true and not paid → /pricing
  * - All good → renders children
  */
 export default function AuthGuard({ children, requireOnboarding = true, requirePayment = false }) {
-  const [status, setStatus] = useState('loading') // loading | allowed | unauthorized | unauthenticated | needs-onboarding | trial-expired | needs-payment
+  const [status, setStatus] = useState('loading') // loading | allowed | unauthenticated | needs-onboarding | trial-expired | needs-payment
 
   useEffect(() => {
     let mounted = true
@@ -21,20 +21,6 @@ export default function AuthGuard({ children, requireOnboarding = true, requireP
 
       if (!session) {
         if (mounted) setStatus('unauthenticated')
-        return
-      }
-
-      const email = session.user.email
-
-      // Check allowlist
-      const { data: allowed } = await supabase
-        .from('allowed_emails')
-        .select('id')
-        .eq('email', email)
-        .maybeSingle()
-
-      if (!allowed) {
-        if (mounted) setStatus('unauthorized')
         return
       }
 
@@ -93,7 +79,6 @@ export default function AuthGuard({ children, requireOnboarding = true, requireP
   }
 
   if (status === 'unauthenticated') return <Navigate to="/login" replace />
-  if (status === 'unauthorized') return <Navigate to="/unauthorized" replace />
   if (status === 'needs-onboarding') return <Navigate to="/onboarding" replace />
   if (status === 'trial-expired') return <Navigate to="/trial-expired" replace />
   if (status === 'needs-payment') return <Navigate to="/pricing" replace />

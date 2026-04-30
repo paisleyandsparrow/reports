@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import LoginPage from './pages/LoginPage'
-import UnauthorizedPage from './pages/UnauthorizedPage'
 import OnboardingWizard from './pages/OnboardingWizard'
 import CampaignCatalog from './pages/CampaignCatalog'
 import SettingsPage from './pages/SettingsPage'
@@ -13,14 +12,13 @@ import TrialExpiredPage from './pages/TrialExpiredPage'
 import AuthGuard from './components/AuthGuard'
 
 const IS_MOCK = import.meta.env.VITE_MOCK === 'true'
-const Guard = ({ children }) => IS_MOCK ? children : <AuthGuard requireOnboarding={true} requirePayment={true}>{children}</AuthGuard>
+const Guard = ({ children }) => IS_MOCK ? children : <AuthGuard requireOnboarding={true} requirePayment={false}>{children}</AuthGuard>
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
         <Route path="/onboarding" element={IS_MOCK ? <OnboardingWizard /> : <AuthGuard requireOnboarding={false}><OnboardingWizard /></AuthGuard>} />
         <Route path="/dashboard" element={<Guard><DashboardPage /></Guard>} />
         <Route path="/" element={<Guard><CampaignCatalog /></Guard>} />
