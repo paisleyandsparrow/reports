@@ -151,6 +151,12 @@ export default function OnboardingWizard() {
     if (coreErr) {
       console.error('Onboarding upsert failed:', coreErr)
       setSaving(false)
+      // FK violation means the session user no longer exists in auth — force re-login
+      if (coreErr.code === '23503') {
+        await supabase.auth.signOut()
+        navigate('/login')
+        return
+      }
       return
     }
 
@@ -187,28 +193,58 @@ export default function OnboardingWizard() {
       }
     }
 
-    // Klaviyo: identify + track Trial Started
-    try {
-      if (window.klaviyo) {
-        await window.klaviyo.identify({
-          email: session.user.email,
-          store_name: form.store_name.trim(),
-          trial_ends_at: trialEndsAt,
-          marketing_consent: true,
+    // Klaviyo: fire-and-forget — never await these, they must not block navigation
+    if (window.klaviyo) {
+      window.klaviyo.identify({
+        email: session.user.email,
+        store_name: form.store_name.trim(),
+        trial_ends_at: trialEndsAt,
+        marketing_consent: true,
+      }).catch(() => {})
+      window.klaviyo.track('Trial Started', {
+        trial_starts_at: now,
+        trial_ends_at: trialEndsAt,
+        store_name: form.store_name.trim(),
+        marketing_consent: true,
+      }).catch(() => {})
+      // Klaviyo client subscriptions API (verified against live endpoint schema)
+      fetch('https://a.klaviyo.com/client/subscriptions/?company_id=Tyxjx8', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'revision': '2024-02-15' },
+        body: JSON.stringify({
+          data: {
+            type: 'subscription',
+            attributes: {
+              custom_source: 'Creator Coders Onboarding',
+              profile: {
+                data: {
+                  type: 'profile',
+                  attributes: {
+                    email: session.user.email,
+                  },
+                },
+              },
+            },
+            relationships: {
+              list: {
+                data: {
+                  type: 'list',
+                  id: 'WUiNyk',
+                },
+              },
+            },
+          },
+        }),
+      })
+        .then(async r => {
+          if (r.status !== 202) {
+            const body = await r.text()
+            console.error('Klaviyo subscribe failed:', r.status, body)
+            return
+          }
+          console.log('Klaviyo subscribe status:', r.status)
         })
-        await window.klaviyo.track('Trial Started', {
-          trial_starts_at: now,
-          trial_ends_at: trialEndsAt,
-          store_name: form.store_name.trim(),
-          marketing_consent: true,
-        })
-        await window.klaviyo.push(['subscribe', {
-          email: session.user.email,
-          list_id: 'WfDLPu',
-        }])
-      }
-    } catch (_) {
-      // non-blocking — don't let Klaviyo errors stop navigation
+        .catch(e => console.error('Klaviyo subscribe error:', e))
     }
 
     navigate('/')

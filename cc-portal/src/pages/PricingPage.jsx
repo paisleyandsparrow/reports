@@ -11,6 +11,7 @@ export default function PricingPage() {
   const [error, setError] = useState('')
   const [isPaid, setIsPaid] = useState(false)
   const [subscriptionStatus, setSubscriptionStatus] = useState(null)
+  const [trialStartsAt, setTrialStartsAt] = useState(null)
   const [trialEndsAt, setTrialEndsAt] = useState(null)
   const [checking, setChecking] = useState(true)
 
@@ -19,17 +20,15 @@ export default function PricingPage() {
       if (!user) { navigate('/login'); return }
       const { data } = await supabase
         .from('user_preferences')
-        .select('is_paid, subscription_status, trial_ends_at')
+        .select('is_paid, subscription_status, trial_starts_at, trial_ends_at')
         .eq('id', user.id)
         .single()
       if (data) {
         setIsPaid(data.is_paid)
-        // Derive status same as Settings — trial users have no subscription_status yet
-        const effective = data.subscription_status
-          || (data.trial_ends_at && !data.is_paid && new Date(data.trial_ends_at) > new Date()
-              ? 'trialing'
-              : data.subscription_status)
+        const trialActive = data.trial_ends_at && !data.is_paid && new Date(data.trial_ends_at) > new Date()
+        const effective = trialActive ? 'trialing' : data.subscription_status
         setSubscriptionStatus(effective)
+        setTrialStartsAt(data.trial_starts_at)
         setTrialEndsAt(data.trial_ends_at)
       }
       setChecking(false)
@@ -54,6 +53,14 @@ export default function PricingPage() {
 
   const trialDaysLeft = trialEndsAt
     ? Math.max(0, Math.ceil((new Date(trialEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null
+
+  const trialStartedLabel = trialStartsAt
+    ? new Date(trialStartsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+    : null
+
+  const trialEndsLabel = trialEndsAt
+    ? new Date(trialEndsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
     : null
 
   return (
@@ -84,13 +91,19 @@ export default function PricingPage() {
             trialDaysLeft={trialDaysLeft}
             onGoToDashboard={() => navigate('/dashboard')}
           />
+        ) : subscriptionStatus === 'trialing' ? (
+          <TrialActiveView
+            trialDaysLeft={trialDaysLeft}
+            trialStartedLabel={trialStartedLabel}
+            trialEndsLabel={trialEndsLabel}
+            onGoToSettings={() => navigate('/settings')}
+            onGoToDashboard={() => navigate('/dashboard')}
+          />
         ) : (
           <CheckoutView
             loading={loading}
             error={error}
             cancelled={cancelled}
-            inTrial={subscriptionStatus === 'trialing'}
-            trialDaysLeft={trialDaysLeft}
             onCheckout={handleCheckout}
             onBack={() => navigate(-1)}
           />
@@ -101,7 +114,7 @@ export default function PricingPage() {
   )
 }
 
-function CheckoutView({ loading, error, cancelled, inTrial, trialDaysLeft, onCheckout, onBack }) {
+function CheckoutView({ loading, error, cancelled, onCheckout, onBack }) {
   return (
     <>
       {cancelled && (
@@ -110,15 +123,6 @@ function CheckoutView({ loading, error, cancelled, inTrial, trialDaysLeft, onChe
           padding: '10px 14px', marginBottom: 20, fontSize: '0.8rem', color: '#92400e',
         }}>
           Checkout was cancelled — no charge was made.
-        </div>
-      )}
-
-      {inTrial && trialDaysLeft !== null && (
-        <div style={{
-          background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 10,
-          padding: '10px 14px', marginBottom: 20, fontSize: '0.8rem', color: '#92400e',
-        }}>
-          You have <strong>{trialDaysLeft} day{trialDaysLeft === 1 ? '' : 's'}</strong> left in your free trial. Subscribe now to keep access after it ends.
         </div>
       )}
 
@@ -136,15 +140,13 @@ function CheckoutView({ loading, error, cancelled, inTrial, trialDaysLeft, onChe
       }}>
         <span style={{ fontSize: '2.4rem', fontWeight: 800, color: '#1a1410' }}>$100</span>
         <span style={{ fontSize: '0.9rem', color: '#a89485' }}>/month</span>
-        {!inTrial && (
-          <span style={{
-            marginLeft: 'auto', background: '#f0fdf4', color: '#166534',
-            fontSize: '0.72rem', fontWeight: 700, padding: '4px 10px',
-            borderRadius: 999, border: '1px solid #bbf7d0',
-          }}>
-            7-day free trial
-          </span>
-        )}
+        <span style={{
+          marginLeft: 'auto', background: '#f0fdf4', color: '#166534',
+          fontSize: '0.72rem', fontWeight: 700, padding: '4px 10px',
+          borderRadius: 999, border: '1px solid #bbf7d0',
+        }}>
+          7-day free trial
+        </span>
       </div>
 
       {/* Feature list */}
@@ -178,11 +180,11 @@ function CheckoutView({ loading, error, cancelled, inTrial, trialDaysLeft, onChe
           marginBottom: 12, transition: 'background 0.15s',
         }}
       >
-        {loading ? 'Redirecting to checkout…' : inTrial ? 'Subscribe now →' : 'Start 7-day free trial →'}
+        {loading ? 'Redirecting to checkout…' : 'Start 7-day free trial →'}
       </button>
 
       <p style={{ fontSize: '0.72rem', color: '#a89485', textAlign: 'center', lineHeight: 1.5 }}>
-        {inTrial ? 'Cancel anytime. Billed monthly.' : 'No charge for 7 days. Cancel anytime. Card required to start trial.'}
+        No charge for 7 days. Cancel anytime. Card required to start trial.
       </p>
 
       <button
@@ -194,6 +196,46 @@ function CheckoutView({ loading, error, cancelled, inTrial, trialDaysLeft, onChe
         }}
       >
         ← Back
+      </button>
+    </>
+  )
+}
+
+function TrialActiveView({ trialDaysLeft, trialStartedLabel, trialEndsLabel, onGoToSettings, onGoToDashboard }) {
+  return (
+    <>
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <div style={{ fontSize: '2.1rem', marginBottom: 10 }}>⏳</div>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1a1410', marginBottom: 8 }}>
+          Your free trial is active
+        </h2>
+        <p style={{ fontSize: '0.84rem', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
+          {trialStartedLabel ? `Started ${trialStartedLabel}. ` : ''}
+          {trialEndsLabel ? `Ends ${trialEndsLabel}. ` : ''}
+          {trialDaysLeft !== null ? `${trialDaysLeft} day${trialDaysLeft === 1 ? '' : 's'} remaining.` : ''}
+        </p>
+      </div>
+
+      <button
+        onClick={onGoToSettings}
+        style={{
+          width: '100%', background: '#1a1410', color: '#fff', border: 'none',
+          borderRadius: 999, padding: '14px 20px', fontSize: '0.95rem', fontWeight: 700,
+          cursor: 'pointer', fontFamily: 'inherit', marginBottom: 10,
+        }}
+      >
+        Manage plan in Settings →
+      </button>
+
+      <button
+        onClick={onGoToDashboard}
+        style={{
+          width: '100%', background: 'transparent', color: '#1a1410', border: '1px solid #d6cec5',
+          borderRadius: 999, padding: '12px 20px', fontSize: '0.85rem', fontWeight: 600,
+          cursor: 'pointer', fontFamily: 'inherit',
+        }}
+      >
+        Back to Dashboard
       </button>
     </>
   )
