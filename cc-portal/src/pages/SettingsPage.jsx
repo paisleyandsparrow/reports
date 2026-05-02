@@ -41,8 +41,29 @@ export default function SettingsPage() {
   const [autoSaveResult, setAutoSaveResult] = useState(null)
 
   // Billing state
-  const [billing, setBilling] = useState(null) // { is_paid, subscription_status, trial_ends_at }
+  const [billing, setBilling] = useState(null) // { is_paid, subscription_status, trial_starts_at, trial_ends_at }
   const [portalLoading, setPortalLoading] = useState(false)
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+
+  async function startCheckout() {
+    setCheckoutLoading(true)
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await supabase.functions.invoke('create-checkout', {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      })
+      if (res.error) throw new Error(res.error.message)
+      if (res.data?.url) {
+        window.location.href = res.data.url
+      } else {
+        alert('Could not start checkout')
+      }
+    } catch {
+      alert('Could not start checkout')
+    } finally {
+      setCheckoutLoading(false)
+    }
+  }
 
   async function openBillingPortal() {
     setPortalLoading(true)
@@ -118,13 +139,16 @@ export default function SettingsPage() {
       setUserEmail(session.user.email || '')
       const { data: profile } = await supabase
         .from('user_preferences')
-        .select('store_name, is_paid, subscription_status, trial_ends_at, stripe_customer_id')
+        .select('store_name, is_paid, subscription_status, trial_starts_at, trial_ends_at, stripe_customer_id')
         .eq('id', session.user.id)
         .maybeSingle()
       setStoreName(profile?.store_name || '')
+      const trialActive = profile?.trial_ends_at && !profile?.is_paid && new Date(profile.trial_ends_at) > new Date()
+      const effectiveStatus = trialActive ? 'trialing' : profile?.subscription_status
       setBilling(profile ? {
         is_paid: profile.is_paid,
-        subscription_status: profile.subscription_status,
+        subscription_status: effectiveStatus,
+        trial_starts_at: profile.trial_starts_at,
         trial_ends_at: profile.trial_ends_at,
         stripe_customer_id: profile.stripe_customer_id,
       } : null)
@@ -483,18 +507,33 @@ export default function SettingsPage() {
                   : 'Inactive'}
               </span>
               {billing.subscription_status === 'trialing' && billing.trial_ends_at && (() => {
-                const days = Math.ceil((new Date(billing.trial_ends_at) - new Date()) / 86400000)
+                const days = Math.max(0, Math.ceil((new Date(billing.trial_ends_at) - new Date()) / 86400000))
+                const started = billing.trial_starts_at
+                  ? new Date(billing.trial_starts_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                  : null
+                const ends = new Date(billing.trial_ends_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
                 return (
                   <span style={{ fontSize: '0.82rem', color: '#6b7280' }}>
-                    {days > 0 ? `Trial ends in ${days} day${days !== 1 ? 's' : ''}` : 'Trial ending today'}
+                    {started ? `Started ${started}. ` : ''}
+                    Ends {ends}. {days > 0 ? `${days} day${days !== 1 ? 's' : ''} left` : 'Ending today'}.
                   </span>
                 )
               })()}
               {billing.subscription_status === 'active' && (
                 <span style={{ fontSize: '0.82rem', color: '#6b7280' }}>Pro · $100/mo</span>
               )}
-              {!billing.is_paid && billing.subscription_status !== 'trialing' && (
-                <a href="/pricing" style={{ fontSize: '0.82rem', color: '#ec4899', fontWeight: 600, textDecoration: 'none' }}>Upgrade →</a>
+              {!billing.is_paid && (
+                <button
+                  onClick={startCheckout}
+                  disabled={checkoutLoading}
+                  style={{
+                    fontSize: '0.82rem', color: '#ec4899', fontWeight: 700,
+                    textDecoration: 'none', background: 'none', border: 'none', cursor: checkoutLoading ? 'not-allowed' : 'pointer',
+                    opacity: checkoutLoading ? 0.6 : 1,
+                  }}
+                >
+                  {checkoutLoading ? 'Opening checkout…' : 'Upgrade now →'}
+                </button>
               )}
               {billing.stripe_customer_id && (
                 <button

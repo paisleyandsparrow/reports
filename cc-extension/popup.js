@@ -11,6 +11,53 @@ const userEmailEl     = document.getElementById('user-email-display')
 const queueStatsEl    = document.getElementById('queue-stats-text')
 const authFeedback    = document.getElementById('auth-feedback')
 const runFeedback     = document.getElementById('run-feedback')
+const cooldownText    = document.getElementById('cooldown-text')
+
+const COOLDOWN_MS = 10 * 60 * 1000  // 10 minutes
+
+let cooldownInterval = null
+
+// ── Cooldown helpers ──────────────────────────────────────────────────────────
+
+function formatCountdown(msLeft) {
+  const totalSec = Math.ceil(msLeft / 1000)
+  const m = Math.floor(totalSec / 60)
+  const s = totalSec % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+function startCooldownUI(lastRunAt) {
+  if (cooldownInterval) clearInterval(cooldownInterval)
+
+  function tick() {
+    const msLeft = COOLDOWN_MS - (Date.now() - lastRunAt)
+    if (msLeft <= 0) {
+      clearInterval(cooldownInterval)
+      cooldownInterval = null
+      runQueueBtn.disabled = false
+      runQueueBtn.textContent = '▶️ Run Queue Now'
+      cooldownText.textContent = ''
+    } else {
+      runQueueBtn.disabled = true
+      runQueueBtn.textContent = '⏳ Cooling down…'
+      cooldownText.textContent = `Next run available in ${formatCountdown(msLeft)}`
+    }
+  }
+
+  tick()
+  cooldownInterval = setInterval(tick, 1000)
+}
+
+async function checkCooldown() {
+  return new Promise(resolve => {
+    chrome.storage.local.get('lastRunAt', ({ lastRunAt }) => {
+      if (lastRunAt && Date.now() - lastRunAt < COOLDOWN_MS) {
+        startCooldownUI(lastRunAt)
+      }
+      resolve()
+    })
+  })
+}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -25,7 +72,7 @@ async function init() {
   const session = await getStoredSession()
   if (session?.user) {
     showMainView(session)
-    await loadQueueStats(session.user.id)
+    await Promise.all([loadQueueStats(session.user.id), checkCooldown()])
   } else {
     showAuthView()
   }
@@ -91,6 +138,7 @@ signOutBtn.addEventListener('click', async () => {
 runQueueBtn.addEventListener('click', async () => {
   runQueueBtn.disabled = true
   runQueueBtn.textContent = 'Running…'
+  cooldownText.textContent = ''
   setFeedback(runFeedback, '')
 
   try {
@@ -101,15 +149,20 @@ runQueueBtn.addEventListener('click', async () => {
     const r = response.result
     if (r.reason && r.total === 0) {
       setFeedback(runFeedback, r.reason, 'error')
+      runQueueBtn.disabled = false
+      runQueueBtn.textContent = '▶️ Run Queue Now'
     } else {
       setFeedback(runFeedback, `✓ Accepted ${r.accepted} campaign${r.accepted === 1 ? '' : 's'}${r.failed ? ` · ${r.failed} failed` : ''}`, 'success')
+      // Store last run time and start cooldown
+      const now = Date.now()
+      chrome.storage.local.set({ lastRunAt: now })
+      startCooldownUI(now)
     }
     // Refresh stats
     const session = await getStoredSession()
     if (session?.user) loadQueueStats(session.user.id)
   } catch (err) {
     setFeedback(runFeedback, err.message || 'Run failed. Please try again.', 'error')
-  } finally {
     runQueueBtn.disabled = false
     runQueueBtn.textContent = '▶️ Run Queue Now'
   }

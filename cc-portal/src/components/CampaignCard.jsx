@@ -134,6 +134,7 @@ export function CampaignCard({ campaign, creatorId, queueStatus = null, onQueueT
   const [currentSrc, setCurrentSrc] = useState(imgSrc)
   const [fallbackQueue, setFallbackQueue] = useState(fallbacks)
   const [imgFailed, setImgFailed] = useState(!imgSrc)
+  const [queueLoading, setQueueLoading] = useState(false)
 
   function tryNextImg() {
     if (fallbackQueue.length > 0) {
@@ -332,12 +333,21 @@ export function CampaignCard({ campaign, creatorId, queueStatus = null, onQueueT
         const bg = isAcceptedInQueue ? '#f0fdf4' : isPending ? '#fdf2f8' : '#faf5ef'
         const bgHover = isAcceptedInQueue ? '#dcfce7' : isPending ? '#fce7f3' : '#f1ebe5'
         const color = isAcceptedInQueue ? '#166534' : isPending ? '#9d174d' : isFailed ? '#b45309' : '#7a6b5d'
-        const label = isAcceptedInQueue ? '✓ Accepted' : isPending ? '✓ Queued' : isFailed ? '✗ Failed' : '+ Queue'
+        const isDisabled = isAcceptedInQueue || isFailed || queueLoading
+        const label = queueLoading
+          ? null
+          : isAcceptedInQueue ? '✓ Accepted' : isPending ? '✓ Queued' : isFailed ? '✗ Failed' : '+ Queue'
         return (
           <button
-            onClick={e => { e.stopPropagation(); if (!isAcceptedInQueue && !isFailed) onQueueToggle(campaign.campaign_id) }}
+            onClick={async e => {
+              e.stopPropagation()
+              if (isDisabled) return
+              setQueueLoading(true)
+              try { await onQueueToggle(campaign.campaign_id) } finally { setQueueLoading(false) }
+            }}
             style={{
-              display: 'block', width: '100%',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              width: '100%',
               padding: '11px 0',
               border: 'none',
               borderTop: '1px solid #f1ebe5',
@@ -346,15 +356,20 @@ export function CampaignCard({ campaign, creatorId, queueStatus = null, onQueueT
               fontSize: '0.7rem', fontWeight: 700,
               letterSpacing: '0.08em', textTransform: 'uppercase',
               fontFamily: 'inherit',
-              cursor: isAcceptedInQueue || isFailed ? 'default' : 'pointer',
+              cursor: isDisabled ? 'default' : 'pointer',
               transition: 'background .15s',
               textAlign: 'center',
               flexShrink: 0,
             }}
-            onMouseEnter={e => { if (!isAcceptedInQueue && !isFailed) e.currentTarget.style.background = bgHover }}
+            onMouseEnter={e => { if (!isDisabled) e.currentTarget.style.background = bgHover }}
             onMouseLeave={e => { e.currentTarget.style.background = bg }}
           >
-            {label}
+            {queueLoading ? (
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style={{ animation: 'cc-spin 0.7s linear infinite', flexShrink: 0 }}>
+                <circle cx="7" cy="7" r="5.5" stroke="currentColor" strokeWidth="2" strokeOpacity="0.25"/>
+                <path d="M7 1.5A5.5 5.5 0 0 1 12.5 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            ) : label}
           </button>
         )
       })()}

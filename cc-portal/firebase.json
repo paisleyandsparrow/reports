@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "paisleytest-fee48",
+    "site": "creator-coders",
     "public": "dist",
     "ignore": [
       "firebase.json",

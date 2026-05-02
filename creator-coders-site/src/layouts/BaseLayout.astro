@@ -1,0 +1,178 @@
+---
+interface Props {
+  title?: string;
+  description?: string;
+  canonicalPath?: string;
+  ogImage?: string;
+}
+const {
+  title = 'Creator Coders — Earnings intelligence for Amazon creators',
+  description = "Creator Coders surfaces the campaigns, products, and ad placements actually worth your time. Built by creators who code, for creators who'd rather not.",
+  canonicalPath = Astro.url.pathname,
+  ogImage = 'https://creatorcoders.com/og-image.png',
+} = Astro.props;
+
+const siteUrl = 'https://creatorcoders.com';
+const canonicalUrl = `${siteUrl}${canonicalPath}`;
+
+const structuredData = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      "url": siteUrl,
+      "name": "Creator Coders",
+      "description": description,
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": `${siteUrl}/#app`,
+      "name": "Creator Coders",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Chrome",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+      },
+      "description": description,
+      "url": siteUrl,
+    }
+  ]
+};
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Primary -->
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonicalUrl} />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content={canonicalUrl} />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image" content={ogImage} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content="Creator Coders" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImage} />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XP1CTX1XVX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XP1CTX1XVX');
+  </script>
+
+  <!-- Klaviyo -->
+  <script async type="text/javascript" src="https://static.klaviyo.com/onsite/js/Tyxjx8/klaviyo.js?company_id=Tyxjx8"></script>
+  <script>
+    !function(){if(!window.klaviyo){window._klOnsite=window._klOnsite||[];try{window.klaviyo=new Proxy({},{get:function(n,i){return"push"===i?function(){var n;(n=window._klOnsite).push.apply(n,arguments)}:function(){for(var n=arguments.length,o=new Array(n),w=0;w<n;w++)o[w]=arguments[w];var t="function"==typeof o[o.length-1]?o.pop():void 0,e=new Promise((function(n){window._klOnsite.push([i].concat(o,[function(i){t&&t(i),n(i)}]))}));return e}}})}catch(n){window.klaviyo=window.klaviyo||[],window.klaviyo.push=function(){var n;(n=window._klOnsite).push.apply(n,arguments)}}}}();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style is:global>
+    :root {
+      --cream: #fbf7f3;
+      --cream-soft: #f3ece2;
+      --cream-line: #f1ebe5;
+      --espresso: #1a1410;
+      --espresso-soft: #2a221c;
+      --espresso-deep: #0d0907;
+      --pink: #ec4899;
+      --pink-deep: #9d174d;
+      --pink-soft: #fdf2f8;
+      --peach: #f4a07a;
+      --peach-deep: #d97757;
+      --gold: #e9b87b;
+      --muted: #6b5d54;
+      --warm-on-dark: rgba(251, 247, 243, 0.78);
+      --muted-on-dark: rgba(251, 247, 243, 0.55);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      background: var(--cream);
+      color: var(--espresso);
+      font-family: 'Inter', system-ui, sans-serif;
+      font-weight: 400;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    body { min-height: 100vh; overflow-x: hidden; }
+    ::selection { background: var(--pink); color: var(--cream); }
+
+    .wordmark {
+      display: inline-block;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-style: italic;
+      font-weight: 400;
+      font-size: 26px;
+      letter-spacing: -0.02em;
+      color: var(--espresso);
+      text-decoration: none;
+      line-height: 1;
+      position: relative;
+    }
+    .btn-primary {
+      background: var(--pink); color: var(--cream);
+      border: none; border-radius: 999px;
+      padding: 16px 32px;
+      font-weight: 500; font-size: 15px; letter-spacing: 0.01em;
+      cursor: pointer; text-decoration: none; display: inline-block;
+      transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+    .btn-primary:hover {
+      background: var(--pink-deep);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(236, 72, 153, 0.35);
+    }
+    .btn-ghost {
+      color: var(--espresso);
+      border: 1px solid rgba(26, 20, 16, 0.18);
+      background: transparent;
+      border-radius: 999px;
+      padding: 16px 28px;
+      font-weight: 500; font-size: 15px;
+      text-decoration: none; cursor: pointer;
+      transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+    }
+    .btn-ghost:hover { border-color: var(--pink); background: var(--pink-soft); color: var(--pink-deep); }
+
+    @keyframes scroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+  <slot />
+</body>
+</html>

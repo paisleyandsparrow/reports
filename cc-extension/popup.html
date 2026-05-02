@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Paisley & Sparrow</title>
+  <title>Creator Coders</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -16,15 +16,12 @@
       padding: 24px 20px 20px;
     }
 
-    .brand {
-      font-family: Georgia, serif;
-      font-size: 1rem;
-      font-weight: 400;
-      letter-spacing: -0.01em;
-      color: #1a1410;
+    .brand-logo {
+      display: block;
+      height: 36px;
+      width: auto;
       margin-bottom: 4px;
     }
-    .brand em { color: #ec4899; font-style: italic; }
 
     .tagline {
       font-size: 0.67rem;
@@ -86,7 +83,7 @@
       text-decoration: underline;
       padding: 0;
     }
-    .sign-out-btn:hover { color: #ec4899; }
+    .sign-out-btn:hover { color: #DB5797; }
 
     .status-box {
       background: #fff;
@@ -135,18 +132,26 @@
     .run-btn:hover { background: #2d2419; }
     .run-btn:disabled { background: #d4c5b3; cursor: not-allowed; }
 
+    .cooldown-text {
+      font-size: 0.72rem;
+      text-align: center;
+      color: #a89485;
+      font-weight: 500;
+      min-height: 16px;
+    }
+
     .divider { height: 1px; background: #f1ebe5; }
   </style>
 </head>
 <body>
 
-  <div class="brand">Paisley &amp; <em>Sparrow</em></div>
-  <div class="tagline">Creator Connections</div>
+  <img src="logo.png" alt="Creator Coders" class="brand-logo" />
+  <div class="tagline">Campaign Automation</div>
 
   <!-- Not logged in -->
   <div id="auth-section">
     <p style="font-size:0.82rem;color:#a89485;line-height:1.5;margin-bottom:4px;">
-      Sign in with the same Google account you use on the Paisley &amp; Sparrow portal.
+      Sign in with the same Google account you use on the Creator Coders portal.
     </p>
     <button class="google-btn" id="sign-in-btn">
       <svg class="google-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -178,6 +183,7 @@
       ▶️ Run Queue Now
     </button>
 
+    <div class="cooldown-text" id="cooldown-text"></div>
     <div class="feedback" id="run-feedback"></div>
   </div>
 

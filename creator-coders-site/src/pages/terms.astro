@@ -1,0 +1,131 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Nav from '../components/Nav.astro';
+import Footer from '../components/Footer.astro';
+---
+<BaseLayout
+  title="Terms of Service · Creator Coders"
+  description="The terms governing your use of Creator Coders — plain language, no surprises."
+  canonicalPath="/terms/"
+>
+  <Nav />
+
+  <section class="legal-block">
+    <div class="legal-inner">
+      <div class="eyebrow">Last updated: April 30, 2026</div>
+      <h1>Terms of <em>Service</em></h1>
+      <p class="lede">
+        These terms govern your use of Creator Coders. We've written them in plain language. If something's unclear, email us — we'd rather explain than hide behind legalese.
+      </p>
+
+      <div class="legal-body">
+
+        <h2>1. The service</h2>
+        <p>Creator Coders is a campaign automation and creator management tool. You use it to organise partnerships, track campaigns, and run your creator business more efficiently.</p>
+        <p>We reserve the right to modify or discontinue features with reasonable notice. We'll never delete your data without giving you an opportunity to export it first.</p>
+
+        <h2>2. Your account</h2>
+        <p>You must be 18 or older and provide accurate information when signing up. You're responsible for maintaining the security of your account. Notify us immediately at <a href="mailto:creatorcodersportal@gmail.com">creatorcodersportal@gmail.com</a> if you suspect unauthorised access.</p>
+        <p>One account per person. Don't share login credentials.</p>
+
+        <h2>3. Payments and trial</h2>
+        <p>Creator Coders is <strong>$100/month</strong> after a 7-day free trial. No card is required to start your trial. If you add a card and don't cancel before the trial ends, you'll be charged on day 8.</p>
+        <p>All payments are processed by Stripe. Subscriptions renew monthly. You can cancel anytime from your account settings — cancellation takes effect at the end of your current billing period.</p>
+        <p><strong>Refunds:</strong> If something on our end broke your experience, reach out and we'll make it right. We handle refund requests on a case-by-case basis.</p>
+
+        <h2>4. Acceptable use</h2>
+        <p>You agree not to:</p>
+        <ul>
+          <li>Use Creator Coders for any illegal purpose</li>
+          <li>Attempt to reverse-engineer, scrape, or exploit the platform</li>
+          <li>Upload content that infringes third-party rights</li>
+          <li>Resell or sublicense access to the service</li>
+        </ul>
+        <p>We can suspend accounts that violate these terms without notice.</p>
+
+        <h2>5. Your data</h2>
+        <p>You own the data you put into Creator Coders. We don't claim any rights to it. See our <a href="/privacy">Privacy Policy</a> for details on how we handle and protect it.</p>
+
+        <h2>6. Intellectual property</h2>
+        <p>Creator Coders — including its design, code, and branding — is owned by Paisley & Sparrow LLC. You may not reproduce or redistribute any part of it without written permission.</p>
+
+        <h2>7. Limitation of liability</h2>
+        <p>Creator Coders is provided "as is." We're not liable for indirect, incidental, or consequential damages. Our total liability to you for any claim won't exceed the amount you paid us in the three months before the claim arose.</p>
+
+        <h2>8. Termination</h2>
+        <p>You can close your account at any time. We may terminate accounts for violation of these terms. Upon termination, your data is deleted within 30 days per our privacy policy.</p>
+
+        <h2>9. Changes to these terms</h2>
+        <p>We'll email you with notice of material changes. Continued use of the service after changes take effect constitutes acceptance.</p>
+
+        <h2>10. Governing law</h2>
+        <p>These terms are governed by the laws of the State of California. Disputes will be resolved in Santa Clara County, California.</p>
+
+        <h2>11. Contact</h2>
+        <p>Questions? <a href="/contact">Contact us</a> or email <a href="mailto:creatorcodersportal@gmail.com">creatorcodersportal@gmail.com</a>.</p>
+
+      </div>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .legal-block {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 100px 32px 120px;
+  }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  h1 {
+    font-family: Georgia, serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 400;
+    color: var(--espresso);
+    line-height: 1.15;
+    margin: 0 0 24px;
+    letter-spacing: -0.02em;
+  }
+  h1 em { font-style: italic; color: var(--pink); }
+  .lede {
+    font-size: 1.1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    margin-bottom: 56px;
+    border-bottom: 1px solid var(--cream-line);
+    padding-bottom: 40px;
+  }
+  .legal-body h2 {
+    font-family: Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--espresso);
+    margin: 40px 0 12px;
+    letter-spacing: -0.01em;
+  }
+  .legal-body p, .legal-body li {
+    font-size: 0.96rem;
+    line-height: 1.75;
+    color: #4a3f37;
+    margin-bottom: 12px;
+  }
+  .legal-body ul {
+    padding-left: 20px;
+    margin-bottom: 12px;
+  }
+  .legal-body a {
+    color: var(--espresso);
+    text-decoration: underline;
+    text-decoration-color: var(--pink);
+    text-underline-offset: 3px;
+  }
+  .legal-body a:hover { color: var(--pink); }
+  strong { color: var(--espresso); }
+</style>

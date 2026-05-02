@@ -133,7 +133,11 @@ export default function OnboardingWizard() {
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return
 
-    await supabase.from('user_preferences').upsert({
+    const now = new Date().toISOString()
+    const trialEndsAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+
+    // Save core profile first — this MUST succeed for onboarding_complete to be set
+    const { error: coreErr } = await supabase.from('user_preferences').upsert({
       id: session.user.id,
       email: session.user.email,
       store_name: form.store_name.trim(),
@@ -142,7 +146,28 @@ export default function OnboardingWizard() {
       social_platforms: form.social_platforms,
       goals: form.goals,
       onboarding_complete: true,
-      updated_at: new Date().toISOString(),
+      updated_at: now,
+    })
+    if (coreErr) {
+      console.error('Onboarding upsert failed:', coreErr)
+      setSaving(false)
+      // FK violation means the session user no longer exists in auth — force re-login
+      if (coreErr.code === '23503') {
+        await supabase.auth.signOut()
+        navigate('/login')
+        return
+      }
+      return
+    }
+
+    // Save trial + consent fields (requires DB migration — safe to fail silently)
+    await supabase.from('user_preferences').upsert({
+      id: session.user.id,
+      marketing_consent: true,
+      marketing_consent_at: now,
+      trial_starts_at: now,
+      trial_ends_at: trialEndsAt,
+      updated_at: now,
     })
 
     // Save Meta Ads integration if provided
@@ -166,6 +191,60 @@ export default function OnboardingWizard() {
         await supabase.from('creator_connections_revenue')
           .upsert(rowsWithUser.slice(i, i + BATCH), { onConflict: 'user_id,date,campaign_title,asin' })
       }
+    }
+
+    // Klaviyo: fire-and-forget — never await these, they must not block navigation
+    if (window.klaviyo) {
+      window.klaviyo.identify({
+        email: session.user.email,
+        store_name: form.store_name.trim(),
+        trial_ends_at: trialEndsAt,
+        marketing_consent: true,
+      }).catch(() => {})
+      window.klaviyo.track('Trial Started', {
+        trial_starts_at: now,
+        trial_ends_at: trialEndsAt,
+        store_name: form.store_name.trim(),
+        marketing_consent: true,
+      }).catch(() => {})
+      // Klaviyo client subscriptions API (verified against live endpoint schema)
+      fetch('https://a.klaviyo.com/client/subscriptions/?company_id=Tyxjx8', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'revision': '2024-02-15' },
+        body: JSON.stringify({
+          data: {
+            type: 'subscription',
+            attributes: {
+              custom_source: 'Creator Coders Onboarding',
+              profile: {
+                data: {
+                  type: 'profile',
+                  attributes: {
+                    email: session.user.email,
+                  },
+                },
+              },
+            },
+            relationships: {
+              list: {
+                data: {
+                  type: 'list',
+                  id: 'WUiNyk',
+                },
+              },
+            },
+          },
+        }),
+      })
+        .then(async r => {
+          if (r.status !== 202) {
+            const body = await r.text()
+            console.error('Klaviyo subscribe failed:', r.status, body)
+            return
+          }
+          console.log('Klaviyo subscribe status:', r.status)
+        })
+        .catch(e => console.error('Klaviyo subscribe error:', e))
     }
 
     navigate('/')
@@ -440,6 +519,11 @@ export default function OnboardingWizard() {
             <p style={{ fontSize: '0.78rem', color: '#a89485', textAlign: 'center', margin: 0, lineHeight: 1.55 }}>
               To get this file: Amazon Associates → Creator Connections → Earnings → Download CSV.
               You can also skip this and upload later in Settings.
+            </p>
+
+            {/* Email list notice */}
+            <p style={{ fontSize: '0.75rem', color: '#a89485', lineHeight: 1.55, margin: 0, textAlign: 'center' }}>
+              By creating your account you agree to receive product tips, trial reminders, and occasional updates from Creator Coders. Unsubscribe any time.
             </p>
           </div>
         )}

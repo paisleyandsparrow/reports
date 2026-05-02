@@ -1,0 +1,133 @@
+---
+---
+<section class="hero">
+  <div class="hero-copy">
+    <div class="hero-eyebrow">Software · for serious creators</div>
+    <h1>Find what's <em>actually</em><br/>worth your time.</h1>
+    <p class="hero-sub">
+      Creator Coders surfaces the campaigns, products, and ad placements quietly
+      making money. We ignore the noise that isn't.
+    </p>
+    <div class="hero-cta-row">
+      <a href="#pricing" class="btn-primary">Start 7 days free</a>
+      <a href="#how" class="btn-ghost">See how it works</a>
+    </div>
+    <div class="hero-meta">No card required · Cancel anytime</div>
+  </div>
+
+  <div class="preview-stack" aria-hidden="true">
+    <div class="card card-1">
+      <span class="card-tag">Campaign · 28%</span>
+      <div class="card-title">Linen Throw Pillow Set</div>
+      <div class="card-meta">5 ASINs · added today</div>
+      <div class="card-stat">$0.42</div>
+      <div class="card-stat-label">Est. per click</div>
+    </div>
+    <div class="card card-2">
+      <span class="card-tag green">Already earning</span>
+      <div class="card-title">Linen Throw Pillow Set</div>
+      <div class="card-meta">12 units shipped · last 30d</div>
+      <div class="card-stat">$248</div>
+      <div class="card-stat-label">Net new income</div>
+    </div>
+    <div class="card card-3">
+      <span class="card-tag peach">Ad health</span>
+      <div class="card-title">ROI on autopilot</div>
+      <div class="card-meta">Spend · earnings · matched daily</div>
+      <div class="card-stat">3.4×</div>
+      <div class="card-stat-label">Trailing 7d ROI</div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    max-width: 1200px; margin: 0 auto;
+    padding: 80px 32px 120px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 64px;
+    align-items: center;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-size: 11px; letter-spacing: 0.32em;
+    text-transform: uppercase; color: var(--pink);
+    margin-bottom: 28px;
+  }
+  h1 {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400;
+    font-size: clamp(54px, 7vw, 96px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    color: var(--espresso);
+    margin-bottom: 28px;
+  }
+  h1 em { font-style: italic; color: var(--pink); }
+  .hero-sub {
+    font-weight: 400; font-size: 17px; line-height: 1.6;
+    color: var(--muted); margin-bottom: 40px; max-width: 480px;
+  }
+  .hero-cta-row {
+    display: flex; gap: 16px; align-items: center;
+    flex-wrap: wrap; margin-bottom: 24px;
+  }
+  .hero-meta { font-size: 13px; color: var(--muted); letter-spacing: 0.02em; }
+
+  .preview-stack { position: relative; height: 520px; }
+  .card {
+    position: absolute;
+    background: #fff; color: var(--espresso);
+    border-radius: 20px; padding: 24px;
+    box-shadow: 0 30px 80px rgba(26,20,16,0.12), 0 4px 16px rgba(26,20,16,0.05);
+    border: 1px solid var(--cream-line);
+    width: 320px;
+  }
+  .card-1 { top: 0; right: 60px; transform: rotate(-3deg); z-index: 2; }
+  .card-2 {
+    top: 90px; right: -10px; transform: rotate(4deg); z-index: 3;
+    background: var(--espresso); color: var(--cream);
+    border-color: var(--espresso);
+  }
+  .card-2 .card-title { color: var(--cream); }
+  .card-2 .card-meta { color: rgba(251,247,243,0.6); }
+  .card-2 .card-stat { color: var(--pink); }
+  .card-2 .card-stat-label { color: rgba(251,247,243,0.5); }
+  .card-3 { top: 280px; right: 90px; transform: rotate(-1deg); z-index: 4; }
+
+  .card-tag {
+    display: inline-block;
+    background: var(--pink); color: var(--cream);
+    border-radius: 999px; padding: 4px 10px;
+    font-size: 10px; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .card-tag.green { background: #b7d8b1; color: var(--espresso); }
+  .card-tag.peach { background: var(--peach); color: var(--espresso); }
+  .card-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-weight: 400; font-size: 20px;
+    line-height: 1.25; margin-bottom: 8px;
+  }
+  .card-meta { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .card-stat {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-style: italic; font-size: 36px; font-weight: 400;
+    color: var(--pink-deep); line-height: 1;
+  }
+  .card-stat-label {
+    font-size: 11px; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--muted); margin-top: 4px;
+  }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 56px 24px 80px; gap: 48px; }
+    .hero::before { display: none; }
+    .preview-stack { height: 460px; max-width: 360px; margin: 0 auto; }
+    .card-1 { right: 30px; }
+    .card-2 { right: 0; }
+    .card-3 { right: 50px; }
+  }
+</style>

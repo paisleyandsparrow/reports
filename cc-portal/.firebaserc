@@ -1,5 +1,6 @@
 {
   "projects": {
-    "default": "paisleytest-fee48"
+    "default": "creator-coders",
+    "legacy": "paisleytest-fee48"
   }
 }

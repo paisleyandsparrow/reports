@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Creator Coders — Missed Earnings Report</title>
+<meta name="description" content="Products you sold in the last 30 days that had a higher-rate Creator Connections campaign available."/>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #fbf7f3;
+    --cream-soft: #f3ece2;
+    --cream-line: #f1ebe5;
+    --espresso: #1a1410;
+    --espresso-soft: #2a221c;
+    --pink: #ec4899;
+    --pink-deep: #9d174d;
+    --pink-soft: #fdf2f8;
+    --peach: #f4a07a;
+    --gold: #e9b87b;
+    --muted: #6b5d54;
+    --green: #16a34a;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--cream);
+    color: var(--espresso);
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--pink); color: #fff; }
+
+  nav {
+    background: rgba(251,247,243,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--cream-line);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky; top: 0; z-index: 10;
+  }
+  .wordmark {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--espresso);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+  .nav-label { font-size: 11px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted); }
+
+  .hero { max-width: 900px; margin: 0 auto; padding: 72px 32px 56px; text-align: center; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--pink); margin-bottom: 20px; }
+  .hero h1 {
+    font-family: Georgia, serif; font-weight: 400;
+    font-size: clamp(40px, 6vw, 72px);
+    line-height: 1.0; letter-spacing: -0.025em;
+    color: var(--espresso); margin-bottom: 20px;
+  }
+  .hero h1 em { font-style: italic; color: var(--pink); }
+  .hero-sub { font-size: 17px; line-height: 1.65; color: var(--muted); max-width: 560px; margin: 0 auto 48px; }
+
+  .stats-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .stat-pill {
+    background: #fff; border: 1px solid var(--cream-line);
+    border-radius: 999px; padding: 12px 24px;
+    display: flex; align-items: center; gap: 10px;
+    box-shadow: 0 2px 8px rgba(26,20,16,0.04);
+  }
+  .stat-num { font-family: Georgia, serif; font-style: italic; font-size: 26px; color: var(--pink); line-height: 1; }
+  .stat-label { font-size: 13px; color: var(--muted); line-height: 1.3; }
+
+  .callout {
+    max-width: 860px; margin: 48px auto;
+    background: var(--cream-soft); border: 1px solid var(--cream-line);
+    border-radius: 16px; padding: 28px 32px;
+    display: flex; gap: 16px; align-items: flex-start;
+  }
+  .callout-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--pink); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0; margin-top: 2px;
+  }
+  .callout p { font-family: Georgia, serif; font-style: italic; font-size: 16px; line-height: 1.6; color: var(--espresso-soft); }
+  .callout strong { font-style: normal; font-weight: 600; color: var(--espresso); }
+
+  .how-section { max-width: 900px; margin: 0 auto; padding: 0 32px 64px; }
+  .how-steps {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: var(--cream-line);
+    border: 1px solid var(--cream-line); border-radius: 16px;
+    overflow: hidden; margin-top: 24px;
+  }
+  .how-step { background: #fff; padding: 28px 24px; }
+  .step-num { font-family: Georgia, serif; font-style: italic; font-size: 36px; color: var(--pink); line-height: 1; margin-bottom: 12px; }
+  .step-title { font-weight: 600; font-size: 14px; margin-bottom: 6px; }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.55; }
+
+  .opps-section { max-width: 900px; margin: 0 auto; padding: 0 32px 80px; }
+  .section-header { margin-bottom: 32px; }
+  .section-header h2 {
+    font-family: Georgia, serif; font-weight: 400;
+    font-size: clamp(28px, 4vw, 42px);
+    line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 10px;
+  }
+  .section-header h2 em { font-style: italic; color: var(--pink); }
+  .section-header p { font-size: 15px; color: var(--muted); line-height: 1.6; }
+
+  .opp-card {
+    background: #fff; border: 1px solid var(--cream-line);
+    border-radius: 20px; overflow: hidden; margin-bottom: 20px;
+    box-shadow: 0 4px 20px rgba(26,20,16,0.04);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .opp-card:hover { box-shadow: 0 12px 40px rgba(26,20,16,0.08); transform: translateY(-2px); }
+  .card-inner { display: grid; grid-template-columns: 140px 1fr auto; }
+  .card-image {
+    width: 140px; height: 170px; object-fit: contain;
+    background: var(--cream-soft); display: block; padding: 12px;
+  }
+  .card-image-fallback {
+    width: 140px; height: 170px; background: var(--cream-soft);
+    display: none; align-items: center; justify-content: center;
+    font-family: Georgia, serif; font-style: italic;
+    font-size: 48px; color: var(--cream-line); flex-shrink: 0;
+  }
+  .card-body { padding: 24px 20px; border-left: 1px solid var(--cream-line); }
+  .card-brand { font-family: Georgia, serif; font-size: 20px; letter-spacing: -0.01em; margin-bottom: 6px; }
+  .card-meta-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .asin-pill {
+    background: var(--cream-soft); border: 1px solid var(--cream-line);
+    border-radius: 999px; padding: 2px 10px;
+    font-size: 11px; color: var(--muted); font-family: monospace;
+  }
+  .cat-pill { background: var(--cream-soft); border-radius: 999px; padding: 2px 10px; font-size: 11px; color: var(--muted); }
+  .product-name { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.4; }
+
+  .rate-compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .rate-box { border-radius: 10px; padding: 12px 14px; border: 1px solid var(--cream-line); background: var(--cream-soft); }
+  .rate-box.highlight { background: var(--pink-soft); border-color: rgba(236,72,153,0.2); }
+  .rate-box-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); margin-bottom: 4px; }
+  .rate-box.highlight .rate-box-label { color: var(--pink-deep); }
+  .rate-value { font-family: Georgia, serif; font-style: italic; font-size: 24px; color: var(--espresso); line-height: 1; }
+  .rate-box.highlight .rate-value { color: var(--pink); }
+  .rate-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .added-date { font-size: 11px; color: var(--muted); }
+
+  .card-delta {
+    padding: 24px; display: flex; flex-direction: column;
+    align-items: flex-end; justify-content: space-between;
+    border-left: 1px solid var(--cream-line); min-width: 160px;
+  }
+  .delta-amount { font-family: Georgia, serif; font-style: italic; font-size: 36px; color: var(--green); line-height: 1; text-align: right; }
+  .delta-label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.15em; color: var(--muted); margin-top: 4px; text-align: right; }
+  .add-btn {
+    background: var(--pink); color: #fff; border: none; border-radius: 999px;
+    padding: 10px 18px; font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+  }
+  .add-btn:hover { background: var(--pink-deep); transform: translateY(-1px); }
+  .add-btn:disabled { background: var(--green); cursor: default; transform: none; }
+
+  .scale-section { background: var(--espresso); color: #fff; padding: 80px 32px; }
+  .scale-inner { max-width: 900px; margin: 0 auto; }
+  .scale-eyebrow { font-size: 11px; letter-spacing: 0.32em; text-transform: uppercase; color: var(--peach); margin-bottom: 16px; }
+  .scale-title {
+    font-family: Georgia, serif; font-style: italic; font-weight: 400;
+    font-size: clamp(32px, 4vw, 52px); line-height: 1.05; color: #fff;
+    margin-bottom: 48px; letter-spacing: -0.02em; max-width: 640px;
+  }
+  .scale-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1px; background: rgba(251,247,243,0.1);
+    border: 1px solid rgba(251,247,243,0.1);
+    border-radius: 16px; overflow: hidden; margin-bottom: 40px;
+  }
+  .scale-item { padding: 36px 32px; background: rgba(251,247,243,0.04); }
+  .scale-num { font-family: Georgia, serif; font-style: italic; font-size: 56px; color: var(--peach); line-height: 1; margin-bottom: 8px; }
+  .scale-desc { font-size: 14px; color: rgba(251,247,243,0.65); line-height: 1.5; }
+  .scale-body { font-size: 16px; line-height: 1.7; color: rgba(251,247,243,0.75); max-width: 640px; }
+  .scale-body strong { color: #fff; font-weight: 500; }
+
+  .cta-section { max-width: 720px; margin: 0 auto; padding: 80px 32px; text-align: center; }
+  .cta-section h2 { font-family: Georgia, serif; font-weight: 400; font-size: clamp(32px, 4vw, 52px); line-height: 1.05; letter-spacing: -0.02em; margin-bottom: 16px; }
+  .cta-section h2 em { font-style: italic; color: var(--pink); }
+  .cta-section p { font-size: 16px; color: var(--muted); margin-bottom: 36px; line-height: 1.6; }
+  .cta-btn {
+    background: var(--pink); color: #fff; border: none; border-radius: 999px;
+    padding: 18px 40px; font-family: 'Inter', sans-serif;
+    font-weight: 500; font-size: 16px; cursor: pointer;
+    text-decoration: none; display: inline-block;
+    transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 20px rgba(236,72,153,0.25);
+  }
+  .cta-btn:hover { background: var(--pink-deep); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(236,72,153,0.35); }
+  .cta-fine { font-size: 12px; color: var(--muted); margin-top: 16px; letter-spacing: 0.04em; }
+
+  footer { border-top: 1px solid var(--cream-line); padding: 32px; text-align: center; font-size: 13px; color: var(--muted); }
+
+  .toast {
+    position: fixed; bottom: 32px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--espresso); color: #fff;
+    border-radius: 999px; padding: 14px 28px;
+    font-size: 14px; font-weight: 500;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    opacity: 0; pointer-events: none;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  .toast-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--pink); }
+
+  @media (max-width: 700px) {
+    nav { padding: 14px 20px; }
+    .hero, .callout, .how-section, .opps-section, .cta-section { padding-left: 20px; padding-right: 20px; }
+    .stats-row { flex-direction: column; align-items: center; }
+    .how-steps, .scale-grid { grid-template-columns: 1fr; }
+    .card-inner { grid-template-columns: 1fr; }
+    .card-image, .card-image-fallback { width: 100%; }
+    .card-delta { flex-direction: row; align-items: center; border-left: none; border-top: 1px solid var(--cream-line); min-width: unset; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="#" class="wordmark">creator coders</a>
+  <span class="nav-label">Missed Earnings Report · Last 30 Days</span>
+</nav>
+
+<section class="hero">
+  <div class="eyebrow">Creator Coders · Real Data · April 2026</div>
+  <h1>Here's what you left<br/><em>on the table.</em></h1>
+  <p class="hero-sub">
+    Based on your Amazon Associates Linked Product report, we found Creator Connections campaigns
+    that matched products you actually sold at a higher commission rate than you earned.
+  </p>
+  <div class="stats-row">
+    <div class="stat-pill">
+      <span class="stat-num">76</span>
+      <span class="stat-label">ASINs sold<br/>in last 30 days</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-num">3</span>
+      <span class="stat-label">campaigns with<br/>a higher rate available</span>
+    </div>
+    <div class="stat-pill">
+      <span class="stat-num" style="color:var(--green)">$22.60</span>
+      <span class="stat-label">in missed income<br/>this month alone</span>
+    </div>
+  </div>
+</section>
+
+<div class="callout">
+  <div class="callout-icon">💡</div>
+  <p>
+    <strong>This is real data from a live account.</strong> She sold 76 products through Amazon Associates
+    in the last 30 days. Three had an active Creator Connections campaign offering a higher rate, never opted into.
+    The numbers are modest here because she already accepts thousands of campaigns. For a creator
+    who has <strong>never touched Creator Connections</strong>, the gap is dramatically larger.
+  </p>
+</div>
+
+<section class="how-section">
+  <div class="eyebrow" style="text-align:center">How Creator Coders finds this</div>
+  <div class="how-steps">
+    <div class="how-step">
+      <div class="step-num">01</div>
+      <div class="step-title">Connect your Associates account</div>
+      <div class="step-desc">We pull your Linked Product report — every ASIN you sold, your actual rate, units shipped, and revenue.</div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">02</div>
+      <div class="step-title">We scan 55,000+ campaigns</div>
+      <div class="step-desc">Our database has 55,055 active Creator Connections campaigns with ASIN lists. We match your sales against all of them nightly.</div>
+    </div>
+    <div class="how-step">
+      <div class="step-num">03</div>
+      <div class="step-title">See exactly what you missed</div>
+      <div class="step-desc">For every match where the CC rate beats your actual rate, we show the delta and let you accept in one click.</div>
+    </div>
+  </div>
+</section>
+
+<section class="opps-section">
+  <div class="section-header">
+    <div class="eyebrow">Your missed opportunities</div>
+    <h2>Products you sold.<br/><em>Campaigns you didn't.</em></h2>
+    <p>Each ASIN appeared in your Associates earnings this month. A Creator Connections campaign was available at a higher rate and went unclaimed.</p>
+  </div>
+
+  <div class="opp-card">
+    <div class="card-inner">
+      <img class="card-image" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B083RH5VJL&ServiceVersion=20070822&ID=AsinImage&WS=1&Format=_SL160_" alt="TATCHA" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+      <div class="card-image-fallback">T</div>
+      <div class="card-body">
+        <div class="card-brand">TATCHA</div>
+        <div class="card-meta-row">
+          <span class="asin-pill">B083RH5VJL</span>
+          <span class="cat-pill">Beauty</span>
+        </div>
+        <div class="product-name">The Dewy Skin Cream</div>
+        <div class="rate-compare">
+          <div class="rate-box">
+            <div class="rate-box-label">Your actual rate</div>
+            <div class="rate-value">11%</div>
+            <div class="rate-detail">21 units · $53.39 earned</div>
+          </div>
+          <div class="rate-box highlight">
+            <div class="rate-box-label">CC campaign rate</div>
+            <div class="rate-value">15%</div>
+            <div class="rate-detail">$69.71 projected</div>
+          </div>
+        </div>
+        <div class="added-date">Campaign added Apr 2, 2026</div>
+      </div>
+      <div class="card-delta">
+        <div>
+          <div class="delta-amount">+$16.32</div>
+          <div class="delta-label">missed income</div>
+        </div>
+        <div>
+          <button class="add-btn" onclick="addToQueue(this,'TATCHA')">Add to queue</button>
+          <div class="added-date" style="margin-top:6px;text-align:right">21 units sold</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="opp-card">
+    <div class="card-inner">
+      <img class="card-image" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B0G13G9MJ9&ServiceVersion=20070822&ID=AsinImage&WS=1&Format=_SL160_" alt="WOWORAMA" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+      <div class="card-image-fallback">W</div>
+      <div class="card-body">
+        <div class="card-brand">WOWORAMA</div>
+        <div class="card-meta-row">
+          <span class="asin-pill">B0G13G9MJ9</span>
+          <span class="cat-pill">Home</span>
+        </div>
+        <div class="product-name">Portable Humidifier</div>
+        <div class="rate-compare">
+          <div class="rate-box">
+            <div class="rate-box-label">Your actual rate</div>
+            <div class="rate-value">9%</div>
+            <div class="rate-detail">5 units · $12.60 earned</div>
+          </div>
+          <div class="rate-box highlight">
+            <div class="rate-box-label">CC campaign rate</div>
+            <div class="rate-value">12%</div>
+            <div class="rate-detail">$16.79 projected</div>
+          </div>
+        </div>
+        <div class="added-date">Campaign added Apr 11, 2026</div>
+      </div>
+      <div class="card-delta">
+        <div>
+          <div class="delta-amount">+$4.19</div>
+          <div class="delta-label">missed income</div>
+        </div>
+        <div>
+          <button class="add-btn" onclick="addToQueue(this,'WOWORAMA')">Add to queue</button>
+          <div class="added-date" style="margin-top:6px;text-align:right">5 units sold</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="opp-card">
+    <div class="card-inner">
+      <img class="card-image" src="https://ws-na.amazon-adsystem.com/widgets/q?_encoding=UTF8&ASIN=B09RZM9HDS&ServiceVersion=20070822&ID=AsinImage&WS=1&Format=_SL160_" alt="SOJOS" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"/>
+      <div class="card-image-fallback">S</div>
+      <div class="card-body">
+        <div class="card-brand">SOJOS</div>
+        <div class="card-meta-row">
+          <span class="asin-pill">B09RZM9HDS</span>
+          <span class="cat-pill">Accessories</span>
+        </div>
+        <div class="product-name">Classic Round Polarized Sunglasses</div>
+        <div class="rate-compare">
+          <div class="rate-box">
+            <div class="rate-box-label">Your actual rate</div>
+            <div class="rate-value">8%</div>
+            <div class="rate-detail">7 units · $10.16 earned</div>
+          </div>
+          <div class="rate-box highlight">
+            <div class="rate-box-label">CC campaign rate</div>
+            <div class="rate-value">10%</div>
+            <div class="rate-detail">$12.25 projected</div>
+          </div>
+        </div>
+        <div class="added-date">Campaign added Apr 18, 2026</div>
+      </div>
+      <div class="card-delta">
+        <div>
+          <div class="delta-amount">+$2.09</div>
+          <div class="delta-label">missed income</div>
+        </div>
+        <div>
+          <button class="add-btn" onclick="addToQueue(this,'SOJOS')">Add to queue</button>
+          <div class="added-date" style="margin-top:6px;text-align:right">7 units sold</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section class="scale-section">
+  <div class="scale-inner">
+    <div class="scale-eyebrow">At scale</div>
+    <h2 class="scale-title">What this looks like for a creator starting from zero.</h2>
+    <div class="scale-grid">
+      <div class="scale-item">
+        <div class="scale-num">76</div>
+        <div class="scale-desc">Unique ASINs sold through Associates in the last 30 days</div>
+      </div>
+      <div class="scale-item">
+        <div class="scale-num">55,055</div>
+        <div class="scale-desc">Creator Connections campaigns in our catalog with known ASINs</div>
+      </div>
+      <div class="scale-item">
+        <div class="scale-num">195,633</div>
+        <div class="scale-desc">Total CC campaigns available on Amazon right now</div>
+      </div>
+    </div>
+    <p class="scale-body">
+      This account already accepts thousands of campaigns — so the gap is small by design.
+      For a creator who has <strong>never opted into Creator Connections</strong>, every
+      ASIN they sell through standard Associates is a potential missed commission.
+      Creator Coders surfaces every one of them, ranked by income opportunity,
+      ready to accept in a single click.
+    </p>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="eyebrow">Get started</div>
+  <h2>Ready to find <em>yours?</em></h2>
+  <p>Connect your Amazon Associates account. We scan your catalog and show you exactly what you are leaving behind, then help you capture it.</p>
+  <a href="#" class="cta-btn">Get early access</a>
+  <div class="cta-fine">Creator Coders is in early access. Limited spots available.</div>
+</section>
+
+<footer>
+  2026 Creator Coders · Software for serious creators · creatorcoders.com
+</footer>
+
+<div class="toast" id="toast">
+  <span class="toast-dot"></span>
+  <span id="toast-text">Added to your queue</span>
+</div>
+
+<script>
+  function addToQueue(btn, brand) {
+    btn.textContent = 'Added';
+    btn.disabled = true;
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-text').textContent = brand + ' added to your queue';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2800);
+  }
+</script>
+</body>
+</html>

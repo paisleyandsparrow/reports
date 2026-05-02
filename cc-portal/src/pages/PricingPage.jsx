@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import PublicLayout from '../components/PublicLayout'
 
 export default function PricingPage() {
   const navigate = useNavigate()
@@ -10,6 +11,7 @@ export default function PricingPage() {
   const [error, setError] = useState('')
   const [isPaid, setIsPaid] = useState(false)
   const [subscriptionStatus, setSubscriptionStatus] = useState(null)
+  const [trialStartsAt, setTrialStartsAt] = useState(null)
   const [trialEndsAt, setTrialEndsAt] = useState(null)
   const [checking, setChecking] = useState(true)
 
@@ -18,12 +20,15 @@ export default function PricingPage() {
       if (!user) { navigate('/login'); return }
       const { data } = await supabase
         .from('user_preferences')
-        .select('is_paid, subscription_status, trial_ends_at')
+        .select('is_paid, subscription_status, trial_starts_at, trial_ends_at')
         .eq('id', user.id)
         .single()
       if (data) {
         setIsPaid(data.is_paid)
-        setSubscriptionStatus(data.subscription_status)
+        const trialActive = data.trial_ends_at && !data.is_paid && new Date(data.trial_ends_at) > new Date()
+        const effective = trialActive ? 'trialing' : data.subscription_status
+        setSubscriptionStatus(effective)
+        setTrialStartsAt(data.trial_starts_at)
         setTrialEndsAt(data.trial_ends_at)
       }
       setChecking(false)
@@ -50,27 +55,24 @@ export default function PricingPage() {
     ? Math.max(0, Math.ceil((new Date(trialEndsAt) - Date.now()) / (1000 * 60 * 60 * 24)))
     : null
 
-  return (
-    <div style={{
-      minHeight: '100vh',
-      background: '#fbf7f3',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '40px 20px',
-      fontFamily: 'Inter, sans-serif',
-    }}>
-      {/* Wordmark */}
-      <div style={{ marginBottom: 48, textAlign: 'center' }}>
-        <div style={{ fontFamily: 'Georgia, serif', fontSize: '1.4rem', color: '#1a1410', letterSpacing: '-0.02em' }}>
-          Creator <em style={{ color: '#ec4899', fontStyle: 'italic' }}>Coders</em>
-        </div>
-        <div style={{ fontSize: '0.65rem', fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#a89485', marginTop: 4 }}>
-          Campaign Automation
-        </div>
-      </div>
+  const trialStartedLabel = trialStartsAt
+    ? new Date(trialStartsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+    : null
 
+  const trialEndsLabel = trialEndsAt
+    ? new Date(trialEndsAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+    : null
+
+  return (
+    <PublicLayout>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '80px 20px',
+        fontFamily: 'Inter, sans-serif',
+      }}>
       {/* Card */}
       <div style={{
         background: '#fff',
@@ -83,10 +85,18 @@ export default function PricingPage() {
       }}>
         {checking ? (
           <p style={{ textAlign: 'center', color: '#a89485', fontSize: '0.9rem' }}>Loading…</p>
-        ) : isPaid ? (
+        ) : isPaid || subscriptionStatus === 'active' ? (
           <ActiveSubscription
             status={subscriptionStatus}
             trialDaysLeft={trialDaysLeft}
+            onGoToDashboard={() => navigate('/dashboard')}
+          />
+        ) : subscriptionStatus === 'trialing' ? (
+          <TrialActiveView
+            trialDaysLeft={trialDaysLeft}
+            trialStartedLabel={trialStartedLabel}
+            trialEndsLabel={trialEndsLabel}
+            onGoToSettings={() => navigate('/settings')}
             onGoToDashboard={() => navigate('/dashboard')}
           />
         ) : (
@@ -99,7 +109,8 @@ export default function PricingPage() {
           />
         )}
       </div>
-    </div>
+      </div>
+    </PublicLayout>
   )
 }
 
@@ -185,6 +196,46 @@ function CheckoutView({ loading, error, cancelled, onCheckout, onBack }) {
         }}
       >
         ← Back
+      </button>
+    </>
+  )
+}
+
+function TrialActiveView({ trialDaysLeft, trialStartedLabel, trialEndsLabel, onGoToSettings, onGoToDashboard }) {
+  return (
+    <>
+      <div style={{ textAlign: 'center', marginBottom: 24 }}>
+        <div style={{ fontSize: '2.1rem', marginBottom: 10 }}>⏳</div>
+        <h2 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#1a1410', marginBottom: 8 }}>
+          Your free trial is active
+        </h2>
+        <p style={{ fontSize: '0.84rem', color: '#6b7280', lineHeight: 1.6, margin: 0 }}>
+          {trialStartedLabel ? `Started ${trialStartedLabel}. ` : ''}
+          {trialEndsLabel ? `Ends ${trialEndsLabel}. ` : ''}
+          {trialDaysLeft !== null ? `${trialDaysLeft} day${trialDaysLeft === 1 ? '' : 's'} remaining.` : ''}
+        </p>
+      </div>
+
+      <button
+        onClick={onGoToSettings}
+        style={{
+          width: '100%', background: '#1a1410', color: '#fff', border: 'none',
+          borderRadius: 999, padding: '14px 20px', fontSize: '0.95rem', fontWeight: 700,
+          cursor: 'pointer', fontFamily: 'inherit', marginBottom: 10,
+        }}
+      >
+        Manage plan in Settings →
+      </button>
+
+      <button
+        onClick={onGoToDashboard}
+        style={{
+          width: '100%', background: 'transparent', color: '#1a1410', border: '1px solid #d6cec5',
+          borderRadius: 999, padding: '12px 20px', fontSize: '0.85rem', fontWeight: 600,
+          cursor: 'pointer', fontFamily: 'inherit',
+        }}
+      >
+        Back to Dashboard
       </button>
     </>
   )
