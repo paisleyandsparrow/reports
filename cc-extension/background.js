@@ -3,17 +3,17 @@
 
 const SUPABASE_URL = 'https://wzmtzpcqbaisqwjiigdx.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6bXR6cGNxYmFpc3F3amlpZ2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNjgyNTksImV4cCI6MjA5MDc0NDI1OX0.qlFCCc1t_nlA_WOLXATEgc_zd0AXLuuIsGowldpM5Mw'
-const GOOGLE_CLIENT_ID = '947857596841-73gtfr6btashcj9ghjfru21a4p6kpgds.apps.googleusercontent.com'
+const GOOGLE_CLIENT_ID = '659224624844-fn0hicqktt1d8ji4db04rsn15rq6cjep.apps.googleusercontent.com'
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('[Paisley] Extension installed')
+  console.log('[CreatorCoders] Extension installed')
   chrome.alarms.create('processQueue', { periodInMinutes: 60 })
 })
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'processQueue') {
     const result = await runQueue().catch(err => ({ error: err.message }))
-    console.log('[Paisley] Auto queue run:', result)
+    console.log('[CreatorCoders] Auto queue run:', result)
   }
 })
 
@@ -115,11 +115,13 @@ async function runQueue() {
 
   // Load user prefs
   const prefsData = await sbFetch(
-    `/rest/v1/user_preferences?id=eq.${userId}&select=max_campaigns_per_day,max_per_run,acceptance_enabled&limit=1`
+    `/rest/v1/user_preferences?id=eq.${userId}&select=max_campaigns_per_day,max_per_run,acceptance_enabled,store_name&limit=1`
   )
   const prefs      = prefsData?.[0] || {}
   const maxPerDay  = parseInt(prefs.max_campaigns_per_day || 500)
   const maxPerRun  = parseInt(prefs.max_per_run || 100)
+  const storeId    = prefs.store_name || ''
+  console.log('[CreatorCoders] storeId from prefs:', JSON.stringify(storeId), '| prefs:', JSON.stringify(prefs))
 
   // Count already accepted today
   const acceptedToday = await sbFetch(
@@ -142,145 +144,189 @@ async function runQueue() {
     return { accepted: 0, failed: 0, total: 0, reason: 'No pending campaigns' }
   }
 
-  let accepted = 0
-  let failed   = 0
+  // Send ALL campaign IDs in a single bulk POST (same as Python connector).
+  // rawInput is a newline-joined string — Amazon accepts up to 5000 at once.
+  const campaignIds = pending.map(item => item.campaign_id)
+  console.log('[CreatorCoders] Submitting batch of', campaignIds.length, 'campaigns in one call')
 
-  for (const item of pending) {
-    try {
-      // TODO: replace stub with real CC content script click
-      const result = await acceptCampaignStub(item.campaign_id)
-      if (result.success) {
-        await sbFetch(`/rest/v1/user_campaign_queue?id=eq.${item.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: 'accepted', accepted_at: now, accepted_date: today }),
-        })
-        accepted++
+  const result = await acceptCampaignsBatch(campaignIds, storeId)
+  console.log('[CreatorCoders] batch result', JSON.stringify(result))
+
+  if (result.success) {
+    // Mark all as accepted
+    await Promise.all(pending.map(item =>
+      sbFetch(`/rest/v1/user_campaign_queue?id=eq.${item.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'accepted', accepted_at: now, accepted_date: today }),
+      })
+    ))
+    return { accepted: pending.length, failed: 0, total: pending.length, reason: null }
+  } else {
+    console.warn('[CreatorCoders] batch failed', result.error)
+    await Promise.all(pending.map(item =>
+      sbFetch(`/rest/v1/user_campaign_queue?id=eq.${item.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: 'failed' }),
+      })
+    ))
+    return { accepted: 0, failed: pending.length, total: pending.length, reason: result.error }
+  }
+}
+
+// ── Amazon bulk-accept implementation ────────────────────────────────────────
+
+const CC_OPPORTUNITIES_URL =
+  'https://affiliate-program.amazon.com/p/connect/requests' +
+  '?creatorId=amzn1.creator.ce51e44c-2eaf-401b-a94a-8a64cd412b82' +
+  '&status=opportunity&type=affiliate-plus&campaignStatuses=active%2Cpending'
+const BULK_SUBMIT_URL =
+  'https://affiliate-program.amazon.com/connect/api/campaign/bulk-accept/submit'
+
+// Ensure a CC tab is open and return its tabId.
+// Reuses an existing tab if one is already at that host.
+async function getOrOpenCCTab() {
+  return new Promise((resolve) => {
+    chrome.tabs.query({ url: 'https://affiliate-program.amazon.com/*' }, (tabs) => {
+      if (tabs.length > 0) {
+        resolve(tabs[0].id)
       } else {
-        await sbFetch(`/rest/v1/user_campaign_queue?id=eq.${item.id}`, {
-          method: 'PATCH',
-          body: JSON.stringify({ status: 'failed' }),
+        chrome.tabs.create({ url: CC_OPPORTUNITIES_URL, active: false }, (tab) => {
+          chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
+            if (tabId === tab.id && info.status === 'complete') {
+              chrome.tabs.onUpdated.removeListener(listener)
+              resolve(tab.id)
+            }
+          })
         })
-        failed++
       }
-    } catch (e) {
-      console.warn('[Paisley] Failed item', item.campaign_id, e.message)
-      failed++
+    })
+  })
+}
+
+// Injected into the CC page — sends ALL campaign IDs in one bulk POST (mirrors Python connector).
+async function _ccAcceptBatchInPage(campaignIds, bulkSubmitUrl, storeId) {
+  const idsText = campaignIds.join('\n')
+  const _fetch = window.__fetch || fetch.bind(window)
+
+  console.log('[CCBatch] location:', window.location.href)
+  console.log('[CCBatch] __fetch available:', !!window.__fetch)
+  console.log('[CCBatch] campaignIds:', campaignIds)
+
+  for (let attempt = 0; attempt < 10; attempt++) {
+    const resp = await _fetch(bulkSubmitUrl, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'storeid': storeId,
+        'Referer': window.location.href,
+      },
+      body: JSON.stringify({
+        rawInput: idsText,
+        requestEntityType: 'CAMPAIGN_ID',
+        bulkActionType: 'BULK_ACCEPT_CAMPAIGN',
+      }),
+    })
+
+    const respHeaders = {}
+    resp.headers.forEach((v, k) => { respHeaders[k] = v })
+    console.log('[CCBatch] attempt', attempt, 'status:', resp.status, 'headers:', JSON.stringify(respHeaders))
+
+    if (resp.status === 200) {
+      const body = await resp.text()
+      return { success: true, body: body.slice(0, 300) }
     }
+
+    const body = await resp.text()
+    if (body.includes('EXISTING_REQUEST_IN_PROGRESS') || body.includes('DUPLICATE_REQUEST')) {
+      await new Promise(r => setTimeout(r, 60000))  // wait 60s like Python does
+      continue
+    }
+
+    return { success: false, error: `HTTP ${resp.status}: ${body.slice(0, 300)}` }
   }
 
-  return { accepted, failed, total: pending.length, reason: null }
+  return { success: false, error: 'Max retries exceeded' }
 }
 
-// Stub — replace with real CC page content script when ready
-async function acceptCampaignStub(campaignId) {
-  await new Promise(r => setTimeout(r, 30))
-  return { success: true }
+// Injected into the CC page — runs in page context so fetch() carries Amazon cookies.
+async function _ccAcceptInPage(campaignId, bulkSubmitUrl, storeId) {
+  const MAX_RETRIES = 5
+  const RETRY_DELAY_MS = 30000
+  // Use original fetch (before Amazon's SPA may override it), same as working Python connector
+  const _fetch = window.__fetch || fetch.bind(window)
+
+  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+    const resp = await _fetch(bulkSubmitUrl, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'storeid': storeId,
+        'Referer': window.location.href,
+      },
+      body: JSON.stringify({
+        rawInput: campaignId,
+        requestEntityType: 'CAMPAIGN_ID',
+        bulkActionType: 'BULK_ACCEPT_CAMPAIGN',
+      }),
+    })
+
+    if (resp.status === 200) {
+      const okBody = await resp.text()
+      return { success: true, body: okBody.slice(0, 300) }
+    }
+
+    const body = await resp.text()
+    if (body.includes('EXISTING_REQUEST_IN_PROGRESS') || body.includes('DUPLICATE_REQUEST')) {
+      if (attempt < MAX_RETRIES - 1) {
+        await new Promise(r => setTimeout(r, RETRY_DELAY_MS))
+        continue
+      }
+    }
+
+    return { success: false, error: `HTTP ${resp.status}: ${body.slice(0, 200)}` }
+  }
+
+  return { success: false, error: 'Max retries exceeded (EXISTING_REQUEST_IN_PROGRESS)' }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// REAL IMPLEMENTATION (commented out — swap acceptCampaignStub above with this
-// once content script injection is wired up)
-//
-// How it works (mirrors connectors/creator_connections.py _submit_batch):
-//   1. background.js opens (or reuses) a tab at the CC opportunities page so
-//      the browser already has Amazon auth cookies attached.
-//   2. We inject acceptCampaignReal as a content script into that tab via
-//      chrome.scripting.executeScript — it runs in the page context where
-//      fetch() automatically includes credentials (session cookies).
-//   3. We POST a single campaign ID to Amazon's bulk-accept API endpoint.
-//      Amazon accepts 1–5000 IDs per call; we send one per queue item so we
-//      can track accept/fail individually.
-//   4. On success (HTTP 200) we return { success: true }.
-//      On EXISTING_REQUEST_IN_PROGRESS we retry up to 5× with 30s waits.
-//      Any other failure returns { success: false, error: ... }.
-//
-// To activate:
-//   a) Add "scripting" permission to manifest.json permissions array.
-//   b) Add "https://affiliate-program.amazon.com/*" to host_permissions if not present.
-//   c) Replace the call to acceptCampaignStub() in runQueue() with a call to
-//      acceptCampaignReal() below.
-//   d) Make sure the CC tab stays open (or reopen it) before the queue run starts.
-//
-// ─────────────────────────────────────────────────────────────────────────────
+async function acceptCampaignsBatch(campaignIds, storeId) {
+  const tabId = await getOrOpenCCTab()
 
-// const CC_OPPORTUNITIES_URL =
-//   'https://affiliate-program.amazon.com/p/connect/requests' +
-//   '?status=opportunity&type=affiliate-plus&campaignStatuses=active%2Cpending'
-// const BULK_SUBMIT_URL =
-//   'https://affiliate-program.amazon.com/connect/api/campaign/bulk-accept/submit'
-//
-// // Ensure a CC tab is open and return its tabId.
-// // Reuses an existing tab if one is already at that host.
-// async function getOrOpenCCTab() {
-//   return new Promise((resolve) => {
-//     chrome.tabs.query({ url: 'https://affiliate-program.amazon.com/*' }, (tabs) => {
-//       if (tabs.length > 0) {
-//         resolve(tabs[0].id)
-//       } else {
-//         chrome.tabs.create({ url: CC_OPPORTUNITIES_URL, active: false }, (tab) => {
-//           // Wait for the tab to finish loading before injecting
-//           chrome.tabs.onUpdated.addListener(function listener(tabId, info) {
-//             if (tabId === tab.id && info.status === 'complete') {
-//               chrome.tabs.onUpdated.removeListener(listener)
-//               resolve(tab.id)
-//             }
-//           })
-//         })
-//       }
-//     })
-//   })
-// }
-//
-// // Content-script function injected into the CC page.
-// // Runs in page context so fetch() has Amazon session cookies automatically.
-// async function _ccAcceptInPage(campaignId, bulkSubmitUrl) {
-//   const MAX_RETRIES = 5
-//   const RETRY_DELAY_MS = 30000  // 30 s — Amazon processes requests async
-//
-//   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-//     const resp = await fetch(bulkSubmitUrl, {
-//       method: 'POST',
-//       credentials: 'include',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'Accept': 'application/json',
-//         // storeid is the Amazon Associates tag — replace with the real user value
-//         // (read from user_preferences.store_id or hardcode for single-user MVP)
-//         'storeid': 'jenpaispa-20',
-//         'Referer': window.location.href,
-//       },
-//       body: JSON.stringify({
-//         rawInput: campaignId,            // one ID per call for per-item tracking
-//         requestEntityType: 'CAMPAIGN_ID',
-//         bulkActionType: 'BULK_ACCEPT_CAMPAIGN',
-//       }),
-//     })
-//
-//     if (resp.status === 200) {
-//       return { success: true }
-//     }
-//
-//     const body = await resp.text()
-//     if (body.includes('EXISTING_REQUEST_IN_PROGRESS') || body.includes('DUPLICATE_REQUEST')) {
-//       if (attempt < MAX_RETRIES - 1) {
-//         await new Promise(r => setTimeout(r, RETRY_DELAY_MS))
-//         continue
-//       }
-//     }
-//
-//     return { success: false, error: `HTTP ${resp.status}: ${body.slice(0, 200)}` }
-//   }
-//
-//   return { success: false, error: 'Max retries exceeded (EXISTING_REQUEST_IN_PROGRESS)' }
-// }
-//
-// // Drop-in replacement for acceptCampaignStub — call this from runQueue().
-// async function acceptCampaignReal(campaignId) {
-//   const tabId = await getOrOpenCCTab()
-//   const results = await chrome.scripting.executeScript({
-//     target: { tabId },
-//     func: _ccAcceptInPage,
-//     args: [campaignId, BULK_SUBMIT_URL],
-//   })
-//   return results[0]?.result ?? { success: false, error: 'No result from content script' }
-// }
+  // Navigate to CC page fresh before submitting — mirrors Python which does
+  // page.goto(OPPORTUNITIES_URL) before every batch to ensure fresh cookies/auth.
+  await new Promise((resolve, reject) => {
+    chrome.tabs.update(tabId, { url: CC_OPPORTUNITIES_URL }, () => {
+      chrome.tabs.onUpdated.addListener(function listener(tid, info) {
+        if (tid === tabId && info.status === 'complete') {
+          chrome.tabs.onUpdated.removeListener(listener)
+          resolve()
+        }
+      })
+    })
+  })
+  // Let the page settle (SPA init)
+  await new Promise(r => setTimeout(r, 3000))
+
+  const results = await chrome.scripting.executeScript({
+    target: { tabId },
+    world: 'MAIN',
+    func: _ccAcceptBatchInPage,
+    args: [campaignIds, BULK_SUBMIT_URL, storeId],
+  })
+  return results[0]?.result ?? { success: false, error: 'No result from content script' }
+}
+
+async function acceptCampaignReal(campaignId, storeId) {
+  const tabId = await getOrOpenCCTab()
+  const results = await chrome.scripting.executeScript({
+    target: { tabId },
+    world: 'MAIN',
+    func: _ccAcceptInPage,
+    args: [campaignId, BULK_SUBMIT_URL, storeId],
+  })
+  return results[0]?.result ?? { success: false, error: 'No result from content script' }
+}

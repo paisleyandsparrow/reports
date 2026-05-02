@@ -1,18 +1,27 @@
 {
   "manifest_version": 3,
-  "name": "Paisley & Sparrow — Campaign Automation",
+  "name": "Creator Coders — Campaign Automation",
   "version": "1.0.0",
   "description": "Automatically accept Amazon Creator Connections campaigns based on your saved rules.",
 
   "permissions": [
     "alarms",
     "identity",
+    "scripting",
     "storage",
     "tabs"
   ],
   "host_permissions": [
-    "https://*.amazon.com/*"
+    "https://*.amazon.com/*",
+    "https://affiliate-program.amazon.com/*"
   ],
+
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
 
   "action": {
     "default_popup": "popup.html",
@@ -27,12 +36,21 @@
     "service_worker": "background.js"
   },
 
+  "content_scripts": [
+    {
+      "matches": ["https://affiliate-program.amazon.com/*"],
+      "js": ["save-fetch.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self'"
   },
 
   "oauth2": {
-    "client_id": "947857596841-f8juc9da0eks3hr6uftbeededudbmrac.apps.googleusercontent.com",
+    "client_id": "659224624844-fn0hicqktt1d8ji4db04rsn15rq6cjep.apps.googleusercontent.com",
     "scopes": ["openid", "email", "profile"]
   }
 }

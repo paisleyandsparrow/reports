@@ -2,7 +2,9 @@
 ---
 <nav>
   <div class="nav-inner">
-    <a href="/" class="wordmark" aria-label="Creator Coders">creator coders</a>
+    <a href="/" class="wordmark" aria-label="Creator Coders">
+      <img src="/logo.svg" alt="Creator Coders" class="nav-logo" />
+    </a>
     <div class="nav-links">
       <a href="/#how">How it works</a>
       <a href="/#story">Story</a>
@@ -25,6 +27,7 @@
     padding: 18px 32px;
     display: flex; align-items: center; justify-content: space-between;
   }
+  .nav-logo { height: 40px; width: auto; display: block; }
   .nav-links { display: flex; gap: 32px; align-items: center; font-size: 14px; color: var(--muted); }
   .nav-links a { color: var(--muted); text-decoration: none; transition: color 0.18s ease; }
   .nav-links a:hover { color: var(--espresso); }

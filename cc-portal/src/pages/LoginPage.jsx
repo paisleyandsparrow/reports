@@ -38,9 +38,11 @@ export default function LoginPage() {
           maxWidth: 400,
           textAlign: 'center',
         }}>
-          <p style={{ fontSize: '0.66rem', fontWeight: 700, color: '#ec4899', letterSpacing: '0.22em', textTransform: 'uppercase', margin: '0 0 20px' }}>
-            Creator Coders
-          </p>
+          <img
+            src="/logo.svg"
+            alt="Creator Coders"
+            style={{ height: 40, width: 'auto', display: 'block', margin: '0 auto 24px' }}
+          />
           <h1 style={{
             fontFamily: 'Georgia, serif',
             fontWeight: 400,

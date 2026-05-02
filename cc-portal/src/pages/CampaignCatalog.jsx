@@ -43,8 +43,8 @@ export default function CampaignCatalog() {
   const [sortBy, setSortBy] = useState('rate')
   const [datePreset, setDatePreset] = useState('all')
   const [minRateInput, setMinRateInput] = useState('20')
-  const [platformFilter, setPlatformFilter] = useState('all') // 'all' | specific platform string
   const [showLegend, setShowLegend] = useState(false)
+  const [totalCatalogCount, setTotalCatalogCount] = useState(null)
 
   // Already-Earning panel state
   const [earningItems, setEarningItems] = useState([])
@@ -62,7 +62,7 @@ export default function CampaignCatalog() {
     const allSteps = [
       { element: '#catalog-earning-panel', popover: { title: 'Already Earning', description: "Campaigns you're currently earning from — see your top performers at a glance.", side: 'bottom', align: 'start' } },
       { element: '#catalog-filter-bar', popover: { title: 'Filter Bar', description: 'Search by brand or keyword, filter by date added, and set a minimum commission %.' , side: 'bottom', align: 'start' } },
-      { element: '#catalog-sort-row', popover: { title: 'Sort & Platform', description: 'Sort by highest rate, newest first, or ending soonest. Filter to Instagram, TikTok, YouTube, and more.', side: 'bottom', align: 'start' } },
+      { element: '#catalog-sort-row', popover: { title: 'Sort & Filter', description: 'Sort by highest rate, newest first, or ending soonest.', side: 'bottom', align: 'start' } },
       { element: '#catalog-niches-btn', popover: { title: 'My Niches', description: 'Set your categories once — your default view only shows relevant campaigns for your niche.', side: 'bottom', align: 'start' } },
       { element: '#catalog-grid', popover: { title: 'Campaign Grid', description: 'Every card shows product image, commission %, category, and dates. Click CC → to accept on Amazon.', side: 'top', align: 'start' } },
     ]
@@ -137,6 +137,12 @@ export default function CampaignCatalog() {
       }
 
       fetchEarning('7')
+
+      // One-time total count across the entire catalog (no filters)
+      const { count: total } = await supabase
+        .from('cc_campaign_catalog')
+        .select('*', { count: 'exact', head: true })
+      if (total) setTotalCatalogCount(total)
     }
     init()
   }, [])
@@ -170,7 +176,7 @@ export default function CampaignCatalog() {
   // Reset display slice when client-side filters change
   useEffect(() => {
     setDisplayLimit(DISPLAY_CHUNK)
-  }, [search, categoryFilter, datePreset, sortBy, platformFilter])
+  }, [search, categoryFilter, datePreset, sortBy])
 
   async function fetchCampaigns(minRate = filterMinRate) {
     const cacheKey = `ps_campaigns_${minRate}`
@@ -183,7 +189,7 @@ export default function CampaignCatalog() {
       let q = supabase
         .from('cc_campaign_catalog')
         .select(
-          'campaign_id, campaign_name, brand_name, commission_rate, status, start_date, end_date, first_seen, social_platforms, primary_asin, asins, image_url, is_selected, browse_nodes',
+          'campaign_id, campaign_name, brand_name, commission_rate, status, start_date, end_date, first_seen, primary_asin, asins, image_url, is_selected, browse_nodes',
           withCount ? { count: 'exact' } : undefined
         )
         .order('commission_rate', { ascending: false })
@@ -195,14 +201,16 @@ export default function CampaignCatalog() {
     const { data: first, count, error } = await buildQuery(0, true)
     if (error || !first) { setLoading(false); return }
 
+    // Render immediately with first batch — user sees content right away
+    setCampaigns(first)
+    setLoading(false)
+
     if (!count || count <= BATCH) {
-      setCampaigns(first)
       cacheSet(cacheKey, first)
-      setLoading(false)
       return
     }
 
-    // Fire all remaining batches in parallel
+    // Load remaining batches in the background — UI stays responsive
     const extraBatches = Math.ceil((count - BATCH) / BATCH)
     const results = await Promise.all(
       Array.from({ length: extraBatches }, (_, i) =>
@@ -213,7 +221,6 @@ export default function CampaignCatalog() {
     const all = [first, ...results].flat()
     setCampaigns(all)
     cacheSet(cacheKey, all)
-    setLoading(false)
   }
 
   async function handleSignOut() {
@@ -250,7 +257,7 @@ export default function CampaignCatalog() {
       cutoff.setDate(cutoff.getDate() - parseInt(datePreset, 10))
       matchesDate = new Date(c.first_seen) >= cutoff
     }
-    const matchesPlatform = platformFilter === 'all' || (c.social_platforms || []).some(p => p.toLowerCase().includes(platformFilter.toLowerCase()))
+    const matchesPlatform = true
     const matchesQueue =
       queueFilter === 'all' ? true :
       queueFilter === 'queued' ? (queueStatus[c.campaign_id] === 'pending') :
@@ -624,6 +631,13 @@ export default function CampaignCatalog() {
                 {' of '}
                 <strong style={{ color: '#1a1410', fontWeight: 600 }}>{sorted.length.toLocaleString()}</strong>
                 {' campaigns'}
+                {totalCatalogCount && (
+                  <span style={{ marginLeft: 8, fontSize: '0.75rem', color: '#a89485' }}>
+                    {'· '}
+                    <span style={{ color: '#ec4899', fontWeight: 600 }}>{totalCatalogCount.toLocaleString()}</span>
+                    {' total in catalog'}
+                  </span>
+                )}
               </>
             )}
           </span>
@@ -657,31 +671,6 @@ export default function CampaignCatalog() {
                   >
                     {label}
                   </button>
-                )
-              })}
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: '0.62rem', fontWeight: 700, color: '#a89485', letterSpacing: '0.18em', textTransform: 'uppercase' }}>Platform</span>
-            <div style={{ display: 'flex', gap: 3, background: '#fff', borderRadius: 999, padding: 3, border: '1px solid #f1ebe5' }}>
-              {['all', 'instagram', 'tiktok', 'youtube', 'pinterest', 'facebook'].map(p => {
-                const isActive = platformFilter === p
-                const label = p === 'all' ? 'All' : p === 'instagram' ? 'IG' : p === 'tiktok' ? 'TT' : p === 'youtube' ? 'YT' : p === 'pinterest' ? 'PIN' : 'FB'
-                return (
-                  <button
-                    key={p}
-                    onClick={() => setPlatformFilter(p)}
-                    style={{
-                      fontSize: '0.7rem', fontWeight: isActive ? 600 : 500,
-                      padding: '4px 11px', borderRadius: 999, cursor: 'pointer',
-                      border: 'none',
-                      background: isActive ? '#1a1410' : 'transparent',
-                      color: isActive ? '#fbf7f3' : '#7a6b5d',
-                      whiteSpace: 'nowrap', transition: 'all .15s',
-                      fontFamily: 'inherit', letterSpacing: '0.02em',
-                    }}
-                  >{label}</button>
                 )
               })}
             </div>

@@ -36,18 +36,8 @@ function Nav() {
         padding: '18px 32px',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       }}>
-        <a
-          href={LANDING}
-          style={{
-            fontFamily: 'Georgia, serif',
-            fontStyle: 'italic',
-            fontSize: '1.15rem',
-            color: t.espresso,
-            textDecoration: 'none',
-            letterSpacing: '-0.02em',
-          }}
-        >
-          creator coders
+        <a href={LANDING} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+          <img src="/logo.svg" alt="Creator Coders" style={{ height: 40, width: 'auto', display: 'block' }} />
         </a>
 
         <div style={{ display: 'flex', gap: 28, alignItems: 'center', fontSize: 14, color: t.muted }}>
@@ -101,11 +91,8 @@ function Footer() {
         alignItems: 'center', flexWrap: 'wrap', gap: 16,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <a
-            href={LANDING}
-            style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontSize: '1.1rem', color: t.espresso, textDecoration: 'none', letterSpacing: '-0.02em' }}
-          >
-            creator coders
+          <a href={LANDING} style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
+            <img src="/logo.svg" alt="Creator Coders" style={{ height: 32, width: 'auto', display: 'block' }} />
           </a>
           <span style={{ fontSize: 13, color: t.muted, letterSpacing: '0.02em' }}>
             © 2026 Creator Coders. Software for serious creators.
