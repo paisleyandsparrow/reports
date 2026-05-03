@@ -2,5 +2,13 @@
   "projects": {
     "default": "creator-coders",
     "legacy": "paisleytest-fee48"
+  },
+  "targets": {
+    "creator-coders": {
+      "hosting": {
+        "production": ["creator-coders"],
+        "staging": ["creator-coders-staging"]
+      }
+    }
   }
 }
