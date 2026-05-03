@@ -5,6 +5,9 @@
 
 set -euo pipefail
 
+# Always run from cc-portal root regardless of where script is invoked from
+cd "$(dirname "$0")/.."
+
 SUPABASE_PROJECT_REF="qchdnaqyidtblrszqato"
 FIREBASE_SITE="creator-coders-staging"
 
