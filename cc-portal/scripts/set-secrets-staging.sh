@@ -25,7 +25,7 @@ fi
 
 echo "▶ Setting secrets on STAGING (${SUPABASE_PROJECT_REF})"
 
-supabase secrets set \
+npx supabase secrets set \
   STRIPE_SECRET_KEY="REPLACE_WITH_STRIPE_SECRET_KEY" \
   STRIPE_PRICE_ID="price_1TRjlxLi9QmXRUEMBDZ7WBMz" \
   STRIPE_WEBHOOK_SECRET="${STAGING_WEBHOOK_SECRET}" \

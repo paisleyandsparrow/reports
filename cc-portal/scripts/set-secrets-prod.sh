@@ -9,7 +9,7 @@ SUPABASE_PROJECT_REF="wzmtzpcqbaisqwjiigdx"
 
 echo "▶ Setting secrets on PRODUCTION (${SUPABASE_PROJECT_REF})"
 
-supabase secrets set \
+npx supabase secrets set \
   STRIPE_SECRET_KEY="REPLACE_WITH_STRIPE_SECRET_KEY" \
   STRIPE_PRICE_ID="price_1TRjlxLi9QmXRUEMBDZ7WBMz" \
   STRIPE_WEBHOOK_SECRET="REPLACE_WITH_PROD_WEBHOOK_SECRET" \

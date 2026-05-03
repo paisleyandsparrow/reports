@@ -14,11 +14,11 @@ echo ""
 
 # 1. Deploy Supabase Edge Functions
 echo "── Deploying Edge Functions..."
-supabase functions deploy create-checkout \
+npx supabase functions deploy create-checkout \
   --project-ref "${SUPABASE_PROJECT_REF}"
-supabase functions deploy create-portal-session \
+npx supabase functions deploy create-portal-session \
   --project-ref "${SUPABASE_PROJECT_REF}"
-supabase functions deploy stripe-webhook \
+npx supabase functions deploy stripe-webhook \
   --project-ref "${SUPABASE_PROJECT_REF}"
 
 # 2. Build portal with staging env
