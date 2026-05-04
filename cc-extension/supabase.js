@@ -3,10 +3,43 @@
 const SUPABASE_URL = 'https://wzmtzpcqbaisqwjiigdx.supabase.co'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6bXR6cGNxYmFpc3F3amlpZ2R4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxNjgyNTksImV4cCI6MjA5MDc0NDI1OX0.qlFCCc1t_nlA_WOLXATEgc_zd0AXLuuIsGowldpM5Mw'
 
+// ── Token refresh ─────────────────────────────────────────────────────────────
+
+async function refreshSessionIfNeeded() {
+  const session = await getStoredSession()
+  if (!session) return null
+
+  // Check if access_token is expired (Supabase JWTs have an 'exp' claim)
+  try {
+    const payload = JSON.parse(atob(session.access_token.split('.')[1]))
+    const expiresAt = payload.exp * 1000
+    // Refresh if within 5 minutes of expiry or already expired
+    if (Date.now() < expiresAt - 5 * 60 * 1000) return session
+  } catch {
+    // Can't decode token — try refreshing anyway
+  }
+
+  if (!session.refresh_token) return session
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: session.refresh_token }),
+    })
+    if (!res.ok) return session // refresh failed, return stale session
+    const newSession = await res.json()
+    await setStoredSession(newSession)
+    return newSession
+  } catch {
+    return session
+  }
+}
+
 // ── HTTP helpers ──────────────────────────────────────────────────────────────
 
 async function supabaseFetch(path, options = {}) {
-  const session = await getStoredSession()
+  const session = await refreshSessionIfNeeded()
   const headers = {
     'apikey': SUPABASE_ANON_KEY,
     'Content-Type': 'application/json',

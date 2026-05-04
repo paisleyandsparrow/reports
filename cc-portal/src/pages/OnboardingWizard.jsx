@@ -84,6 +84,7 @@ export default function OnboardingWizard() {
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
     store_name: '',
+    store_id: '',
     creator_id: '',
     categories: [],
     social_platforms: [],
@@ -104,7 +105,7 @@ export default function OnboardingWizard() {
   }
 
   function canAdvance() {
-    if (step === 1) return form.store_name.trim().length > 0 && form.creator_id.trim().startsWith('amzn1.creator.')
+    if (step === 1) return form.store_name.trim().length > 0 && form.store_id.trim().length > 0 && form.creator_id.trim().startsWith('amzn1.creator.')
     if (step === 2) return form.categories.length > 0
     if (step === 3) return form.social_platforms.length > 0
     if (step === 4) return form.goals.length > 0
@@ -141,6 +142,7 @@ export default function OnboardingWizard() {
       id: session.user.id,
       email: session.user.email,
       store_name: form.store_name.trim(),
+      store_id: form.store_id.trim(),
       creator_id: form.creator_id.trim(),
       categories: form.categories,
       social_platforms: form.social_platforms,
@@ -335,6 +337,21 @@ export default function OnboardingWizard() {
                 onFocus={focusInput}
                 onBlur={blurInput}
               />
+            </div>
+            <div>
+              <label style={labelStyle}>Amazon Store ID <span style={{ fontWeight: 400, color: '#a89485' }}>(Associate tracking tag)</span></label>
+              <input
+                type="text"
+                placeholder="e.g. jenpaispa-20"
+                value={form.store_id}
+                onChange={e => setForm(prev => ({ ...prev, store_id: e.target.value.trim() }))}
+                style={{ ...inputBase, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontSize: '0.9rem' }}
+                onFocus={focusInput}
+                onBlur={blurInput}
+              />
+              <p style={{ fontSize: '0.78rem', color: '#a89485', marginTop: 8, lineHeight: 1.5 }}>
+                Your Amazon Associates tracking tag. Used by the extension for bulk campaign acceptance.
+              </p>
             </div>
             <div>
               <label style={labelStyle}>Amazon Creator ID</label>

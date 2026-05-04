@@ -109,6 +109,18 @@ export default function CampaignCatalog() {
     fetchEarning(preset)
   }
 
+  async function refreshQueueStatus(userId) {
+    const { data: queued } = await supabase
+      .from('user_campaign_queue')
+      .select('campaign_id, status')
+      .eq('user_id', userId)
+    if (queued) {
+      const map = {}
+      queued.forEach(r => { map[r.campaign_id] = r.status })
+      setQueueStatus(map)
+    }
+  }
+
   useEffect(() => {
     async function init() {
       const { data: { session } } = await supabase.auth.getSession()
@@ -125,16 +137,7 @@ export default function CampaignCatalog() {
         if (prefs.categories?.length > 0) setUserCategories(prefs.categories)
       }
 
-      // Load queue statuses for all campaigns
-      const { data: queued } = await supabase
-        .from('user_campaign_queue')
-        .select('campaign_id, status')
-        .eq('user_id', session.user.id)
-      if (queued) {
-        const map = {}
-        queued.forEach(r => { map[r.campaign_id] = r.status })
-        setQueueStatus(map)
-      }
+      await refreshQueueStatus(session.user.id)
 
       fetchEarning('7')
 
@@ -145,6 +148,18 @@ export default function CampaignCatalog() {
       if (total) setTotalCatalogCount(total)
     }
     init()
+  }, [])
+
+  // Re-fetch queue statuses when the user switches back to this tab
+  // (e.g. after running the extension bulk-accept)
+  useEffect(() => {
+    async function handleVisibilityChange() {
+      if (document.visibilityState !== 'visible') return
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session?.user) refreshQueueStatus(session.user.id)
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [])
 
   async function handleQueueToggle(campaignId) {
