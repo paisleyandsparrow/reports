@@ -86,9 +86,35 @@ async function handleSignIn() {
 
 // ── Queue processing ──────────────────────────────────────────────────────────
 
-async function sbFetch(path, options = {}) {
+async function refreshSessionIfNeeded() {
   const stored = await chrome.storage.local.get(['supabase_session'])
   const session = stored.supabase_session
+  if (!session) return null
+
+  try {
+    const payload = JSON.parse(atob(session.access_token.split('.')[1]))
+    if (Date.now() < payload.exp * 1000 - 5 * 60 * 1000) return session
+  } catch { /* decode failed, fall through to refresh */ }
+
+  if (!session.refresh_token) return session
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=refresh_token`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: session.refresh_token }),
+    })
+    if (!res.ok) return session
+    const newSession = await res.json()
+    await chrome.storage.local.set({ supabase_session: newSession })
+    return newSession
+  } catch {
+    return session
+  }
+}
+
+async function sbFetch(path, options = {}) {
+  const session = await refreshSessionIfNeeded()
   const headers = {
     'apikey': SUPABASE_ANON_KEY,
     'Content-Type': 'application/json',
@@ -115,12 +141,12 @@ async function runQueue() {
 
   // Load user prefs
   const prefsData = await sbFetch(
-    `/rest/v1/user_preferences?id=eq.${userId}&select=max_campaigns_per_day,max_per_run,acceptance_enabled,store_name&limit=1`
+    `/rest/v1/user_preferences?id=eq.${userId}&select=max_campaigns_per_day,max_per_run,acceptance_enabled,store_id&limit=1`
   )
   const prefs      = prefsData?.[0] || {}
   const maxPerDay  = parseInt(prefs.max_campaigns_per_day || 500)
   const maxPerRun  = parseInt(prefs.max_per_run || 100)
-  const storeId    = prefs.store_name || ''
+  const storeId    = prefs.store_id || ''
   console.log('[CreatorCoders] storeId from prefs:', JSON.stringify(storeId), '| prefs:', JSON.stringify(prefs))
 
   // Count already accepted today

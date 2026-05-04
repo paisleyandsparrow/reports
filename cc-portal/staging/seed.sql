@@ -6,21 +6,45 @@
 --   Supabase Dashboard → Authentication → Users
 -- ============================================================
 
--- 1. Allow your email in
+-- 1. Allow staging emails in
 INSERT INTO allowed_emails (email, customer_name, notes)
-VALUES ('woloadam12@gmail.com', 'Adam (staging)', 'staging test user')
+VALUES
+  ('creatorcodersportal@gmail.com', 'Creator Coders (staging)', 'primary staging account')
 ON CONFLICT (email) DO NOTHING;
 
--- 2. Seed user_preferences (run AFTER first sign-in creates the row)
---    If the row doesn't exist yet, sign in to the staging portal first then re-run.
-UPDATE user_preferences SET
-  store_name          = 'jenpaispa-20',
-  creator_id          = 'amzn1.creator.ce51e44c-2eaf-401b-a94a-8a64cd412b82',
-  acceptance_enabled  = true,
-  max_campaigns_per_day = 500,
-  max_per_run         = 100,
-  onboarding_complete = true
-WHERE email = 'woloadam12@gmail.com';
+-- 2. Seed user_preferences
+--    Uses INSERT ... ON CONFLICT so it works whether the row exists or not.
+--    Sign in to the staging portal first so auth.users has the row, then run this.
+INSERT INTO user_preferences (
+  id, email,
+  store_name, store_id, creator_id,
+  acceptance_enabled, max_campaigns_per_day, max_per_run,
+  onboarding_complete, is_paid, subscription_status,
+  trial_starts_at, trial_ends_at
+)
+SELECT
+  u.id,
+  'creatorcodersportal@gmail.com',
+  'Creator Coders',
+  'creatorcoders-20',
+  'amzn1.creator.ce51e44c-2eaf-401b-a94a-8a64cd412b82',
+  true, 500, 100,
+  true, true, 'trialing',
+  now(), now() + interval '7 days'
+FROM auth.users u
+WHERE u.email = 'creatorcodersportal@gmail.com'
+ON CONFLICT (id) DO UPDATE SET
+  store_name            = EXCLUDED.store_name,
+  store_id              = EXCLUDED.store_id,
+  creator_id            = EXCLUDED.creator_id,
+  acceptance_enabled    = EXCLUDED.acceptance_enabled,
+  max_campaigns_per_day = EXCLUDED.max_campaigns_per_day,
+  max_per_run           = EXCLUDED.max_per_run,
+  onboarding_complete   = EXCLUDED.onboarding_complete,
+  is_paid               = EXCLUDED.is_paid,
+  subscription_status   = EXCLUDED.subscription_status,
+  trial_starts_at       = EXCLUDED.trial_starts_at,
+  trial_ends_at         = EXCLUDED.trial_ends_at;
 
 -- 3. Seed 10 fake campaigns into cc_campaign_catalog
 INSERT INTO cc_campaign_catalog (campaign_id, brand_name, campaign_name, commission_rate, status, first_seen, last_seen)
@@ -46,6 +70,6 @@ SELECT
   'pending'
 FROM cc_campaign_catalog c
 CROSS JOIN user_preferences up
-WHERE up.email = 'woloadam12@gmail.com'
+WHERE up.email = 'creatorcodersportal@gmail.com'
   AND c.campaign_id LIKE 'amzn1.campaign.STAGING%'
 ON CONFLICT (user_id, campaign_id) DO NOTHING;

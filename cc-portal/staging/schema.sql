@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS user_preferences (
   stripe_customer_id   text,
   is_paid              boolean NOT NULL DEFAULT false,
   subscription_status  text NOT NULL DEFAULT 'none',
+  trial_starts_at      timestamptz,
   trial_ends_at        timestamptz,
   -- 009: automation
   max_campaigns_per_day integer DEFAULT 500,

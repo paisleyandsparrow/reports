@@ -12,6 +12,9 @@ export default function SettingsPage() {
   const [userId, setUserId] = useState(null)
   const [userEmail, setUserEmail] = useState('')
   const [storeName, setStoreName] = useState('')
+  const [storeId, setStoreId] = useState('')
+  const [profileSaving, setProfileSaving] = useState(false)
+  const [profileSaveResult, setProfileSaveResult] = useState(null)
   const [existingCount, setExistingCount] = useState(null)
   const [csvState, setCsvState] = useState({ status: 'idle', fileName: '', rows: [], totalIncome: 0, totalRevenue: 0, errors: [] })
   const [uploading, setUploading] = useState(false)
@@ -139,10 +142,11 @@ export default function SettingsPage() {
       setUserEmail(session.user.email || '')
       const { data: profile } = await supabase
         .from('user_preferences')
-        .select('store_name, is_paid, subscription_status, trial_starts_at, trial_ends_at, stripe_customer_id')
+        .select('store_name, store_id, is_paid, subscription_status, trial_starts_at, trial_ends_at, stripe_customer_id')
         .eq('id', session.user.id)
         .maybeSingle()
       setStoreName(profile?.store_name || '')
+      setStoreId(profile?.store_id || '')
       const trialActive = profile?.trial_ends_at && !profile?.is_paid && new Date(profile.trial_ends_at) > new Date()
       const effectiveStatus = trialActive ? 'trialing' : profile?.subscription_status
       setBilling(profile ? {
@@ -211,6 +215,23 @@ export default function SettingsPage() {
     }
     init()
   }, [])
+
+  async function handleSaveProfile() {
+    if (!userId) return
+    setProfileSaving(true)
+    setProfileSaveResult(null)
+    try {
+      const { error } = await supabase
+        .from('user_preferences')
+        .upsert({ id: userId, store_name: storeName.trim(), store_id: storeId.trim() }, { onConflict: 'id' })
+      if (error) throw error
+      setProfileSaveResult('saved')
+    } catch {
+      setProfileSaveResult('error')
+    } finally {
+      setProfileSaving(false)
+    }
+  }
 
   async function handleSaveMeta() {
     if (!userId) return
@@ -613,6 +634,56 @@ export default function SettingsPage() {
           }
           return null
         })()}
+
+        {/* Card 00 — Profile */}
+        <section id="profile" style={cardStyle}>
+          <SectionHeader
+            number="00"
+            eyebrow="Profile"
+            title="Store identity"
+            sub="Your friendly store name and your Amazon Associate tracking tag used for bulk campaign acceptance."
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div>
+              <label style={labelStyle}>Channel / Store Name</label>
+              <input
+                type="text"
+                value={storeName}
+                onChange={e => { setStoreName(e.target.value); setProfileSaveResult(null) }}
+                placeholder="e.g. Paisley & Sparrow"
+                style={inputStyle}
+                onFocus={focusInput}
+                onBlur={blurInput}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Amazon Store ID <span style={{ fontWeight: 400, color: '#a89485' }}>(Associate tracking tag)</span></label>
+              <input
+                type="text"
+                value={storeId}
+                onChange={e => { setStoreId(e.target.value.trim()); setProfileSaveResult(null) }}
+                placeholder="e.g. jenpaispa-20"
+                style={{ ...inputStyle, fontFamily: '"SF Mono", ui-monospace, monospace', fontSize: '0.9rem' }}
+                onFocus={focusInput}
+                onBlur={blurInput}
+              />
+              <p style={{ fontSize: '0.78rem', color: '#a89485', marginTop: 8, lineHeight: 1.5 }}>
+                Find this in your Amazon Associates account. Used by the extension for bulk campaign acceptance.
+              </p>
+            </div>
+            <button
+              onClick={handleSaveProfile}
+              disabled={profileSaving}
+              style={primaryBtn(profileSaving)}
+              onMouseEnter={e => { if (!profileSaving) e.currentTarget.style.background = '#2a1f18' }}
+              onMouseLeave={e => { if (!profileSaving) e.currentTarget.style.background = '#1a1410' }}
+            >
+              {profileSaving ? 'Saving…' : 'Save profile'}
+            </button>
+            {profileSaveResult === 'saved' && <p style={successText}>Profile saved.</p>}
+            {profileSaveResult === 'error' && <p style={errorText}>Could not save. Try again.</p>}
+          </div>
+        </section>
 
         {/* Card 01 — Connections (Meta Ads) */}
         <section id="meta" style={cardStyle}>

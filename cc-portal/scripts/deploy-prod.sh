@@ -34,4 +34,4 @@ firebase deploy --only "hosting:production"
 
 echo ""
 echo "✅ Production deploy complete"
-echo "   URL: https://app.creatorcoders.com"
+echo "   URL: https://portal.creatorcoders.com"
