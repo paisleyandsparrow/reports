@@ -1,0 +1,180 @@
+CREATOR CODERS — EMAIL SEQUENCE COPY
+=====================================
+Variables: [first name], [trial_end_date], {{unsubscribe_url}}
+From: Creator Coders <hello@creatorcoders.com>
+-------------------------------------
+
+
+EMAIL 1 — WELCOME (Day 0, sent on signup)
+------------------------------------------
+Subject: Welcome to Creator Coders — here's where to start
+
+Hey [first name],
+
+You're in. Your 7-day free trial started today.
+
+Creator Coders is built for Amazon Creator Connections influencers who are
+tired of manually hunting for campaigns. Here's what you can do right now:
+
+→ Browse the Campaign Catalog
+  https://portal.creatorcoders.com/campaigns
+  See every active Creator Connections campaign in one place — filtered,
+  sorted, and ready to go.
+
+→ Connect your Meta Ads account
+  https://portal.creatorcoders.com/settings
+  See today's ad spend and ROAS right on your dashboard.
+
+→ Set up Auto-Accept rules
+  https://portal.creatorcoders.com/settings
+  Tell us your minimum commission % and categories, and let the automation
+  handle it.
+
+Your trial runs through [trial_end_date]. No card required until then.
+
+— The Creator Coders team
+
+
+EMAIL 2 — CAMPAIGN CATALOG + MISSED EARNINGS (Day 2)
+------------------------------------------------------
+Subject: You're probably missing campaigns right now
+
+Hey [first name],
+
+Amazon adds new Creator Connections campaigns every day. Most creators catch
+them late — or miss them entirely.
+
+Creator Coders pulls in the full catalog so you can:
+- Filter by commission rate (set your floor, ignore the rest)
+- Sort by end date so you never let a high-commission campaign expire
+- See your Missed Earnings — what you would have made on campaigns you
+  didn't accept
+
+That last one is uncomfortable. But it's useful.
+
+→ See what you've been missing
+  https://portal.creatorcoders.com/missed
+
+— Creator Coders
+
+
+EMAIL 3 — EXTENSION + AUTOMATION (Day 4)
+-----------------------------------------
+Subject: Set it and forget it — the extension does the work
+
+Hey [first name],
+
+The portal shows you the campaigns. The Chrome extension accepts them —
+automatically, while you sleep.
+
+Here's how it works:
+1. Install the Creator Coders Chrome extension
+   https://chrome.google.com/webstore/detail/pddfgkajknbmniddllbgekinfgadbnad
+2. Go to Amazon Creator Connections and click "Capture Amazon Session" in
+   the extension popup
+3. Set your auto-accept rules in Settings (min commission %, categories,
+   brand filters)
+4. Turn on automation
+
+Every 2 hours, during your active window (default 8am–8pm), it scans your
+queue and accepts campaigns that match your rules. You don't have to touch
+anything.
+
+→ Install the extension
+  https://chrome.google.com/webstore/detail/pddfgkajknbmniddllbgekinfgadbnad
+
+— Creator Coders
+
+
+EMAIL 4 — TRIAL ENDS TOMORROW (Day 6)
+---------------------------------------
+Subject: Your free trial ends tomorrow
+
+Hey [first name],
+
+Your Creator Coders trial wraps up tomorrow.
+
+If you've connected your accounts and set up rules, the automation is
+running every 2 hours accepting campaigns for you. That doesn't stop —
+unless you don't upgrade.
+
+Creator Coders Pro is $100/month. That's 2–3 accepted campaigns paying
+15%+ commission and it pays for itself.
+
+→ Upgrade now
+  https://portal.creatorcoders.com/pricing
+
+If you have questions before deciding, just reply to this email.
+
+— Creator Coders
+
+
+EMAIL 5 — WIN-BACK: SOFT NUDGE (Day 8, trial expired, not converted)
+----------------------------------------------------------------------
+Subject: Your trial ended — here's what you're missing
+
+Hey [first name],
+
+Your Creator Coders trial ended a couple days ago. Your automation is
+paused.
+
+While you've been away, new campaigns have been added to Amazon Creator
+Connections — including some paying 20%+ commission that are ending soon.
+
+→ Reactivate for $100/month
+  https://portal.creatorcoders.com/pricing
+
+— Creator Coders
+
+
+EMAIL 6 — WIN-BACK: FOMO (Day 12, trial expired, not converted)
+-----------------------------------------------------------------
+Subject: Other creators are running automation right now
+
+Hey [first name],
+
+While your account is paused, Creator Coders is running campaigns for other
+creators — every 2 hours, around the clock.
+
+The ones with automation on don't check Amazon manually. They don't miss
+campaigns. They just get the payouts.
+
+You set everything up. It's ready to go.
+
+→ Turn it back on
+  https://portal.creatorcoders.com/pricing
+
+— Creator Coders
+
+
+EMAIL 7 — WIN-BACK: LAST PUSH (Day 20, trial expired, not converted)
+----------------------------------------------------------------------
+Subject: Last time I'll ask (for a while)
+
+Hey [first name],
+
+I won't keep nudging you — this is the last email for a bit.
+
+If Creator Coders wasn't the right fit, no hard feelings. But if you're
+still grinding campaigns manually and want to stop, the door's open.
+
+→ Start your subscription
+  https://portal.creatorcoders.com/pricing
+
+— Creator Coders
+
+Don't want to hear from us? Unsubscribe: {{unsubscribe_url}}
+
+
+=====================================
+SEND SCHEDULE SUMMARY
+=====================================
+Day 0   Email 1  Welcome
+Day 2   Email 2  Campaign Catalog + Missed Earnings
+Day 4   Email 3  Extension + Automation
+Day 6   Email 4  Trial ends tomorrow
+---
+Day 8   Email 5  Win-back: soft nudge       (if not converted)
+Day 12  Email 6  Win-back: FOMO             (if not converted)
+Day 20  Email 7  Win-back: last push        (if not converted)
+=====================================
