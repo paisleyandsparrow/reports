@@ -7,7 +7,7 @@ const GOOGLE_CLIENT_ID = '659224624844-fn0hicqktt1d8ji4db04rsn15rq6cjep.apps.goo
 
 chrome.runtime.onInstalled.addListener(() => {
   console.log('[CreatorCoders] Extension installed')
-  chrome.alarms.create('processQueue', { periodInMinutes: 60 })
+  chrome.alarms.create('processQueue', { periodInMinutes: 120 })
 })
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
@@ -141,12 +141,20 @@ async function runQueue() {
 
   // Load user prefs
   const prefsData = await sbFetch(
-    `/rest/v1/user_preferences?id=eq.${userId}&select=max_campaigns_per_day,max_per_run,acceptance_enabled,store_id&limit=1`
+    `/rest/v1/user_preferences?id=eq.${userId}&select=max_campaigns_per_day,max_per_run,acceptance_enabled,store_id,run_start_hour,run_end_hour&limit=1`
   )
   const prefs      = prefsData?.[0] || {}
   const maxPerDay  = parseInt(prefs.max_campaigns_per_day || 500)
   const maxPerRun  = parseInt(prefs.max_per_run || 100)
   const storeId    = prefs.store_id || ''
+  const startHour  = parseInt(prefs.run_start_hour ?? 8)
+  const endHour    = parseInt(prefs.run_end_hour ?? 20)
+
+  // Respect active window
+  const currentHour = new Date().getHours()
+  if (currentHour < startHour || currentHour >= endHour) {
+    return { accepted: 0, failed: 0, total: 0, reason: `Outside active window (${startHour}:00–${endHour}:00)` }
+  }
   console.log('[CreatorCoders] storeId from prefs:', JSON.stringify(storeId), '| prefs:', JSON.stringify(prefs))
 
   // Count already accepted today

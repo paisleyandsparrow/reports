@@ -80,6 +80,7 @@ serve(async (req) => {
         'line_items[0][price]': PRICE_ID,
         'line_items[0][quantity]': '1',
         mode: 'subscription',
+        allow_promotion_codes: 'true',
         success_url: `${APP_URL}/dashboard?checkout=success`,
         cancel_url: `${APP_URL}/pricing?checkout=cancelled`,
         'metadata[supabase_uid]': user.id,
