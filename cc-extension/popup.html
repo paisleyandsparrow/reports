@@ -18,19 +18,21 @@
 
     .brand-logo {
       display: block;
-      height: 36px;
+      height: 45px;
       width: auto;
-      margin-bottom: 4px;
+      margin: 0 auto 8px;
     }
 
     .tagline {
       font-size: 0.67rem;
       font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #a89485;
+      letter-spacing: 0.03em;
+      margin-top: 16px;
       margin-bottom: 20px;
+      text-align: center;
     }
+    .tagline .t-black { color: #1a1410; }
+    .tagline .t-pink { color: #DB5797; }
 
     /* --- Auth section --- */
     #auth-section { display: flex; flex-direction: column; gap: 12px; }
@@ -145,8 +147,8 @@
 </head>
 <body>
 
-  <img src="logo.png" alt="Creator Coders" class="brand-logo" />
-  <div class="tagline">Campaign Automation</div>
+  <img src="logo.svg" alt="Creator Coders" class="brand-logo" />
+  <div class="tagline"><span class="t-black">Creator Coders.</span> <span class="t-pink">Campaign Automation.</span></div>
 
   <!-- Not logged in -->
   <div id="auth-section">
