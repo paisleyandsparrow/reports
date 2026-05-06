@@ -218,8 +218,12 @@ export default function AdHealthPage() {
 
   const allRecs = (() => {
     const map = {}
-    for (const a of adSets) for (const r of (a.recommendation || [])) { if (!map[r]) map[r] = []; map[r].push(a.name) }
-    return Object.entries(map).map(([rec, adsets]) => ({ rec, adsets }))
+    for (const a of adSets) for (const r of (a.recommendation || [])) {
+      if (!map[r]) map[r] = { names: [], ids: [] }
+      map[r].names.push(a.name)
+      map[r].ids.push(a.id)
+    }
+    return Object.entries(map).map(([rec, { names, ids }]) => ({ rec, adsets: names, adsetIds: ids }))
   })()
   const spendFloor = Math.max(2, totalSpend * 0.05)
   const scaleTargets = adSets
@@ -391,9 +395,20 @@ export default function AdHealthPage() {
                             <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#1a1410', color: '#fbf7f3', fontFamily: 'Georgia, serif', fontWeight: 400, fontSize: '0.85rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{i + 1}</div>
                             <div style={{ flex: 1 }}>
                               <div style={{ fontSize: '0.9rem', color: '#1a1410', fontWeight: 500, lineHeight: 1.45, marginBottom: 4 }}>{item.rec}</div>
-                              <div style={{ fontSize: '0.75rem', color: '#a89485' }}>
+                              <div style={{ fontSize: '0.75rem', color: '#a89485', marginBottom: item.rec.startsWith('Exclude') ? 10 : 0 }}>
                                 {item.adsets.length === 1 ? item.adsets[0] : item.adsets.length <= 3 ? item.adsets.join(' · ') : `${item.adsets.slice(0, 2).join(' · ')} +${item.adsets.length - 2} more`}
                               </div>
+                              {item.rec.startsWith('Exclude') && (() => {
+                                const acctId = (integration?.ad_account_id || '').replace('act_', '')
+                                const deepLink = item.adsetIds.length === 1
+                                  ? `https://adsmanager.facebook.com/adsmanager/manage/adsets/edit?act=${acctId}&selected_adset_id=${item.adsetIds[0]}`
+                                  : `https://adsmanager.facebook.com/adsmanager/manage/adsets?act=${acctId}`
+                                return (
+                                  <a href={deepLink} target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff', background: '#ec4899', textDecoration: 'none', whiteSpace: 'nowrap', borderRadius: 999, padding: '7px 14px', display: 'inline-block' }}>
+                                    Fix in Ads Manager →
+                                  </a>
+                                )
+                              })()}
                             </div>
                           </div>
                         ))}
@@ -518,9 +533,21 @@ export default function AdHealthPage() {
                         {as.recommendation && (
                           <div style={{ marginTop: 22, padding: '16px 20px', background: '#faf5f0', border: '1px solid #f1ebe5', borderRadius: 14, borderLeft: `3px solid ${conf.ring}` }}>
                             <div style={{ fontSize: '0.65rem', fontWeight: 700, color: conf.ring, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>Recommendation</div>
-                            {as.recommendation.map((rec, i) => (
-                              <div key={i} style={{ fontSize: '0.88rem', color: '#1a1410', lineHeight: 1.55, marginTop: i > 0 ? 8 : 0 }}>{rec}</div>
-                            ))}
+                            {as.recommendation.map((rec, i) => {
+                              const isExclude = rec.startsWith('Exclude')
+                              const acctId = (integration?.ad_account_id || '').replace('act_', '')
+                              const deepLink = `https://adsmanager.facebook.com/adsmanager/manage/adsets/edit?act=${acctId}&selected_adset_id=${as.id}`
+                              return (
+                                <div key={i} style={{ fontSize: '0.88rem', color: '#1a1410', lineHeight: 1.55, marginTop: i > 0 ? 8 : 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                                  <span>{rec}</span>
+                                  {isExclude && (
+                                    <a href={deepLink} target="_blank" rel="noreferrer" style={{ fontSize: '0.75rem', fontWeight: 600, color: '#fff', background: '#ec4899', textDecoration: 'none', whiteSpace: 'nowrap', borderRadius: 999, padding: '6px 14px', flexShrink: 0 }}>
+                                      Fix in Ads Manager →
+                                    </a>
+                                  )}
+                                </div>
+                              )
+                            })}
                           </div>
                         )}
                       </div>
