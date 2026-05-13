@@ -5,6 +5,7 @@ const STRIPE_WEBHOOK_SECRET = Deno.env.get('STRIPE_WEBHOOK_SECRET')!
 const STRIPE_SECRET_KEY = Deno.env.get('STRIPE_SECRET_KEY')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const KLAVIYO_PRIVATE_KEY = Deno.env.get('KLAVIYO_PRIVATE_KEY') || ''
 
 async function verifyStripeSignature(body: string, signature: string, secret: string): Promise<boolean> {
   const parts = signature.split(',').reduce((acc: Record<string, string>, part) => {
@@ -53,6 +54,8 @@ serve(async (req) => {
         subscription_status: sub.status,
         trial_ends_at: sub.trial_end ? new Date(sub.trial_end * 1000).toISOString() : null,
       }).eq('id', uid)
+      const email = await emailFromUid(uid, supabase)
+      if (email) await klaviyoUpdateProfile(email, { is_paid: isPaid })
       break
     }
     case 'customer.subscription.deleted': {
@@ -63,6 +66,8 @@ serve(async (req) => {
         is_paid: false,
         subscription_status: 'cancelled',
       }).eq('id', uid)
+      const email = await emailFromUid(uid, supabase)
+      if (email) await klaviyoUpdateProfile(email, { is_paid: false })
       break
     }
     case 'invoice.payment_failed': {
@@ -97,5 +102,32 @@ serve(async (req) => {
     })
     const customer = await res.json()
     return customer?.metadata?.supabase_uid || null
+  }
+
+  async function emailFromUid(uid: string, sb: typeof supabase): Promise<string | null> {
+    // Supabase Admin API to get user email by uid
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${uid}`, {
+      headers: { 'apikey': SUPABASE_SERVICE_KEY, 'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}` },
+    })
+    const user = await res.json()
+    return user?.email || null
+  }
+
+  async function klaviyoUpdateProfile(email: string, props: Record<string, unknown>): Promise<void> {
+    if (!KLAVIYO_PRIVATE_KEY) return
+    await fetch('https://a.klaviyo.com/api/profiles/', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Klaviyo-API-Key ${KLAVIYO_PRIVATE_KEY}`,
+        'Content-Type': 'application/json',
+        'revision': '2024-02-15',
+      },
+      body: JSON.stringify({
+        data: {
+          type: 'profile',
+          attributes: { email, properties: props },
+        },
+      }),
+    }).catch(() => {}) // fire-and-forget, never block webhook response
   }
 })

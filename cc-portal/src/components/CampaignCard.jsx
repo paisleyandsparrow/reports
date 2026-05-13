@@ -112,7 +112,7 @@ export function CampaignCardSkeleton() {
 export function CampaignCard({ campaign, creatorId, queueStatus = null, onQueueToggle }) {
   const cats = categorize(campaign)
   const isActive = campaign.status?.toLowerCase() === 'active'
-  const isAccepted = campaign.is_selected === true
+  const isAccepted = queueStatus === 'accepted'
 
   // Ending soon: within 7 days
   const endingSoon = (() => {

@@ -158,7 +158,7 @@ export default function SettingsPage() {
       } : null)
       const { count } = await supabase
         .from('creator_connections_revenue')
-        .select('*', { count: 'exact', head: true })
+        .select('id', { count: 'planned', head: true })
         .eq('user_id', session.user.id)
       setExistingCount(count ?? 0)
 

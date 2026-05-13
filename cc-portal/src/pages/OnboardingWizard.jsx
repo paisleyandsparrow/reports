@@ -197,10 +197,14 @@ export default function OnboardingWizard() {
 
     // Klaviyo: fire-and-forget — never await these, they must not block navigation
     if (window.klaviyo) {
+      const meta = session.user.user_metadata || {}
+      const firstName = meta.given_name || (meta.full_name || meta.name || '').split(' ')[0] || ''
       window.klaviyo.identify({
         email: session.user.email,
+        first_name: firstName,
         store_name: form.store_name.trim(),
         trial_ends_at: trialEndsAt,
+        trial_ends_at_label: new Date(trialEndsAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
         marketing_consent: true,
       }).catch(() => {})
       window.klaviyo.track('Trial Started', {

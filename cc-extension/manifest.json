@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
   "name": "Creator Coders — Campaign Automation",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Automatically accept Amazon Creator Connections campaigns based on your saved rules.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuvXmRBMul2dx0W7MtChqaHMmO/AFcqJDwlj6WGAjxxHIpw/1C2JcBol+rxKw/JJ0dLK7tRhNtjzFqYqRDoMEm801+/5j/CWvEX+MzP6Vp96LEBWEGOr7nIov7yjVcHihGxv/4YkA1Yu2vtPP7DbOzEi/waqeZvDcm36SZ+KoYS0gtCNZhOeMPMVyBwKORnRJ9hHCI1SAGcBUcH+txpWI7iBDN9MYA2jrauso9lEiZGwUEuOgCAQ0PDmTx5r/WkfIhBxh/U4W8w3Ddu1FIR8wCIgd1rf00ZyfWAuICPCUSo4oL41MJKgrsgVfLVGJ9tRsfGqWzldMPPcQ2OrQnebqZQIDAQAB",
 
   "permissions": [
     "alarms",
