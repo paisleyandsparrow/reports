@@ -144,7 +144,7 @@ export default function CampaignCatalog() {
       // One-time total count across the entire catalog (no filters)
       const { count: total } = await supabase
         .from('cc_campaign_catalog')
-        .select('*', { count: 'exact', head: true })
+        .select('campaign_id', { count: 'planned', head: true })
       if (total) setTotalCatalogCount(total)
     }
     init()
@@ -204,8 +204,8 @@ export default function CampaignCatalog() {
       let q = supabase
         .from('cc_campaign_catalog')
         .select(
-          'campaign_id, campaign_name, brand_name, commission_rate, status, start_date, end_date, first_seen, primary_asin, asins, image_url, is_selected, browse_nodes',
-          withCount ? { count: 'exact' } : undefined
+          'campaign_id, campaign_name, brand_name, commission_rate, status, start_date, end_date, first_seen, primary_asin, asins, image_url, browse_nodes',
+          withCount ? { count: 'planned' } : undefined
         )
         .order('commission_rate', { ascending: false })
       if (minRate > 0) q = q.gte('commission_rate', minRate)

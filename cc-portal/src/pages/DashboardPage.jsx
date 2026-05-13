@@ -124,7 +124,7 @@ export default function DashboardPage() {
 
     const { data: allRows, error: fetchErr } = await supabase
       .from('cc_campaign_catalog')
-      .select('campaign_id, campaign_name, brand_name, primary_asin, commission_rate, status, is_selected, end_date')
+      .select('campaign_id, campaign_name, brand_name, primary_asin, commission_rate, status, end_date')
       .range(0, 1999)
 
     if (fetchErr) console.error('fetchCatalogSnap error:', fetchErr)
@@ -208,7 +208,7 @@ export default function DashboardPage() {
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
     const { data, error } = await supabase
       .from('cc_campaign_catalog')
-      .select('campaign_id, campaign_name, brand_name, commission_rate, status, start_date, end_date, first_seen, social_platforms, primary_asin, asins, image_url, is_selected, browse_nodes')
+      .select('campaign_id, campaign_name, brand_name, commission_rate, status, start_date, end_date, first_seen, social_platforms, primary_asin, asins, image_url, browse_nodes')
       .gte('first_seen', sevenDaysAgo)
       .order('commission_rate', { ascending: false })
       .limit(6)
